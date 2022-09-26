@@ -9,7 +9,13 @@ import {
   runWithTraceId,
 } from "@lute/shared";
 import axios from "axios";
-import { FILE_SERVER_URL } from "./config";
+import {
+  FILE_SERVER_URL,
+  PROXY_HOST,
+  PROXY_PORT,
+  PROXY_USERNAME,
+  PROXY_PASSWORD,
+} from "./config";
 import { buildCrawlerRepo } from "./crawler-repo";
 import { logger } from "./logger";
 
@@ -26,6 +32,14 @@ export const startCrawler = async ({
     httpsAgent: new https.Agent({
       rejectUnauthorized: false,
     }),
+    proxy: {
+      host: PROXY_HOST,
+      port: PROXY_PORT,
+      auth: {
+        username: PROXY_USERNAME,
+        password: PROXY_PASSWORD,
+      },
+    },
   });
   const fileServerClient = buildFileServerClient(FILE_SERVER_URL);
   const crawlerRepo = buildCrawlerRepo(redisClient);

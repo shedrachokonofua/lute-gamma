@@ -2,7 +2,7 @@ import env from "env-var";
 
 export const FILE_SERVER_URL = env
   .get("FILE_SERVER_URL")
-  .default("http://file-server:3333")
+  .default("http://file-server")
   .asString();
 
 export const RYM_DATA_SERVER_URL = env

@@ -11,3 +11,11 @@ export const MONGO_URL = env
   .get("MONGO_URL")
   .default("mongodb://mongodb:27017")
   .asString();
+
+export const PROXY_HOST = env.get("PROXY_HOST").required().asString();
+
+export const PROXY_PORT = env.get("PROXY_PORT").required().asPortNumber();
+
+export const PROXY_USERNAME = env.get("PROXY_USERNAME").required().asString();
+
+export const PROXY_PASSWORD = env.get("PROXY_PASSWORD").required().asString();
