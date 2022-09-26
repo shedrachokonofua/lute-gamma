@@ -1,0 +1,14 @@
+{
+  "name": "lute-v3",
+  "workspaces": [
+    "@lute",
+    "catalog-server",
+    "chrome-crawler-extension",
+    "crawler",
+    "file-parser",
+    "file-server",
+    "pm2",
+    "rym-data-server",
+    "rym-lookup-server"
+  ]
+}
