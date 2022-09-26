@@ -6,7 +6,6 @@ import { buildCatalogRepo } from "./catalog-repo";
 import { buildCatalogController } from "./catalog-controller";
 
 export const startServer = buildServer<{
-  port: number;
   redisClient: RedisClient;
 }>({
   name: "catalog-server",

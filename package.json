@@ -2,13 +2,15 @@
   "name": "lute-v3",
   "workspaces": [
     "@lute",
-    "catalog-server",
-    "chrome-crawler-extension",
-    "crawler",
-    "file-parser",
-    "file-server",
-    "pm2",
-    "rym-data-server",
-    "rym-lookup-server"
-  ]
+    "services/catalog-server",
+    "services/crawler",
+    "services/file-parser",
+    "services/file-server",
+    "services/rym-data-server",
+    "services/rym-lookup-server"
+  ],
+  "scripts": {
+    "install-workspace": "npm install --workspaces  --if-present",
+    "dev": "docker-compose --env-file .env up"
+  }
 }

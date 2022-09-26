@@ -2,22 +2,22 @@ import env from "env-var";
 
 export const FILE_SERVER_URL = env
   .get("FILE_SERVER_URL")
-  .default("http://app:3333")
+  .default("http://file-server:3333")
   .asString();
 
 export const RYM_DATA_SERVER_URL = env
   .get("RYM_DATA_SERVER_URL")
-  .default("http://app:3334")
+  .default("http://rym-data-server")
   .asString();
 
 export const CRAWLER_SERVER_URL = env
   .get("CRAWLER_SERVER_URL")
-  .default("http://app:3335")
+  .default("http://crawler")
   .asString();
 
 export const RYM_LOOKUP_SERVER_URL = env
   .get("RYM_LOOKUP_SERVER_URL")
-  .default("http://app:3337")
+  .default("http://rym-lookup-server")
   .asString();
 
 export const MONGO_URL = env

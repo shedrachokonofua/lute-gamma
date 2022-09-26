@@ -3,7 +3,7 @@ import rTracer from "cls-rtracer";
 import { Logger } from "pino";
 import pinoHttp from "pino-http";
 
-export const buildServer = <Context extends { port: number }>({
+export const buildServer = <Context extends {}>({
   name,
   buildRouter,
   logger,
@@ -28,23 +28,23 @@ export const buildServer = <Context extends { port: number }>({
         logger,
       })
     );
-    server.get("/health", (_, res) => res.json({ ok: true, data: { serverName: name } }));
+    server.get("/health", (_, res) =>
+      res.json({ ok: true, data: { serverName: name } })
+    );
     server.use(router);
     server.use(
       (err: Error, req: Request, res: Response, next: NextFunction) => {
         logger.error(err, "Request failed");
-        res
-          .status(500)
-          .json({
-            ok: false,
-            error: "Internal server error",
-            traceId: rTracer.id(),
-          });
+        res.status(500).json({
+          ok: false,
+          error: "Internal server error",
+          traceId: rTracer.id(),
+        });
       }
     );
     new Promise((resolve) => {
-      server.listen(context.port, () => {
-        logger.debug({ port: context.port }, "Server listening");
+      server.listen(80, () => {
+        logger.debug({ serverName: name }, "Server listening");
         resolve(undefined);
       });
     });

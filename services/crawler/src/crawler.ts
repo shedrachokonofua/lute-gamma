@@ -1,3 +1,4 @@
+import https from "https";
 import {
   buildQueue,
   CrawlerStatus,
@@ -22,12 +23,9 @@ export const startCrawler = async ({
   const redisClient = await buildRedisClient({ logger });
   const network = axios.create({
     baseURL: "https://www.rateyourmusic.com",
-    headers: {
-      "User-Agent":
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36",
-      "Accept-Language": "en-US,en;q=0.9",
-      "Accept-Encoding": "gzip, deflate, br",
-    },
+    httpsAgent: new https.Agent({
+      rejectUnauthorized: false,
+    }),
   });
   const fileServerClient = buildFileServerClient(FILE_SERVER_URL);
   const crawlerRepo = buildCrawlerRepo(redisClient);

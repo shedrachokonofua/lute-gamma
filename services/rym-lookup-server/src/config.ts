@@ -9,5 +9,5 @@ export const MONGO_URL = env
 
 export const CRAWLER_SERVER_URL = env
   .get("CRAWLER_SERVER_URL")
-  .default("http://app:3335")
+  .default("http://crawler")
   .asString();

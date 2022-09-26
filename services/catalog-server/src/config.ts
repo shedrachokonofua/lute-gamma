@@ -1,8 +1,6 @@
 import env from "env-var";
 
-export const HOST = env.get("HOST").default("http://localhost").asString();
-
-export const PORT = env.get("PORT").default(3336).asPortNumber();
+export const HOST = env.get("HOST").default("http://localhost:3336").asString();
 
 export const MONGO_URL = env
   .get("MONGO_URL")
@@ -10,11 +8,11 @@ export const MONGO_URL = env
   .asString();
 
 export const SPOTIFT_CLIENT_ID = env
-  .get("SPOTIFT_CLIENT_ID")
+  .get("SPOTIFY_CLIENT_ID")
   .required()
   .asString();
 
 export const SPOTIFT_CLIENT_SECRET = env
-  .get("SPOTIFT_CLIENT_SECRET")
+  .get("SPOTIFY_CLIENT_SECRET")
   .required()
   .asString();
