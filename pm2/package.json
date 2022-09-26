@@ -1,0 +1,14 @@
+{
+  "name": "pm2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "ecosystem.config.js",
+  "scripts": {
+    "start": "pm2 start --attach --watch"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "pm2": "^5.2.0"
+  }
+}

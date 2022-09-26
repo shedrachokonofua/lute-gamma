@@ -1,0 +1,24 @@
+{
+  "name": "rym-data-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "ts-node src/index.ts"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/express": "^4.17.14",
+    "@types/mongodb": "^4.0.7",
+    "nodemon": "^2.0.20",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.8.3"
+  },
+  "dependencies": {
+    "@lute/shared": "file:../@lute",
+    "env-var": "^7.3.0",
+    "express": "^4.18.1",
+    "mongodb": "^4.10.0"
+  }
+}

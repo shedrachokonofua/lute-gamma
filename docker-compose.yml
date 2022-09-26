@@ -1,0 +1,45 @@
+version: '3'
+
+services:
+  redis:
+    image: 'bitnami/redis:latest'
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    ports:
+      - 6379:6379
+    logging:
+      driver: "none"
+
+  mongodb:
+    image: 'bitnami/mongodb:latest'
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    ports:
+      - 27017:27017
+    logging:
+      driver: "none"
+
+  app:
+    image: node:lts
+    user: node
+    env_file:
+      - .env
+    working_dir: /home/node/app
+    volumes:
+      - ./pm2:/home/node/app
+      - ./@lute:/home/node/app/@lute
+      - ./file-server:/home/node/app/file-server
+      - ./file-parser:/home/node/app/file-parser
+      - ./rym-data-server:/home/node/app/rym-data-server
+      - ./crawler:/home/node/app/crawler
+      - ./catalog-server:/home/node/app/catalog-server
+      - ./rym-lookup-server:/home/node/app/rym-lookup-server
+    depends_on:
+      - redis
+    command: npm start
+    ports: 
+      - 3333:3333
+      - 3334:3334
+      - 3335:3335
+      - 3336:3336
+      - 3337:3337
