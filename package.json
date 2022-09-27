@@ -5,10 +5,12 @@
     "apps/*"
   ],
   "scripts": {
-    "install-workspace": "npm install --workspaces  --if-present",
+    "build": "turbo run build",
+    "clean": "npx rimraf **/build",
     "dev": "docker-compose --env-file .env up"
   },
   "devDependencies": {
+    "rimraf": "^3.0.2",
     "turbo": "^1.5.3"
   }
 }

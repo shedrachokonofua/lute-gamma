@@ -6,6 +6,8 @@
   "author": "Shedrach Okonofua",
   "license": "ISC",
   "scripts": {
+    "start": "node build/index.js",
+    "dev": "nodemon src/index.ts",
     "build": "tsc"
   },
   "devDependencies": {
