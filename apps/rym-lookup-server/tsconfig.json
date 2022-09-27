@@ -1,3 +1,6 @@
 {
   "extends": "@lute/shared/base.tsconfig.json",
+  "compilerOptions": {
+    "outDir": "build"
+  }
 }

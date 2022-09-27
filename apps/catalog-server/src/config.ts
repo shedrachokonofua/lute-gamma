@@ -1,4 +1,4 @@
-import env from "env-var";
+import * as env from "env-var";
 
 export const HOST = env.get("HOST").default("http://localhost:3336").asString();
 

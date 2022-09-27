@@ -1,4 +1,4 @@
-import rTracer from "cls-rtracer";
+import * as rTracer from "cls-rtracer";
 
 export const transformObject = <T extends Record<string, any>>(
   obj: T,

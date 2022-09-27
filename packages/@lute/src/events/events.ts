@@ -1,4 +1,4 @@
-import rTracer from "cls-rtracer";
+import * as rTracer from "cls-rtracer";
 import { Logger } from "pino";
 import { RedisClient } from "../db";
 import { retry } from "../utils";

@@ -1,5 +1,5 @@
 import express, { Request, Response, NextFunction } from "express";
-import rTracer from "cls-rtracer";
+import * as rTracer from "cls-rtracer";
 import { Logger } from "pino";
 import pinoHttp from "pino-http";
 

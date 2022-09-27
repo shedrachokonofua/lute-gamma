@@ -1,4 +1,4 @@
-import env from "env-var";
+import * as env from "env-var";
 
 export const RYM_DATA_SERVER_URL = env
   .get("RYM_DATA_SERVER_URL")

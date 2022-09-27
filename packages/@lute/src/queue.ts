@@ -1,5 +1,5 @@
 import { nanoid } from "nanoid";
-import rTracer from "cls-rtracer";
+import * as rTracer from "cls-rtracer";
 import { RedisClient } from "./db";
 
 export interface QueueItem<T> {
