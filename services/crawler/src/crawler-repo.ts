@@ -43,6 +43,9 @@ export const buildCrawlerRepo = (redisClient: RedisClient) => {
     async getQueueSize(): Promise<number> {
       return await queue.getSize();
     },
+    async emptyQueue(): Promise<void> {
+      return await queue.empty();
+    },
   };
 };
 

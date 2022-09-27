@@ -18,7 +18,8 @@ export const startServer = buildServer({
       .get("/head", controller.getHead)
       .post("/schedule", controller.schedule)
       .delete("/error", controller.clearError)
-      .get("/error", controller.getError);
+      .get("/error", controller.getError)
+      .post("/empty", controller.empty);
   },
   logger,
 });

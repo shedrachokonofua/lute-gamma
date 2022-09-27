@@ -1,25 +1,7 @@
+import { PaginatedValue, CatalogTrack, SpotifyCredentials } from "@lute/shared";
 import { CatalogRepo } from "./catalog-repo";
-import { buildAuthorizedSpotifyApi, SpotifyCredentials } from "./spotify";
+import { buildAuthorizedSpotifyApi } from "./spotify";
 import { logger } from "./logger";
-
-interface CatalogTrack {
-  spotifyId: string;
-  name: string;
-  artists: {
-    spotifyId: string;
-    name: string;
-  }[];
-  album?: {
-    spotifyId: string;
-    name: string;
-  };
-}
-
-interface PaginatedValue<T> {
-  items: T[];
-  nextOffset?: number;
-  total: number;
-}
 
 const getNextOffset = (
   offset: number | undefined,

@@ -24,7 +24,7 @@ interface CrawlerConfig {
 }
 
 export const startCrawler = async ({
-  delaySeconds = 5,
+  delaySeconds = 10,
 }: CrawlerConfig = {}) => {
   const redisClient = await buildRedisClient({ logger });
   const network = axios.create({
@@ -67,7 +67,7 @@ export const startCrawler = async ({
           data: { fileName, lookupId },
           traceId,
         } = queueItem;
-        const response = await network.get(fileName);
+        const response = await network.get(encodeURI(fileName));
         const html = response.data;
         await runWithTraceId(async () => {
           await fileServerClient.uploadFile({

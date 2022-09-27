@@ -41,6 +41,9 @@ export const buildQueue = <T = any>({
     async getSize(): Promise<number> {
       return await redisClient.lLen(queueKey);
     },
+    async empty(): Promise<void> {
+      await redisClient.del(queueKey);
+    },
   };
 };
 

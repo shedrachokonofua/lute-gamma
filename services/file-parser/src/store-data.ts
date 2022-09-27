@@ -51,6 +51,14 @@ const storeChartData = async (
   };
 
   await rymDataClient.putChart(chart);
+
+  await Promise.all(
+    chart.albums.map(async (album) => {
+      await crawlerClient.schedule({
+        fileName: album.fileName,
+      });
+    })
+  );
 };
 
 const storeSearchResult = async (

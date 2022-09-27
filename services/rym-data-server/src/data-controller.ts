@@ -26,11 +26,11 @@ export const buildDataController = buildControllerFactory(
         return res.json({ ok: true, data: album });
       },
       async query(req: Request, res: Response) {
-        const { ids } = req.body;
-        if (!ids) {
+        const { keys } = req.body;
+        if (!keys) {
           return res.status(400).json({ ok: false, error: "Bad request" });
         }
-        const result = await dataRepo.getAlbums(ids as string[]);
+        const result = await dataRepo.getAlbums(keys as string[]);
         return res.json({ ok: true, data: result });
       },
     };

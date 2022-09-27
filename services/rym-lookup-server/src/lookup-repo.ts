@@ -7,14 +7,22 @@ import {
 } from "@lute/shared";
 import hash from "object-hash";
 
+const normalizeString = (str: string) => str.toLowerCase().trim();
+
+const hashKey = (key: LookupKey): string =>
+  hash({
+    artist: normalizeString(key.artist),
+    album: normalizeString(key.album),
+  });
+
 export const buildLookupRepo = (redisClient: RedisClient) => ({
   async getLookup(key: LookupKey): Promise<Lookup> {
-    const keyHash = hash(key);
+    const keyHash = hashKey(key);
     const lookup = await redisClient.get(`lookup:${keyHash}`);
     return lookup ? JSON.parse(lookup) : null;
   },
   async createLookup(key: LookupKey): Promise<Lookup> {
-    const keyHash = hash(key);
+    const keyHash = hashKey(key);
     const lookup: Lookup = {
       key,
       keyHash,

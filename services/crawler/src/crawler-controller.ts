@@ -52,4 +52,8 @@ export const buildCrawlerController = buildControllerFactory<{
       },
     });
   },
+  async empty(_, res) {
+    await crawlerRepo.emptyQueue();
+    return res.json({ ok: true });
+  },
 }));

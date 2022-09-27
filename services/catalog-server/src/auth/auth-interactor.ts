@@ -1,19 +1,12 @@
+import { AuthStatus, SpotifyCredentials } from "@lute/shared";
 import { add as dateAdd } from "date-fns";
 import { CatalogRepo } from "../catalog-repo";
 import { logger } from "../logger";
 import {
   buildAuthorizedSpotifyApi,
   spotifyApi,
-  SpotifyCredentials,
   SPOTIFY_SCOPES,
 } from "../spotify";
-
-export enum AuthStatus {
-  Authorized = "authorized",
-  Unauthorized = "unauthorized",
-  InvalidAuthorization = "invalid-authorization",
-  Expired = "expired",
-}
 
 export const buildAuthInteractor = (catalogRepo: CatalogRepo) => {
   return {

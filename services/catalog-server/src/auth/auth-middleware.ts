@@ -1,7 +1,7 @@
+import { AuthStatus, SpotifyCredentials } from "@lute/shared";
 import { Request, Response, NextFunction } from "express";
 import { CatalogRepo } from "../catalog-repo";
-import { AuthStatus, buildAuthInteractor } from "./auth-interactor";
-import { SpotifyCredentials } from "../spotify";
+import { buildAuthInteractor } from "./auth-interactor";
 import { logger } from "../logger";
 
 const setCredentialsOnRequest = (

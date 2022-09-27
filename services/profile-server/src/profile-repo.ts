@@ -33,6 +33,7 @@ export interface Profile {
 }
 
 export interface ProfileDocument {
+  id: string;
   title: string;
   lastUpdatedAt: Date;
   albumFileNames: string[];
@@ -47,25 +48,23 @@ export const buildProfileRepo = ({ mongoDatabase }: { mongoDatabase: Db }) => {
     async getProfile(id: string): Promise<ProfileDocument | null> {
       const profile = await mongoDatabase
         .collection<ProfileDocument>("profiles")
-        .findOne({ _id: new ObjectId(id) });
+        .findOne({ id });
 
       return profile;
     },
-    async createProfile(title: string): Promise<WithId<ProfileDocument>> {
+    async createProfile(id: string, title: string): Promise<ProfileDocument> {
       const document = {
+        id,
         title,
         lastUpdatedAt: new Date(),
         albumFileNames: [],
       };
 
-      const result = await mongoDatabase
+      await mongoDatabase
         .collection<ProfileDocument>("profiles")
         .insertOne(document);
 
-      return {
-        _id: result.insertedId,
-        ...document,
-      };
+      return document;
     },
     async addAlbumToProfile(
       id: string,
@@ -81,7 +80,7 @@ export const buildProfileRepo = ({ mongoDatabase }: { mongoDatabase: Db }) => {
       const result = await mongoDatabase
         .collection<ProfileDocument>("profiles")
         .findOneAndUpdate(
-          { _id: new ObjectId(id) },
+          { id },
           {
             $set: {
               lastUpdatedAt: new Date(),

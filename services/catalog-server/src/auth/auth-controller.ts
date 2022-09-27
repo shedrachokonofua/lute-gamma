@@ -3,6 +3,7 @@ import { buildAuthInteractor } from "./auth-interactor";
 import { logger } from "../logger";
 import { CatalogRepo } from "../catalog-repo";
 
+
 export const buildAuthController = buildControllerFactory<{
   catalogRepo: CatalogRepo;
 }>(({ catalogRepo }) => {

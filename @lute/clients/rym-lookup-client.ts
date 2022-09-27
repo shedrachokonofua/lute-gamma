@@ -50,5 +50,17 @@ export const buildRymLookupClient = (rymLookupServerUrl: string) => {
       const lookup = await http.put(`/${hash}`, payload);
       return lookup.data?.data;
     },
+    async getOrCreateLookup(
+      artist: string,
+      album: string
+    ): Promise<Lookup | undefined> {
+      const lookup = await http.get(`/`, {
+        params: {
+          artist,
+          album,
+        },
+      });
+      return lookup.data?.data;
+    },
   };
 };

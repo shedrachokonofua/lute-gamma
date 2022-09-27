@@ -1,11 +1,6 @@
+import { SpotifyCredentials } from "@lute/shared";
 import SpotifyWebApi from "spotify-web-api-node";
 import { HOST, SPOTIFT_CLIENT_ID, SPOTIFT_CLIENT_SECRET } from "./config";
-
-export interface SpotifyCredentials {
-  accessToken: string;
-  refreshToken: string;
-  expiresAt: number;
-}
 
 const AUTH_CALLBACK_URL = `${HOST}/auth/callback`;
 

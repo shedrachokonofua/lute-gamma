@@ -12,8 +12,10 @@ export const startServer = buildServer<{
     const controller = buildProfileController(context);
 
     return Router()
+      .post("/", controller.createProfile)
       .get("/:id", controller.getProfile)
-      .post("/:id/album", controller.addAlbumToProfile);
+      .post("/:id/album", controller.addAlbumToProfile)
+      .post("/seed/default", controller.seedDefaultProfile);
   },
   logger,
 });

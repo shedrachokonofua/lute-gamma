@@ -10,6 +10,11 @@ export const CRAWLER_SERVER_URL = env
   .default("http://crawler")
   .asString();
 
+export const CATALOG_SERVER_URL = env
+  .get("CATALOG_SERVER_URL")
+  .default("http://catalog-server")
+  .asString();
+
 export const RYM_LOOKUP_SERVER_URL = env
   .get("RYM_LOOKUP_SERVER_URL")
   .default("http://rym-lookup-server")

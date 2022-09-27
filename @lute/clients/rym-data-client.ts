@@ -44,7 +44,9 @@ export const buildRymDataClient = (rymDataServerUrl: string) => {
       }
     },
     async getAlbums(keys: string[]): Promise<AlbumDocument[]> {
-      const albums = await http.post("/albums", keys);
+      const albums = await http.post("/query", {
+        keys,
+      });
       return albums.data?.data || [];
     },
   };

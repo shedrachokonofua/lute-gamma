@@ -1,6 +1,7 @@
 import { ProfileDetails, ProfileRepo, ProfileSummary } from "./profile-repo";
 import { rymDataClient } from "./utils";
 import { startOfDecade } from "date-fns";
+import { logger } from "./logger";
 
 export const buildProfileInteractor = ({
   profileRepo,
@@ -16,7 +17,9 @@ export const buildProfileInteractor = ({
       const albumDocuments = await rymDataClient.getAlbums(
         profileDocument.albumFileNames
       );
-      const profileDetailsMaps = albumDocuments.reduce(
+      const profileDetailsMaps = albumDocuments.reduce<
+        Record<keyof ProfileDetails, Record<string, number>>
+      >(
         (acc, albumDocument) => {
           const {
             artists,
@@ -56,18 +59,17 @@ export const buildProfileInteractor = ({
           decades: {},
         }
       );
-      const profileDetails = Object.entries(profileDetailsMaps).reduce(
-        (acc, [key, value]) => {
-          acc[key] = Object.entries(value)
-            .map(([item, count]) => ({
-              item,
-              count: count as number,
-            }))
-            .sort((a, b) => b.count - a.count);
-          return acc;
-        },
-        {} as ProfileDetails
-      );
+      const profileDetails = Object.entries(
+        profileDetailsMaps
+      ).reduce<ProfileDetails>((acc, [key, value]) => {
+        acc[key as keyof ProfileDetails] = Object.entries(value)
+          .map(([item, count]) => ({
+            item,
+            count: count as number,
+          }))
+          .sort((a, b) => b.count - a.count);
+        return acc;
+      }, {} as ProfileDetails);
       const profileSummary: ProfileSummary = {
         topArtists: profileDetails.artists.slice(0, 5).map((a) => a.item),
         topPrimaryGenres: profileDetails.primaryGenres
@@ -89,8 +91,18 @@ export const buildProfileInteractor = ({
         details: profileDetails,
       };
     },
-    addAlbumToProfile(id: string, albumFileName: string) {
+    async addAlbumToProfile(id: string, albumFileName: string) {
+      const albumDocument = await rymDataClient.getAlbum(albumFileName);
+      if (!albumDocument) {
+        throw new Error("Unknown album");
+      }
+      logger.info({ id, albumFileName }, "Adding album to profile");
       return profileRepo.addAlbumToProfile(id, albumFileName);
+    },
+    createProfile(id: string, title: string) {
+      return profileRepo.createProfile(id, title);
     },
   };
 };
+
+export type ProfileInteractor = ReturnType<typeof buildProfileInteractor>;
