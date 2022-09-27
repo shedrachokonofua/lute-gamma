@@ -1,7 +1,7 @@
 node_modules
 .env
 /.vscode
-/services/file-server/test-bucket
+/apps/file-server/test-bucket
 .npm
 .turbo
 build

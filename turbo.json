@@ -4,6 +4,7 @@
     "build": {
       "dependsOn": ["^build"],
       "outputs": ["build"]
-    }
+    },
+    "dev": {}
   }
 }
