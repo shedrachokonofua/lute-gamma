@@ -1,17 +1,14 @@
 {
   "name": "lute-v3",
   "workspaces": [
-    "@lute",
-    "services/catalog-server",
-    "services/crawler",
-    "services/file-parser",
-    "services/file-server",
-    "services/profile-server",
-    "services/rym-data-server",
-    "services/rym-lookup-server"
+    "packages/*",
+    "apps/*"
   ],
   "scripts": {
     "install-workspace": "npm install --workspaces  --if-present",
     "dev": "docker-compose --env-file .env up"
+  },
+  "devDependencies": {
+    "turbo": "^1.5.3"
   }
 }

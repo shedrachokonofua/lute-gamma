@@ -3,3 +3,6 @@ node_modules
 /.vscode
 /services/file-server/test-bucket
 .npm
+.turbo
+build
+*.js

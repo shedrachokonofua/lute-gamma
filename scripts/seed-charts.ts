@@ -1,4 +1,4 @@
-import { buildCrawlerClient, runWithTraceId } from "../@lute";
+import { buildCrawlerClient, runWithTraceId } from "../packages/@lute";
 
 const crawlerClient = buildCrawlerClient("http://localhost:3335");
 for (let year = 1950; year < new Date().getFullYear(); year++) {

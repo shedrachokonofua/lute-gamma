@@ -1,0 +1,3 @@
+{
+  "extends": "@lute/shared/base.tsconfig.json",
+}
