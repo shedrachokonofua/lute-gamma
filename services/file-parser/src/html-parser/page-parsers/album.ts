@@ -14,7 +14,7 @@ export const parseAlbum = async (
 ): Promise<AlbumPage> => {
   const albumData = await xRay(html, ".release_page", {
     name: xRayMetaSelector("name"),
-    artists: xRay(".album_info .artist", ["@text"]),
+    artists: xRay("span[itemprop='byArtist'] a", ["@text"]),
     releaseDate: ".issue_year.ymd@title",
     rating: xRayMetaSelector("ratingValue") + "| toNumber",
     ratingCount: xRayMetaSelector("ratingCount") + "| toNumber",
