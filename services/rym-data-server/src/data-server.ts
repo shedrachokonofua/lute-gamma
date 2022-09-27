@@ -12,7 +12,8 @@ export const startServer = buildServer<ServerContext>({
     return Router()
       .get("/album/*", controller.getAlbum)
       .patch("/album", controller.patchAlbum)
-      .put("/chart", controller.putChart);
+      .put("/chart", controller.putChart)
+      .post("/query", controller.query);
   },
   logger,
 });

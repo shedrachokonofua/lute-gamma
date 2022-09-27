@@ -104,6 +104,13 @@ export const buildDataRepo = (serverContext: ServerContext) => ({
       .collection<AlbumDocument>("albums")
       .findOne({ $or: [{ fileName: key }, { fileId: key }] });
   },
+  async getAlbums(keys: string[]): Promise<AlbumDocument[]> {
+    logger.info({ keys }, "Getting albums");
+    return serverContext.mongoDatabase
+      .collection<AlbumDocument>("albums")
+      .find({ $or: [{ fileName: { $in: keys } }, { fileId: { $in: keys } }] })
+      .toArray();
+  },
 });
 
 export type DataRepo = ReturnType<typeof buildDataRepo>;

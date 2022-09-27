@@ -25,6 +25,14 @@ export const buildDataController = buildControllerFactory(
         }
         return res.json({ ok: true, data: album });
       },
+      async query(req: Request, res: Response) {
+        const { ids } = req.body;
+        if (!ids) {
+          return res.status(400).json({ ok: false, error: "Bad request" });
+        }
+        const result = await dataRepo.getAlbums(ids as string[]);
+        return res.json({ ok: true, data: result });
+      },
     };
   }
 );

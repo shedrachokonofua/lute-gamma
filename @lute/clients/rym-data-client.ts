@@ -43,5 +43,9 @@ export const buildRymDataClient = (rymDataServerUrl: string) => {
         return null;
       }
     },
+    async getAlbums(keys: string[]): Promise<AlbumDocument[]> {
+      const albums = await http.post("/albums", keys);
+      return albums.data?.data || [];
+    },
   };
 };
