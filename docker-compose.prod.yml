@@ -36,6 +36,7 @@ services:
       - PROXY_PORT
       - PROXY_USERNAME
       - PROXY_PASSWORD
+      - COOL_DOWN_SECONDS
 
   file-parser:
     build:

@@ -24,3 +24,8 @@ export const PROXY_PORT = env.get("PROXY_PORT").required().asPortNumber();
 export const PROXY_USERNAME = env.get("PROXY_USERNAME").required().asString();
 
 export const PROXY_PASSWORD = env.get("PROXY_PASSWORD").required().asString();
+
+export const COOL_DOWN_SECONDS = env
+  .get("COOL_DOWN_SECONDS")
+  .default(2)
+  .asIntPositive();

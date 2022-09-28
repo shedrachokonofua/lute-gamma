@@ -16,16 +16,17 @@ import {
   PROXY_USERNAME,
   PROXY_PASSWORD,
   REDIS_URL,
+  COOL_DOWN_SECONDS,
 } from "./config";
 import { buildCrawlerRepo } from "./crawler-repo";
 import { logger } from "./logger";
 
 interface CrawlerConfig {
-  delaySeconds?: number;
+  coolDownSeconds?: number;
 }
 
 export const startCrawler = async ({
-  delaySeconds = 10,
+  coolDownSeconds = COOL_DOWN_SECONDS,
 }: CrawlerConfig = {}) => {
   const redisClient = await buildRedisClient({ logger, url: REDIS_URL });
   const network = axios.create({
@@ -48,7 +49,7 @@ export const startCrawler = async ({
     redisClient,
     name: "crawler",
   });
-  const wait = () => delay(delaySeconds);
+  const wait = () => delay(coolDownSeconds);
 
   while (true) {
     const status = await crawlerRepo.getStatus();
@@ -79,6 +80,7 @@ export const startCrawler = async ({
         }, traceId);
         await crawlerRepo.clearError();
         await queue.pop();
+        await wait();
       },
       async (error) => {
         console.log(error);
