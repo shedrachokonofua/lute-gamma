@@ -1,6 +1,5 @@
 import { ServerContext } from "./ServerContext";
 import { buildFileInteractor } from "./file-interactor";
-import { deleteFile, getFile } from "./storage";
 import { buildControllerFactory, extIsMhtml } from "@lute/shared";
 import { logger } from "./logger";
 
@@ -57,7 +56,7 @@ export const buildFileController = buildControllerFactory(
           return res.status(404).json({ ok: false, error: "Not found" });
         }
 
-        res.send(await getFile(fileName));
+        res.send(await serverContext.fileStorageClient.getFile(fileName));
       },
       async deleteFile(req, res) {
         const fileId = req.params.id;
@@ -72,7 +71,7 @@ export const buildFileController = buildControllerFactory(
           return res.status(404).json({ ok: false, error: "Not found" });
         }
 
-        await deleteFile(fileName);
+        await serverContext.fileStorageClient.deleteFile(fileName);
         await fileInteractor.handleFileDelete(fileId);
 
         res.send({ ok: true });

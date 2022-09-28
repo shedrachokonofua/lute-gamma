@@ -63,6 +63,9 @@ services:
       - REDIS_URL
       - FILE_TTL_SECONDS
       - MONGO_URL
+      - SPACES_KEY
+      - SPACES_SECRET
+      - SPACES_BUCKET
 
   profile-server:
     build:
