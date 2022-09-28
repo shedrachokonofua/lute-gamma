@@ -1,5 +1,6 @@
 FROM node:lts-alpine AS base
 RUN npm install -g pnpm
+RUN apk add g++ make py3-pip
 
 FROM base AS install
 
