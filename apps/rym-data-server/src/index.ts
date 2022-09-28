@@ -1,3 +1,4 @@
+import "newrelic";
 import { MongoClient } from "mongodb";
 import { MONGO_DB_NAME, MONGO_URL, PORT } from "./config";
 import { startServer } from "./data-server";

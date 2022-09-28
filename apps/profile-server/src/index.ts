@@ -1,3 +1,4 @@
+import "newrelic";
 import { Queue } from "@lute/shared";
 import { MongoClient } from "mongodb";
 import { MONGO_URL, MONGO_DB_NAME } from "./config";

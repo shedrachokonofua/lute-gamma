@@ -1,3 +1,4 @@
+import "newrelic";
 import {
   buildRedisClient,
   buildLuteEventSubscriber,

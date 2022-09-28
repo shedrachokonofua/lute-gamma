@@ -1,3 +1,4 @@
+import "newrelic";
 import { buildRedisClient } from "@lute/shared";
 import { startServer } from "./catalog-server";
 import { REDIS_URL } from "./config";
