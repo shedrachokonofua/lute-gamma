@@ -10,6 +10,7 @@ export interface CatalogTrack {
   album?: {
     spotifyId: string;
     name: string;
+    type: "album" | "single" | "compilation";
   };
 }
 

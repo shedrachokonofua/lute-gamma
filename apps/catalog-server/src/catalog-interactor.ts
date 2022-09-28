@@ -47,6 +47,7 @@ export const buildCatalogInteractor = (catalogRepo: CatalogRepo) => {
           album: {
             spotifyId: item.track.album.id,
             name: item.track.album.name,
+            type: item.track.album.album_type,
           },
         })),
         nextOffset,
