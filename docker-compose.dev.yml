@@ -34,7 +34,10 @@ services:
       - ./packages/@lute:/app/packages/@lute
       - ./apps/catalog-server:/app/apps/catalog-server
     environment:
+      - ENV
+      - HOST
       - MONGO_URL
+      - REDIS_URL
       - SPOTIFY_CLIENT_ID
       - SPOTIFY_CLIENT_SECRET
 
@@ -53,12 +56,15 @@ services:
       - ./packages/@lute:/app/packages/@lute
       - ./apps/crawler:/app/apps/crawler
     environment:
+      - ENV
       - FILE_SERVER_URL
+      - REDIS_URL
       - MONGO_URL
       - PROXY_HOST
       - PROXY_PORT
       - PROXY_USERNAME
       - PROXY_PASSWORD
+      - COOL_DOWN_SECONDS
 
 
   file-parser:
@@ -74,11 +80,13 @@ services:
       - ./packages/@lute:/app/packages/@lute
       - ./apps/file-parser:/app/apps/file-parser
     environment:
+      - ENV
       - FILE_SERVER_URL
       - RYM_DATA_SERVER_URL
       - CRAWLER_SERVER_URL
       - RYM_LOOKUP_SERVER_URL
       - MONGO_URL
+      - REDIS_URL
     
   file-server:
     build:
@@ -95,10 +103,14 @@ services:
       - ./packages/@lute:/app/packages/@lute
       - ./apps/file-server:/app/apps/file-server
     environment:
+      - ENV
       - LOCAL_BUCKET_PATH
       - REDIS_URL
       - FILE_TTL_SECONDS
       - MONGO_URL
+      - SPACES_KEY
+      - SPACES_SECRET
+      - SPACES_BUCKET
 
   profile-server:
     build:
@@ -115,6 +127,7 @@ services:
       - ./packages/@lute:/app/packages/@lute
       - ./apps/profile-server:/app/apps/profile-server
     environment:
+      - ENV
       - RYM_DATA_SERVER_URL
       - CRAWLER_SERVER_URL
       - CATALOG_SERVER_URL
@@ -137,6 +150,7 @@ services:
       - ./packages/@lute:/app/packages/@lute
       - ./apps/rym-data-server:/app/apps/rym-data-server
     environment:
+      - ENV
       - MONGO_URL
       - MONGO_DB_NAME
 
@@ -155,5 +169,7 @@ services:
       - ./packages/@lute:/app/packages/@lute
       - ./apps/rym-lookup-server:/app/apps/rym-lookup-server
     environment:
+      - ENV
       - MONGO_URL
       - CRAWLER_SERVER_URL
+      - REDIS_URL
