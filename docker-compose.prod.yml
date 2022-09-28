@@ -1,0 +1,114 @@
+version: '3'
+
+services:
+  redis:
+    image: 'bitnami/redis:latest'
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    ports:
+      - 6379:6379
+    logging:
+      driver: "none"
+      
+  catalog-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        workspace: catalog-server
+    ports:
+      - ${CATALOG_SERVER_PORT}:80
+    restart: always
+    environment:
+      - MONGO_URL
+      - SPOTIFY_CLIENT_ID
+      - SPOTIFY_CLIENT_SECRET
+
+  crawler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        workspace: crawler
+    ports:
+      - ${CRAWLER_SERVER_PORT}:80
+    restart: always
+    environment:
+      - FILE_SERVER_URL
+      - MONGO_URL
+      - PROXY_HOST
+      - PROXY_PORT
+      - PROXY_USERNAME
+      - PROXY_PASSWORD
+
+  file-parser:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        workspace: file-parser
+    restart: always
+    environment:
+      - FILE_SERVER_URL
+      - RYM_DATA_SERVER_URL
+      - CRAWLER_SERVER_URL
+      - RYM_LOOKUP_SERVER_URL
+      - MONGO_URL
+    
+  file-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        workspace: file-server
+    ports:
+      - ${FILE_SERVER_PORT}:80
+    restart: always
+    environment:
+      - LOCAL_BUCKET_PATH
+      - REDIS_URL
+      - FILE_TTL_SECONDS
+      - MONGO_URL
+
+  profile-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        workspace: profile-server
+    ports:
+      - ${PROFILE_SERVER_PORT}:80
+    restart: always
+    environment:
+      - RYM_DATA_SERVER_URL
+      - CRAWLER_SERVER_URL
+      - CATALOG_SERVER_URL
+      - RYM_LOOKUP_SERVER_URL
+      - MONGO_URL
+      - MONGO_DB_NAME
+
+  rym-data-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        workspace: rym-data-server
+    ports:
+      - ${RYM_DATA_SERVER_PORT}:80
+    restart: always
+    environment:
+      - MONGO_URL
+      - MONGO_DB_NAME
+
+  rym-lookup-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        workspace: rym-lookup-server
+    ports:
+      - ${RYM_LOOKUP_SERVER_PORT}:80
+    restart: always
+    environment:
+      - MONGO_URL
+      - CRAWLER_SERVER_URL

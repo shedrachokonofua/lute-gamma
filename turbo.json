@@ -5,6 +5,9 @@
       "dependsOn": ["^build"],
       "outputs": ["build"]
     },
-    "dev": {}
+    "dev": {
+      "dependsOn": ["^build"],
+      "cache": false
+    }
   }
 }
