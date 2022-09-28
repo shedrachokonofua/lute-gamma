@@ -12,6 +12,7 @@ services:
     restart: always
     environment:
       - ENV
+      - HOST
       - MONGO_URL
       - REDIS_URL
       - SPOTIFY_CLIENT_ID
