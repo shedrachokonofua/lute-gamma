@@ -13,7 +13,7 @@ export const buildRedisClient = async ({
   const redisClient = createClient({ url });
 
   redisClient.on("error", (error) => {
-    logger.error({ error }, "Redis error");
+    logger.error({ error: error?.message }, "Redis error");
   });
 
   await redisClient.connect();
