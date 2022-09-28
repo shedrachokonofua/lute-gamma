@@ -15,6 +15,15 @@ export const buildRedisClient = async ({
   redisClient.on("error", (error) => {
     logger.error({ error: error?.message }, "Redis error");
   });
+  redisClient.on("connect", () => {
+    logger.info("Redis connected");
+  });
+  redisClient.on("reconnecting", () => {
+    logger.info("Redis reconnecting");
+  });
+  redisClient.on("end", () => {
+    logger.info("Redis disconnected");
+  });
 
   await redisClient.connect();
   logger.debug("Connected to redis");
