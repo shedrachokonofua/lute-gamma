@@ -24,3 +24,8 @@ export const MONGO_URL = env
   .get("MONGO_URL")
   .default("mongodb://mongodb:27017")
   .asString();
+
+export const REDIS_URL = env
+  .get("REDIS_URL")
+  .default("redis://redis:6379")
+  .asString();

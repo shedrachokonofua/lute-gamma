@@ -12,6 +12,11 @@ export const MONGO_URL = env
   .default("mongodb://mongodb:27017")
   .asString();
 
+export const REDIS_URL = env
+  .get("REDIS_URL")
+  .default("redis://redis:6379")
+  .asString();
+
 export const PROXY_HOST = env.get("PROXY_HOST").required().asString();
 
 export const PROXY_PORT = env.get("PROXY_PORT").required().asPortNumber();

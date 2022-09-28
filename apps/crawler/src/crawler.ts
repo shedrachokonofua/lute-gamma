@@ -15,6 +15,7 @@ import {
   PROXY_PORT,
   PROXY_USERNAME,
   PROXY_PASSWORD,
+  REDIS_URL,
 } from "./config";
 import { buildCrawlerRepo } from "./crawler-repo";
 import { logger } from "./logger";
@@ -26,7 +27,7 @@ interface CrawlerConfig {
 export const startCrawler = async ({
   delaySeconds = 10,
 }: CrawlerConfig = {}) => {
-  const redisClient = await buildRedisClient({ logger });
+  const redisClient = await buildRedisClient({ logger, url: REDIS_URL });
   const network = axios.create({
     baseURL: "https://www.rateyourmusic.com",
     httpsAgent: new https.Agent({
