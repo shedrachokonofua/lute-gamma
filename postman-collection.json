@@ -1,367 +1,315 @@
 {
-	"info": {
-		"_postman_id": "933b17af-dedb-45dc-ae56-1c717ef7d3d5",
-		"name": "Lute V3",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-	},
-	"item": [
-		{
-			"name": "crawler-server",
-			"item": [
-				{
-					"name": "Monitor",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "localhost:3335/monitor",
-							"host": [
-								"localhost"
-							],
-							"port": "3335",
-							"path": [
-								"monitor"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Set Status",
-					"request": {
-						"method": "PUT",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"status\": \"running\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "localhost:3335/status",
-							"host": [
-								"localhost"
-							],
-							"port": "3335",
-							"path": [
-								"status"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Schedule",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"fileName\": \"charts/top/album/all-time\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "localhost:3335/schedule",
-							"host": [
-								"localhost"
-							],
-							"port": "3335",
-							"path": [
-								"schedule"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Health Check",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "localhost:3335/health",
-							"host": [
-								"localhost"
-							],
-							"port": "3335",
-							"path": [
-								"health"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Empty Queue",
-					"request": {
-						"method": "POST",
-						"header": []
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "file-server",
-			"item": [
-				{
-					"name": "Health Check",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "localhost:3333/health",
-							"host": [
-								"localhost"
-							],
-							"port": "3333",
-							"path": [
-								"health"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "profile-server",
-			"item": [
-				{
-					"name": "Health Check",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "localhost:3338/health",
-							"host": [
-								"localhost"
-							],
-							"port": "3338",
-							"path": [
-								"health"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Create Profile",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"title\": \"Shedrach's default profile\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "localhost:3338/",
-							"host": [
-								"localhost"
-							],
-							"port": "3338",
-							"path": [
-								""
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get Profile",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "localhost:3338/:id",
-							"host": [
-								"localhost"
-							],
-							"port": "3338",
-							"path": [
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id",
-									"value": "default"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Add album to profile",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"fileName\": \"release/album/2pac/all-eyez-on-me\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "localhost:3338/:id/album",
-							"host": [
-								"localhost"
-							],
-							"port": "3338",
-							"path": [
-								":id",
-								"album"
-							],
-							"variable": [
-								{
-									"key": "id",
-									"value": "6332569694c9aaccfea0b2cd"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Seed Default Profile",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"url": {
-							"raw": "localhost:3338/seed/default",
-							"host": [
-								"localhost"
-							],
-							"port": "3338",
-							"path": [
-								"seed",
-								"default"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "rym-data-server",
-			"item": [
-				{
-					"name": "Health Check",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "localhost:3334/health",
-							"host": [
-								"localhost"
-							],
-							"port": "3334",
-							"path": [
-								"health"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "rym-lookup-server",
-			"item": [
-				{
-					"name": "Lookup",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "localhost:3337/?album=2pac&artist=all eyez on me",
-							"host": [
-								"localhost"
-							],
-							"port": "3337",
-							"path": [
-								""
-							],
-							"query": [
-								{
-									"key": "album",
-									"value": "2pac"
-								},
-								{
-									"key": "artist",
-									"value": "all eyez on me"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Health Check",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "localhost:3337/health",
-							"host": [
-								"localhost"
-							],
-							"port": "3337",
-							"path": [
-								"health"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Lookup by hash",
-					"request": {
-						"method": "GET",
-						"header": []
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "catalog-server",
-			"item": [
-				{
-					"name": "Health Check",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "localhost:3334/health",
-							"host": [
-								"localhost"
-							],
-							"port": "3334",
-							"path": [
-								"health"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		}
-	]
+  "info": {
+    "_postman_id": "80e34573-f670-4c82-b702-370be2184dbc",
+    "name": "Lute V3",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "crawler-server",
+      "item": [
+        {
+          "name": "Monitor",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}:3335/monitor",
+              "host": ["{{host}}"],
+              "port": "3335",
+              "path": ["monitor"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Set Status",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"status\": \"running\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{host}}:3335/status",
+              "host": ["{{host}}"],
+              "port": "3335",
+              "path": ["status"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Schedule",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"fileName\": \"charts/top/album/all-time\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{host}}:3335/schedule",
+              "host": ["{{host}}"],
+              "port": "3335",
+              "path": ["schedule"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}:3335/health",
+              "host": ["{{host}}"],
+              "port": "3335",
+              "path": ["health"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Empty Queue",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": ""
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "file-server",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}:3333/health",
+              "host": ["{{host}}"],
+              "port": "3333",
+              "path": ["health"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "profile-server",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}:3338/health",
+              "host": ["{{host}}"],
+              "port": "3338",
+              "path": ["health"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Profile",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"Shedrach's default profile\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{host}}:3338/",
+              "host": ["{{host}}"],
+              "port": "3338",
+              "path": [""]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}:3338/:id",
+              "host": ["{{host}}"],
+              "port": "3338",
+              "path": [":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "default"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add album to profile",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"fileName\": \"release/album/2pac/all-eyez-on-me\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{host}}:3338/:id/album",
+              "host": ["{{host}}"],
+              "port": "3338",
+              "path": [":id", "album"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "6332569694c9aaccfea0b2cd"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Seed Default Profile",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{host}}:3338/seed/default",
+              "host": ["{{host}}"],
+              "port": "3338",
+              "path": ["seed", "default"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "rym-data-server",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}:3334/health",
+              "host": ["{{host}}"],
+              "port": "3334",
+              "path": ["health"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "rym-lookup-server",
+      "item": [
+        {
+          "name": "Lookup",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}:3337/?album=2pac&artist=all eyez on me",
+              "host": ["{{host}}"],
+              "port": "3337",
+              "path": [""],
+              "query": [
+                {
+                  "key": "album",
+                  "value": "2pac"
+                },
+                {
+                  "key": "artist",
+                  "value": "all eyez on me"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}:3337/health",
+              "host": ["{{host}}"],
+              "port": "3337",
+              "path": ["health"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Lookup by hash",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": ""
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "catalog-server",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}:3334/health",
+              "host": ["{{host}}"],
+              "port": "3334",
+              "path": ["health"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
 }
