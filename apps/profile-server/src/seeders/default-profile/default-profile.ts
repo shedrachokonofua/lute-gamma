@@ -1,7 +1,11 @@
-import { LookupStatus, RedisClient } from "@lute/shared";
+import { CatalogTrack, LookupStatus, RedisClient } from "@lute/shared";
 import { logger } from "../../logger";
 import { catalogClient, rymLookupClient } from "../../utils";
 import { ProfileInteractor } from "../../profile-interactor";
+
+interface CatalogTrackWithAlbum extends CatalogTrack {
+  album: Exclude<CatalogTrack["album"], undefined>;
+}
 
 export const seedDefaultProfile = async ({
   profileInteractor,
@@ -11,7 +15,8 @@ export const seedDefaultProfile = async ({
   const state = {
     hasNext: true,
     offset: 0,
-    seenAlbumSpotifyIds: new Set<string>(),
+    trackCountBySpotifyAlbumId: {} as Record<string, number>,
+    skippedAlbumSpotifyIds: new Set<string>(),
   };
   while (state.hasNext) {
     const result = await catalogClient.getTracks({
@@ -19,26 +24,28 @@ export const seedDefaultProfile = async ({
       offset: state.offset,
     });
 
-    const relevantTracks = result.items.filter((track, index, items) => {
-      if (
-        !track.album?.spotifyId ||
-        state.seenAlbumSpotifyIds.has(track.album.spotifyId)
-      )
-        return false;
-
-      return (
-        index ===
-        items.findIndex((t) => t.album?.spotifyId === track.album?.spotifyId)
-      );
-    });
-
+    const relevantTracks = result.items.filter(
+      (track): track is CatalogTrackWithAlbum =>
+        !!track.album?.spotifyId && track.album.type === "album"
+    );
+    const tracksBySpotifyAlbumId = relevantTracks.reduce<{
+      [spotifyAlbumId: string]: CatalogTrackWithAlbum[];
+    }>((acc, track) => {
+      const albumId = track.album.spotifyId;
+      acc[albumId] = acc[albumId] || [];
+      acc[albumId].push(track);
+      return acc;
+    }, {});
+    console.log("tracksBySpotifyAlbumId", tracksBySpotifyAlbumId);
     await Promise.all(
-      relevantTracks.map(async (track) => {
-        if (!track.artists[0].name || !track.album?.name) return;
+      Object.keys(tracksBySpotifyAlbumId).map(async (albumId) => {
+        const tracks = tracksBySpotifyAlbumId[albumId];
+        const trackCount =
+          tracks.length + (state.trackCountBySpotifyAlbumId[albumId] || 0);
 
         const lookupResult = await rymLookupClient.getOrCreateLookup(
-          track.artists[0].name,
-          track.album.name
+          tracks[0].artists[0].name,
+          tracks[0].album.name
         );
 
         if (!lookupResult) return;
@@ -52,22 +59,21 @@ export const seedDefaultProfile = async ({
         }
 
         try {
-          await profileInteractor.addAlbumToProfile(
-            "default",
-            lookupResult.bestMatch.fileName
+          await profileInteractor.putAlbumOnProfile({
+            profileId: "default",
+            albumFileName: lookupResult.bestMatch.fileName,
+            count: trackCount,
+          });
+        } catch (error) {
+          logger.error(
+            { error, lookupResult, albumId, trackCount },
+            "Failed to put album on profile"
           );
-        } catch {}
+        }
       })
     );
 
     state.hasNext = result.items.length === 50;
     state.offset = state.hasNext ? state.offset + 50 : state.offset;
-    if (state.hasNext) {
-      relevantTracks.forEach(
-        (track) =>
-          track.album?.spotifyId &&
-          state.seenAlbumSpotifyIds.add(track.album.spotifyId)
-      );
-    }
   }
 };

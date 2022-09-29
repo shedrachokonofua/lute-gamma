@@ -1,64 +1,108 @@
-import { ProfileDetails, ProfileRepo, ProfileSummary } from "./profile-repo";
+import {
+  AddAlbumToProfilePayload,
+  ItemAndCount,
+  ProfileDetails,
+  ProfileRepo,
+  ProfileSummary,
+} from "./profile-repo";
 import { rymDataClient } from "./utils";
 import { startOfDecade } from "date-fns";
 import { logger } from "./logger";
+import { buildAssessment } from "./assessment";
 
 export const buildProfileInteractor = ({
   profileRepo,
 }: {
   profileRepo: ProfileRepo;
 }) => {
-  return {
+  const interactor = {
     async getProfile(id: string) {
       const profileDocument = await profileRepo.getProfile(id);
       if (!profileDocument) {
         return null;
       }
       const albumDocuments = await rymDataClient.getAlbums(
-        profileDocument.albumFileNames
+        profileDocument.albums.map((album) => album.item)
       );
-      const profileDetailsMaps = albumDocuments.reduce<
-        Record<keyof ProfileDetails, Record<string, number>>
-      >(
-        (acc, albumDocument) => {
-          const {
-            artists,
-            primaryGenres,
-            secondaryGenres,
-            descriptors,
-            releaseDate,
-          } = albumDocument;
+      const trackCountByAlbumFileName = profileDocument.albums.reduce<
+        Record<string, number>
+      >((acc, album) => {
+        acc[album.item] = album.count;
+        return acc;
+      }, {});
+      const profileDetailsMaps = {
+        artists: {},
+        primaryGenres: {},
+        secondaryGenres: {},
+        descriptors: {},
+        years: {},
+        decades: {},
+      } as Record<keyof ProfileDetails, Record<string, number>>;
+      const weightedDetailsMaps = {
+        artists: {},
+        primaryGenres: {},
+        secondaryGenres: {},
+        descriptors: {},
+        years: {},
+        decades: {},
+      } as Record<keyof ProfileDetails, Record<string, number>>;
 
-          artists?.forEach((artist) => {
-            acc.artists[artist] = (acc.artists[artist] || 0) + 1;
-          });
-          primaryGenres?.forEach((genre) => {
-            acc.primaryGenres[genre] = (acc.primaryGenres[genre] || 0) + 1;
-          });
-          secondaryGenres?.forEach((genre) => {
-            acc.secondaryGenres[genre] = (acc.secondaryGenres[genre] || 0) + 1;
-          });
-          descriptors?.forEach((descriptor) => {
-            acc.descriptors[descriptor] =
-              (acc.descriptors[descriptor] || 0) + 1;
-          });
-          if (releaseDate) {
-            const year = new Date(releaseDate).getFullYear();
-            const decade = startOfDecade(new Date(releaseDate)).getFullYear();
-            acc.years[year] = (acc.years[year] || 0) + 1;
-            acc.decades[decade] = (acc.decades[decade] || 0) + 1;
-          }
-          return acc;
-        },
-        {
-          artists: {},
-          primaryGenres: {},
-          secondaryGenres: {},
-          descriptors: {},
-          years: {},
-          decades: {},
+      for (const {
+        artists,
+        primaryGenres,
+        secondaryGenres,
+        descriptors,
+        releaseDate,
+        fileName,
+      } of albumDocuments) {
+        artists?.forEach((artist) => {
+          profileDetailsMaps.artists[artist] =
+            (profileDetailsMaps.artists[artist] || 0) + 1;
+          weightedDetailsMaps.artists[artist] =
+            (weightedDetailsMaps.artists[artist] || 0) +
+            trackCountByAlbumFileName[fileName];
+        });
+
+        primaryGenres?.forEach((genre) => {
+          profileDetailsMaps.primaryGenres[genre] =
+            (profileDetailsMaps.primaryGenres[genre] || 0) + 1;
+          weightedDetailsMaps.primaryGenres[genre] =
+            (weightedDetailsMaps.primaryGenres[genre] || 0) +
+            trackCountByAlbumFileName[fileName];
+        });
+
+        secondaryGenres?.forEach((genre) => {
+          profileDetailsMaps.secondaryGenres[genre] =
+            (profileDetailsMaps.secondaryGenres[genre] || 0) + 1;
+          weightedDetailsMaps.secondaryGenres[genre] =
+            (weightedDetailsMaps.secondaryGenres[genre] || 0) +
+            trackCountByAlbumFileName[fileName];
+        });
+
+        descriptors?.forEach((descriptor) => {
+          profileDetailsMaps.descriptors[descriptor] =
+            (profileDetailsMaps.descriptors[descriptor] || 0) + 1;
+          weightedDetailsMaps.descriptors[descriptor] =
+            (weightedDetailsMaps.descriptors[descriptor] || 0) +
+            trackCountByAlbumFileName[fileName];
+        });
+
+        if (releaseDate) {
+          const year = new Date(releaseDate).getFullYear();
+          const decade = startOfDecade(new Date(releaseDate)).getFullYear();
+          profileDetailsMaps.years[year] =
+            (profileDetailsMaps.years[year] || 0) + 1;
+          profileDetailsMaps.decades[decade] =
+            (profileDetailsMaps.decades[decade] || 0) + 1;
+
+          weightedDetailsMaps.years[year] =
+            (weightedDetailsMaps.years[year] || 0) +
+            trackCountByAlbumFileName[fileName];
+          weightedDetailsMaps.decades[decade] =
+            (weightedDetailsMaps.decades[decade] || 0) +
+            trackCountByAlbumFileName[fileName];
         }
-      );
+      }
       const profileDetails = Object.entries(
         profileDetailsMaps
       ).reduce<ProfileDetails>((acc, [key, value]) => {
@@ -70,6 +114,19 @@ export const buildProfileInteractor = ({
           .sort((a, b) => b.count - a.count);
         return acc;
       }, {} as ProfileDetails);
+
+      const weightedProfileDetails = Object.entries(
+        weightedDetailsMaps
+      ).reduce<ProfileDetails>((acc, [key, value]) => {
+        acc[key as keyof ProfileDetails] = Object.entries(value)
+          .map(([item, count]) => ({
+            item,
+            count: count as number,
+          }))
+          .sort((a, b) => b.count - a.count);
+        return acc;
+      }, {} as ProfileDetails);
+
       const profileSummary: ProfileSummary = {
         topArtists: profileDetails.artists.slice(0, 5).map((a) => a.item),
         topPrimaryGenres: profileDetails.primaryGenres
@@ -85,24 +142,68 @@ export const buildProfileInteractor = ({
         topDecade: profileDetails.decades.sort((a, b) => b.count - a.count)[0]
           ?.item,
       };
+      const weightedSummary: ProfileSummary = {
+        topArtists: weightedProfileDetails.artists
+          .slice(0, 5)
+          .map((a) => a.item),
+        topPrimaryGenres: weightedProfileDetails.primaryGenres
+          .slice(0, 5)
+          .map((a) => a.item),
+        topSecondaryGenres: weightedProfileDetails.secondaryGenres
+          .slice(0, 5)
+          .map((a) => a.item),
+        topDescriptors: weightedProfileDetails.descriptors
+          .slice(0, 5)
+          .map((a) => a.item),
+        topYears: weightedProfileDetails.years.slice(0, 5).map((a) => a.item),
+        topDecade: weightedProfileDetails.decades.sort(
+          (a, b) => b.count - a.count
+        )[0]?.item,
+      };
       return {
         ...profileDocument,
         summary: profileSummary,
+        weightedSummary,
+        weightedProfileDetails,
         details: profileDetails,
       };
     },
-    async addAlbumToProfile(id: string, albumFileName: string) {
-      const albumDocument = await rymDataClient.getAlbum(albumFileName);
+    async putAlbumOnProfile(payload: AddAlbumToProfilePayload) {
+      const albumDocument = await rymDataClient.getAlbum(payload.albumFileName);
       if (!albumDocument) {
         throw new Error("Unknown album");
       }
-      logger.info({ id, albumFileName }, "Adding album to profile");
-      return profileRepo.addAlbumToProfile(id, albumFileName);
+      logger.info({ payload }, "Adding album to profile");
+
+      return profileRepo.putAlbumOnProfile(payload);
     },
     createProfile(id: string, title: string) {
       return profileRepo.createProfile(id, title);
     },
+    async getAlbumAssessment({
+      profileId,
+      albumFileId,
+    }: {
+      profileId: string;
+      albumFileId: string;
+    }) {
+      const profile = await interactor.getProfile(profileId);
+      if (!profile) {
+        throw new Error("Unknown profile");
+      }
+      const album = await rymDataClient.getAlbum(albumFileId);
+      if (!album) {
+        throw new Error("Unknown album");
+      }
+
+      return await buildAssessment({
+        album,
+        profile,
+      });
+    },
   };
+
+  return interactor;
 };
 
 export type ProfileInteractor = ReturnType<typeof buildProfileInteractor>;

@@ -23,18 +23,18 @@ export const buildProfileController = buildControllerFactory<{
 
       return res.json({ ok: true, data: profile });
     },
-    async addAlbumToProfile(req, res) {
-      const id = req.params.id as string;
+    async putAlbumOnProfile(req, res) {
+      const profileId = req.params.id as string;
       const albumFileName = req.body.fileName as string;
 
       if (!albumFileName) {
         return res.status(400).json({ ok: false, error: "Bad request" });
       }
 
-      const profile = await profileInteractor.addAlbumToProfile(
-        id,
-        albumFileName
-      );
+      const profile = await profileInteractor.putAlbumOnProfile({
+        profileId,
+        albumFileName,
+      });
 
       if (!profile) {
         return res.status(404).json({ ok: false, error: "Not found" });
@@ -53,6 +53,17 @@ export const buildProfileController = buildControllerFactory<{
     async seedDefaultProfile(req, res) {
       seedDefaultProfile({ profileInteractor });
       return res.json({ ok: true });
+    },
+    async getAlbumAssessment(req, res) {
+      const { id: profileId, albumFileId } = req.params;
+      if (!profileId || !albumFileId) {
+        return res.status(400).json({ ok: false, error: "Bad request" });
+      }
+      const assessment = await profileInteractor.getAlbumAssessment({
+        profileId,
+        albumFileId,
+      });
+      return res.json({ ok: true, data: assessment });
     },
   };
 });

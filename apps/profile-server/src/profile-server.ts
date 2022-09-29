@@ -14,7 +14,8 @@ export const startServer = buildServer<{
     return Router()
       .post("/", controller.createProfile)
       .get("/:id", controller.getProfile)
-      .post("/:id/album", controller.addAlbumToProfile)
+      .post("/:id/album", controller.putAlbumOnProfile)
+      .get("/:id/album/:albumFileId/assessment", controller.getAlbumAssessment)
       .post("/seed/default", controller.seedDefaultProfile);
   },
   logger,

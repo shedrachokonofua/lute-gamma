@@ -39,4 +39,5 @@ export const SPACES_SECRET = env
 export const SPACES_BUCKET = env
   .get("SPACES_BUCKET")
   .required(isProduction)
+  .default("")
   .asString();

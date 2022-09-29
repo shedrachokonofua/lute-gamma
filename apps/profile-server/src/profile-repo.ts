@@ -1,6 +1,6 @@
 import { Db, ObjectId, WithId } from "mongodb";
 
-type ItemAndCount = {
+export type ItemAndCount = {
   item: string;
   count: number;
 };
@@ -27,28 +27,33 @@ export interface Profile {
   id: string;
   title: string;
   lastUpdatedAt: Date;
-  albumFileNames: string[];
+  albums: ItemAndCount[];
   summary: ProfileSummary;
   details: ProfileDetails;
+  weightedSummary: ProfileSummary;
+  weightedProfileDetails: ProfileDetails;
 }
 
 export interface ProfileDocument {
   id: string;
   title: string;
   lastUpdatedAt: Date;
-  albumFileNames: string[];
+  albums: ItemAndCount[];
 }
 
-interface CreateProfilePayload {
-  title: string;
+export interface AddAlbumToProfilePayload {
+  profileId: string;
+  albumFileName: string;
+  count?: number;
 }
 
 export const buildProfileRepo = ({ mongoDatabase }: { mongoDatabase: Db }) => {
+  const profilesCollection =
+    mongoDatabase.collection<ProfileDocument>("profiles");
+
   const repo = {
     async getProfile(id: string): Promise<ProfileDocument | null> {
-      const profile = await mongoDatabase
-        .collection<ProfileDocument>("profiles")
-        .findOne({ id });
+      const profile = await profilesCollection.findOne({ id });
 
       return profile;
     },
@@ -57,7 +62,7 @@ export const buildProfileRepo = ({ mongoDatabase }: { mongoDatabase: Db }) => {
         id,
         title,
         lastUpdatedAt: new Date(),
-        albumFileNames: [],
+        albums: [],
       };
 
       await mongoDatabase
@@ -66,31 +71,47 @@ export const buildProfileRepo = ({ mongoDatabase }: { mongoDatabase: Db }) => {
 
       return document;
     },
-    async addAlbumToProfile(
-      id: string,
-      albumFileName: string
-    ): Promise<ProfileDocument> {
-      const profile = await repo.getProfile(id);
+    async putAlbumOnProfile({
+      profileId,
+      albumFileName,
+      count = 1,
+    }: AddAlbumToProfilePayload): Promise<ProfileDocument> {
+      const profile = await repo.getProfile(profileId);
       if (!profile) {
         throw new Error("Profile not found");
       }
-      if (profile.albumFileNames.includes(albumFileName)) {
-        throw new Error("Album already added to profile");
-      }
-      const result = await mongoDatabase
-        .collection<ProfileDocument>("profiles")
-        .findOneAndUpdate(
-          { id },
-          {
-            $set: {
-              lastUpdatedAt: new Date(),
+      const existingAlbum = profile.albums.find(
+        (a) => a.item === albumFileName
+      );
+
+      const result = existingAlbum
+        ? await profilesCollection.findOneAndUpdate(
+            { id: profileId, "albums.item": albumFileName },
+            {
+              $set: {
+                lastUpdatedAt: new Date(),
+                "albums.$.count": count,
+              },
+            }
+          )
+        : await profilesCollection.findOneAndUpdate(
+            {
+              id: profileId,
             },
-            $push: {
-              albumFileNames: albumFileName,
+            {
+              $set: {
+                lastUpdatedAt: new Date(),
+              },
+              $push: {
+                albums: {
+                  item: albumFileName,
+                  count,
+                },
+              },
             },
-          },
-          { returnDocument: "after" }
-        );
+            { returnDocument: "after" }
+          );
+
       if (!result.value) {
         throw new Error("Profile not found");
       }
