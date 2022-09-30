@@ -10,9 +10,9 @@ interface Assessment {
   ratingQuantile: number;
   ratingCountQuantile: number;
   averagePrimaryGenreQuantile: number;
-  averageSecondaryGenreQuantile: number;
+  averageSecondaryGenreQuantile?: number;
   averagePrimaryCrossGenreQuantile: number;
-  averageSecondaryCrossGenreQuantile: number;
+  averageSecondaryCrossGenreQuantile?: number;
   averageDescriptorQuantile: number;
   averageQuantile: number;
 }
@@ -23,7 +23,7 @@ const assessableAlbumSchema = z
     rating: z.number(),
     ratingCount: z.number(),
     primaryGenres: z.array(z.string()).nonempty(),
-    secondaryGenres: z.array(z.string()).nonempty(),
+    secondaryGenres: z.array(z.string()),
     descriptors: z.array(z.string()).nonempty(),
   })
   .passthrough();
@@ -54,6 +54,9 @@ const assessableProfileSchema = z
 
 const repeat = (value: number, times: number) =>
   Array.from({ length: times }, () => value);
+
+const flatCompact = <T>(arr: (T[] | undefined)[]) =>
+  arr.reduce<T[]>((acc, val) => acc.concat(val || []), [] as T[]);
 
 export const buildAssessment = async ({
   profile: inputProfile,
@@ -100,15 +103,17 @@ export const buildAssessment = async ({
     ) || settings.noveltyFactor;
 
   const averageSecondaryGenreQuantile =
-    ss.mean(
-      album.secondaryGenres.map((albumGenre) => {
-        return ss.quantileRank(
-          profileDetails.secondaryGenres.map((a) => a.count),
-          profileDetails.secondaryGenres.find((g) => g.item === albumGenre)
-            ?.count || 0
-        );
-      })
-    ) || settings.noveltyFactor;
+    album.secondaryGenres.length > 0
+      ? ss.mean(
+          album.secondaryGenres.map((albumGenre) => {
+            return ss.quantileRank(
+              profileDetails.secondaryGenres.map((a) => a.count),
+              profileDetails.secondaryGenres.find((g) => g.item === albumGenre)
+                ?.count || 0
+            );
+          })
+        ) || settings.noveltyFactor
+      : undefined;
 
   const averagePrimaryCrossGenreQuantile =
     ss.mean(
@@ -122,15 +127,17 @@ export const buildAssessment = async ({
     ) || settings.noveltyFactor;
 
   const averageSecondaryCrossGenreQuantile =
-    ss.mean(
-      album.secondaryGenres.map((albumGenre) => {
-        return ss.quantileRank(
-          profileDetails.primaryGenres.map((a) => a.count),
-          profileDetails.primaryGenres.find((g) => g.item === albumGenre)
-            ?.count || 0
-        );
-      })
-    ) || settings.noveltyFactor;
+    album.secondaryGenres.length > 0
+      ? ss.mean(
+          album.secondaryGenres.map((albumGenre) => {
+            return ss.quantileRank(
+              profileDetails.primaryGenres.map((a) => a.count),
+              profileDetails.primaryGenres.find((g) => g.item === albumGenre)
+                ?.count || 0
+            );
+          })
+        ) || settings.noveltyFactor
+      : undefined;
 
   const averageDescriptorQuantile =
     ss.mean(
@@ -143,27 +150,33 @@ export const buildAssessment = async ({
       })
     ) || settings.noveltyFactor;
 
-  const averageQuantile = ss.mean([
-    ...repeat(ratingQuantile, settings.parameterWeights.rating),
-    ...repeat(ratingCountQuantile, settings.parameterWeights.ratingCount),
-    ...repeat(
-      averagePrimaryGenreQuantile,
-      settings.parameterWeights.primaryGenres
-    ),
-    ...repeat(
-      averageSecondaryGenreQuantile,
-      settings.parameterWeights.secondaryGenres
-    ),
-    ...repeat(
-      averagePrimaryCrossGenreQuantile,
-      settings.parameterWeights.primaryCrossGenres
-    ),
-    ...repeat(
-      averageSecondaryCrossGenreQuantile,
-      settings.parameterWeights.secondaryCrossGenres
-    ),
-    ...repeat(averageDescriptorQuantile, settings.parameterWeights.descriptors),
-  ]);
+  const averageQuantile = ss.mean(
+    flatCompact([
+      repeat(ratingQuantile, settings.parameterWeights.rating),
+      repeat(ratingCountQuantile, settings.parameterWeights.ratingCount),
+      repeat(
+        averagePrimaryGenreQuantile,
+        settings.parameterWeights.primaryGenres
+      ),
+      averageSecondaryGenreQuantile
+        ? repeat(
+            averageSecondaryGenreQuantile,
+            settings.parameterWeights.secondaryGenres
+          )
+        : undefined,
+      repeat(
+        averagePrimaryCrossGenreQuantile,
+        settings.parameterWeights.primaryCrossGenres
+      ),
+      averageSecondaryCrossGenreQuantile
+        ? repeat(
+            averageSecondaryCrossGenreQuantile,
+            settings.parameterWeights.secondaryCrossGenres
+          )
+        : undefined,
+      repeat(averageDescriptorQuantile, settings.parameterWeights.descriptors),
+    ])
+  );
 
   return {
     albumFileName: album.fileName,
