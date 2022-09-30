@@ -36,7 +36,7 @@ export const seedDefaultProfile = async ({
       acc[albumId].push(track);
       return acc;
     }, {});
-    console.log("tracksBySpotifyAlbumId", tracksBySpotifyAlbumId);
+
     await Promise.all(
       Object.keys(tracksBySpotifyAlbumId).map(async (albumId) => {
         const tracks = tracksBySpotifyAlbumId[albumId];

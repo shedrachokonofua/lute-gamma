@@ -8,7 +8,7 @@ import {
 import { rymDataClient } from "./utils";
 import { startOfDecade } from "date-fns";
 import { logger } from "./logger";
-import { buildAssessment } from "./assessment";
+import { AssessmentSettings, buildAssessment } from "./assessment";
 
 export const buildProfileInteractor = ({
   profileRepo,
@@ -183,9 +183,11 @@ export const buildProfileInteractor = ({
     async getAlbumAssessment({
       profileId,
       albumFileId,
+      settings,
     }: {
       profileId: string;
       albumFileId: string;
+      settings: AssessmentSettings;
     }) {
       const profile = await interactor.getProfile(profileId);
       if (!profile) {
@@ -199,6 +201,7 @@ export const buildProfileInteractor = ({
       return await buildAssessment({
         album,
         profile,
+        settings,
       });
     },
   };

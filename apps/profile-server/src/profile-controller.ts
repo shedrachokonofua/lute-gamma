@@ -1,5 +1,6 @@
 import { buildControllerFactory } from "@lute/shared";
 import { Db } from "mongodb";
+import { assessmentSettingsSchema } from "./assessment";
 import { buildProfileInteractor } from "./profile-interactor";
 import { buildProfileRepo } from "./profile-repo";
 import { seedDefaultProfile } from "./seeders";
@@ -56,12 +57,16 @@ export const buildProfileController = buildControllerFactory<{
     },
     async getAlbumAssessment(req, res) {
       const { id: profileId, albumFileId } = req.params;
+      const settings = assessmentSettingsSchema.parse(req.query);
+
       if (!profileId || !albumFileId) {
         return res.status(400).json({ ok: false, error: "Bad request" });
       }
+
       const assessment = await profileInteractor.getAlbumAssessment({
         profileId,
         albumFileId,
+        settings,
       });
       return res.json({ ok: true, data: assessment });
     },

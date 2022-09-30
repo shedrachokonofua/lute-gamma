@@ -37,5 +37,10 @@ export const buildLookupController = buildControllerFactory(
       });
       return res.json({ ok: true, data: newLookup });
     },
+    async deleteLookup(req, res) {
+      const { hash } = req.params;
+      await lookupRepo.deleteLookup(hash);
+      return res.json({ ok: true });
+    },
   })
 );

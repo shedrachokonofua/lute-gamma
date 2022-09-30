@@ -16,7 +16,8 @@ export const startServer = buildServer({
     return Router()
       .get("/", lookupController.getOrCreateLookup)
       .put("/:hash", lookupController.putLookup)
-      .get("/:hash", lookupController.getLookupByHash);
+      .get("/:hash", lookupController.getLookupByHash)
+      .delete("/:hash", lookupController.deleteLookup);
   },
   logger,
 });

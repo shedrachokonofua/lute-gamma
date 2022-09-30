@@ -83,7 +83,6 @@ export const startCrawler = async ({
         await wait();
       },
       async (error) => {
-        console.log(error);
         logger.error({ error }, "Crawler error");
         await crawlerRepo.setStatus(CrawlerStatus.Error);
         await crawlerRepo.setError(error.message);

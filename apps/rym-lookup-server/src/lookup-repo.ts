@@ -60,6 +60,9 @@ export const buildLookupRepo = (redisClient: RedisClient) => ({
     await redisClient.set(`lookup:${keyHash}`, JSON.stringify(newLookup));
     return newLookup;
   },
+  async deleteLookup(keyHash: string): Promise<void> {
+    await redisClient.del(`lookup:${keyHash}`);
+  },
 });
 
 export type LookupRepo = ReturnType<typeof buildLookupRepo>;
