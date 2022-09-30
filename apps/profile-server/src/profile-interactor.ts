@@ -21,9 +21,9 @@ export const buildProfileInteractor = ({
       if (!profileDocument) {
         return null;
       }
-      const albumDocuments = await rymDataClient.getAlbums(
-        profileDocument.albums.map((album) => album.item)
-      );
+      const albumDocuments = await rymDataClient.queryAlbums({
+        keys: profileDocument.albums.map((album) => album.item),
+      });
       const trackCountByAlbumFileName = profileDocument.albums.reduce<
         Record<string, number>
       >((acc, album) => {

@@ -70,9 +70,9 @@ export const buildAssessment = async ({
   const profile = assessableProfileSchema.parse(inputProfile);
   const album = assessableAlbumSchema.parse(inputAlbum);
 
-  const rawProfileAlbums = await rymDataClient.getAlbums(
-    profile.albums.map((album) => album.item)
-  );
+  const rawProfileAlbums = await rymDataClient.queryAlbums({
+    keys: profile.albums.map((album) => album.item),
+  });
   const profileAlbums = rawProfileAlbums.filter(
     (album) => assessableAlbumSchema.safeParse(album).success
   ) as unknown as AssessableAlbum[];

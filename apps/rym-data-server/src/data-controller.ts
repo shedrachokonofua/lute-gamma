@@ -2,12 +2,14 @@ import { buildControllerFactory } from "@lute/shared";
 import { Request, Response } from "express";
 import { buildChartInteractor } from "./chart-interactor";
 import { buildDataRepo } from "./data-repo";
+import { albumQuerySchema, buildQueryInteractor } from "./query-interactor";
 import { ServerContext } from "./ServerContext";
 
 export const buildDataController = buildControllerFactory(
   (serverContext: ServerContext) => {
     const dataRepo = buildDataRepo(serverContext);
     const chartInteractor = buildChartInteractor(dataRepo);
+    const queryInteractor = buildQueryInteractor(dataRepo);
 
     return {
       async patchAlbum(req: Request, res: Response) {
@@ -26,12 +28,10 @@ export const buildDataController = buildControllerFactory(
         return res.json({ ok: true, data: album });
       },
       async query(req: Request, res: Response) {
-        const { keys } = req.body;
-        if (!keys) {
-          return res.status(400).json({ ok: false, error: "Bad request" });
-        }
-        const result = await dataRepo.getAlbums(keys as string[]);
-        return res.json({ ok: true, data: result });
+        const query = albumQuerySchema.parse(req.body);
+        const albums = await queryInteractor.getAlbums(query);
+
+        return res.json({ ok: true, data: albums });
       },
     };
   }

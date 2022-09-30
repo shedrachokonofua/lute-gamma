@@ -43,10 +43,16 @@ export const buildRymDataClient = (rymDataServerUrl: string) => {
         return null;
       }
     },
-    async getAlbums(keys: string[]): Promise<AlbumDocument[]> {
-      const albums = await http.post("/query", {
-        keys,
-      });
+    async queryAlbums(query: {
+      keys?: string[];
+      artists?: string[];
+      primaryGenres?: string[];
+      secondaryGenres?: string[];
+      descriptors?: string[];
+      minRating?: number;
+      maxRating?: number;
+    }): Promise<AlbumDocument[]> {
+      const albums = await http.post("/query", query);
       return albums.data?.data || [];
     },
   };

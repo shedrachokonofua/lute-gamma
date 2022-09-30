@@ -4,6 +4,7 @@ import {
   PutAlbumPayload,
   transformObject,
 } from "@lute/shared";
+import { Filter } from "mongodb";
 import { logger } from "./logger";
 import { ServerContext } from "./ServerContext";
 
@@ -109,6 +110,13 @@ export const buildDataRepo = (serverContext: ServerContext) => ({
     return serverContext.mongoDatabase
       .collection<AlbumDocument>("albums")
       .find({ $or: [{ fileName: { $in: keys } }, { fileId: { $in: keys } }] })
+      .toArray();
+  },
+  async findAlbums(query: Filter<AlbumDocument>): Promise<AlbumDocument[]> {
+    logger.info({ query }, "Finding albums");
+    return serverContext.mongoDatabase
+      .collection<AlbumDocument>("albums")
+      .find(query)
       .toArray();
   },
 });
