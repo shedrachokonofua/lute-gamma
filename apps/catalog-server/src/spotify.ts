@@ -1,4 +1,4 @@
-import { SpotifyCredentials } from "@lute/shared";
+import { SpotifyCredentials } from "@lute/domain";
 import SpotifyWebApi from "spotify-web-api-node";
 import { HOST, SPOTIFT_CLIENT_ID, SPOTIFT_CLIENT_SECRET } from "./config";
 

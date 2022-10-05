@@ -1,22 +1,5 @@
+import { CrawlerItem, CrawlerMonitor, CrawlerStatus } from "@lute/domain";
 import { buildHttpClient } from "./shared";
-
-export interface CrawlerItem {
-  fileName: string;
-  lookupId?: string;
-}
-
-export enum CrawlerStatus {
-  Running = "running",
-  Error = "error",
-  Stopped = "stopped",
-}
-
-export interface CrawlerMonitor {
-  status: CrawlerStatus;
-  error?: string;
-  current?: string;
-  queueSize: number;
-}
 
 export const getSearchFileName = (artist: string, album: string) =>
   `search?${new URLSearchParams({

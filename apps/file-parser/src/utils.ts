@@ -3,7 +3,7 @@ import {
   buildFileServerClient,
   buildRymDataClient,
   buildRymLookupClient,
-} from "@lute/shared";
+} from "@lute/clients";
 import {
   FILE_SERVER_URL,
   RYM_DATA_SERVER_URL,

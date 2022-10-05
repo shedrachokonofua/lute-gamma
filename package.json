@@ -7,7 +7,7 @@
   "scripts": {
     "preinstall": "npx only-allow pnpm",
     "build": "turbo run build",
-    "clean": "npx rimraf **/build && npx rimraf ./**/node_modules",
+    "clean": "npx rimraf **/build && npx rimraf ./**/node_modules && npx rimraf ./**/.next",
     "dev": "docker-compose -f ./docker-compose.dev.yml up",
     "dev:build": "docker-compose -f ./docker-compose.dev.yml up --build",
     "dev:stop": "docker-compose -f ./docker-compose.dev.yml stop",

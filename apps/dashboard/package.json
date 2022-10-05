@@ -9,13 +9,23 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@lute/clients": "*",
+    "@lute/domain": "*",
+    "@emotion/react": "^11.10.4",
+    "@emotion/server": "^11.10.0",
+    "@mantine/core": "^5.5.2",
+    "@mantine/form": "^5.5.2",
+    "@mantine/hooks": "^5.5.2",
+    "@mantine/next": "^5.5.2",
     "@newrelic/next": "^0.3.0",
+    "env-var": "^7.3.0",
     "newrelic": "^9.1.0",
     "next": "12.3.1",
     "react": "18.2.0",
     "react-dom": "18.2.0"
   },
   "devDependencies": {
+    "@lute/ts-config": "*",
     "@types/node": "18.8.2",
     "@types/react": "18.0.21",
     "@types/react-dom": "18.0.6",

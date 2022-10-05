@@ -1,4 +1,9 @@
 import {
+  Assessment,
+  AssessmentSettings,
+  RecommendationSettings,
+} from "@lute/domain";
+import {
   AddAlbumToProfilePayload,
   ProfileDetails,
   ProfileRepo,
@@ -7,13 +12,7 @@ import {
 import { rymDataClient } from "./utils";
 import { startOfDecade } from "date-fns";
 import { logger } from "./logger";
-import {
-  Assessment,
-  AssessmentSettings,
-  buildAssessment,
-  buildAssessmentContext,
-} from "./assessment";
-import { RecommendationSettings } from "./recommendation";
+import { buildAssessment, buildAssessmentContext } from "./assessment";
 
 export const buildProfileInteractor = ({
   profileRepo,

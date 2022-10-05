@@ -1,10 +1,5 @@
-import {
-  RedisClient,
-  buildQueue,
-  QueueItem,
-  CrawlerStatus,
-  CrawlerItem,
-} from "@lute/shared";
+import { RedisClient, buildQueue, QueueItem } from "@lute/shared";
+import { CrawlerStatus, CrawlerItem } from "@lute/domain";
 
 export const isCrawlerStatus = (status: string): status is CrawlerStatus =>
   Object.values(CrawlerStatus).includes(status as CrawlerStatus);

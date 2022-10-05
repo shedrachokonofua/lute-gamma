@@ -1,4 +1,4 @@
-import { AuthStatus, SpotifyCredentials } from "@lute/shared";
+import { AuthStatus, SpotifyCredentials } from "@lute/domain";
 import { add as dateAdd } from "date-fns";
 import { CatalogRepo } from "../catalog-repo";
 import { logger } from "../logger";

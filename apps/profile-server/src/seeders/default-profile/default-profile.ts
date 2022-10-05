@@ -1,4 +1,5 @@
-import { CatalogTrack, LookupStatus, RedisClient } from "@lute/shared";
+import { RedisClient } from "@lute/shared";
+import { CatalogTrack, LookupStatus } from "@lute/domain";
 import { logger } from "../../logger";
 import { catalogClient, rymLookupClient } from "../../utils";
 import { ProfileInteractor } from "../../profile-interactor";

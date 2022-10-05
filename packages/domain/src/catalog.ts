@@ -1,5 +1,3 @@
-import { buildHttpClient } from "./shared";
-
 export interface CatalogTrack {
   spotifyId: string;
   name: string;
@@ -37,19 +35,3 @@ export interface GetAuthStatusResponse {
   status: AuthStatus;
   credentials: SpotifyCredentials;
 }
-
-export const buildCatalogClient = (catalogServerUrl: string) => {
-  const http = buildHttpClient(catalogServerUrl);
-
-  return {
-    async getTracks({
-      limit = 50,
-      offset = 0,
-    }: { limit?: number; offset?: number } = {}): Promise<
-      PaginatedValue<CatalogTrack>
-    > {
-      const tracks = await http.get(`/tracks?limit=${limit}&offset=${offset}`);
-      return tracks.data?.data || [];
-    },
-  };
-};

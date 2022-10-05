@@ -1,11 +1,5 @@
-import {
-  FileSavedEvent,
-  LookupStatus,
-  LuteEvent,
-  LuteEventClient,
-  PageDataParsedEvent,
-  PageType,
-} from "@lute/shared";
+import { LookupStatus, PageType } from "@lute/domain";
+import { FileSavedEvent, LuteEvent, LuteEventClient } from "@lute/shared";
 import { logger } from "../logger";
 import { fileServerClient, rymLookupClient } from "../utils";
 import { parseAlbum } from "./page-parsers/album";

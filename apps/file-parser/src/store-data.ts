@@ -1,11 +1,11 @@
 import {
   AlbumPage,
-  ChartPage,
-  LookupStatus,
-  PageDataParsedEvent,
   PageType,
+  LookupStatus,
+  ChartPage,
   SearchBestMatch,
-} from "@lute/shared";
+} from "@lute/domain";
+import { PageDataParsedEvent } from "@lute/shared";
 import { logger } from "./logger";
 import { crawlerClient, rymDataClient, rymLookupClient } from "./utils";
 

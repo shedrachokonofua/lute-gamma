@@ -1,13 +1,13 @@
 import https from "https";
 import {
   buildQueue,
-  CrawlerStatus,
   retry,
-  buildFileServerClient,
   delay,
   buildRedisClient,
   runWithTraceId,
 } from "@lute/shared";
+import { buildFileServerClient } from "@lute/clients";
+import { CrawlerStatus } from "@lute/domain";
 import axios from "axios";
 import {
   FILE_SERVER_URL,

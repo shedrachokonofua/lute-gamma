@@ -1,4 +1,4 @@
-import { PaginatedValue, CatalogTrack, SpotifyCredentials } from "@lute/shared";
+import { PaginatedValue, CatalogTrack, SpotifyCredentials } from "@lute/domain";
 import { CatalogRepo } from "./catalog-repo";
 import { buildAuthorizedSpotifyApi } from "./spotify";
 import { logger } from "./logger";

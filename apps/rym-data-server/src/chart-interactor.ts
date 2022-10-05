@@ -1,4 +1,4 @@
-import { ChartDocument, PutChartPayload } from "@lute/shared";
+import { ChartDocument, PutChartPayload } from "@lute/domain";
 import { DataRepo } from "./data-repo";
 
 export const buildChartInteractor = (dataRepo: DataRepo) => {

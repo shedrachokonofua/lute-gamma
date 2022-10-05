@@ -1,5 +1,7 @@
-import { FileSavedEvent, SearchBestMatch, xRay } from "@lute/shared";
+import { SearchBestMatch } from "@lute/domain";
+import { FileSavedEvent } from "@lute/shared";
 import { logger } from "../../logger";
+import { xRay } from "./xray";
 
 export const parseSearch = async (
   event: FileSavedEvent,

@@ -1,12 +1,6 @@
-import {
-  AlbumPage,
-  FileSavedEvent,
-  parseReleaseDateString,
-  Track,
-  transformObject,
-  xRay,
-  xRayMetaSelector,
-} from "@lute/shared";
+import { FileSavedEvent, transformObject } from "@lute/shared";
+import { AlbumPage, parseReleaseDateString, Track } from "@lute/domain";
+import { xRay, xRayMetaSelector } from "./xray";
 
 export const parseAlbum = async (
   event: FileSavedEvent,

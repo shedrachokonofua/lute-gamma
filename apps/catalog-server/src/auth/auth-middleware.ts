@@ -1,4 +1,4 @@
-import { AuthStatus, SpotifyCredentials } from "@lute/shared";
+import { AuthStatus, SpotifyCredentials } from "@lute/domain";
 import { Request, Response, NextFunction } from "express";
 import { CatalogRepo } from "../catalog-repo";
 import { buildAuthInteractor } from "./auth-interactor";

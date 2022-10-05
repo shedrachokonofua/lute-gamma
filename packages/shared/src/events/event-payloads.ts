@@ -1,4 +1,4 @@
-import { PageType } from "../rym";
+import { PageType } from "@lute/domain";
 
 export type FileSavedEvent = {
   fileId: string;

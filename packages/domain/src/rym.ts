@@ -56,3 +56,27 @@ export interface SearchBestMatch {
   artists: string[];
   fileName: string;
 }
+
+export type AlbumDocument = Partial<AlbumPage> & {
+  fileId: string;
+  fileName: string;
+};
+
+export type PutAlbumPayload = Partial<AlbumDocument>;
+
+export interface ChartDocumentAlbumEntry {
+  position: number;
+  fileName: string;
+}
+
+export interface ChartDocument {
+  fileId: string;
+  fileName: string;
+  parameters: ChartParameters;
+  albums: ChartDocumentAlbumEntry[];
+}
+
+export type PutChartPayload = ChartPage & {
+  fileName: string;
+  fileId: string;
+};

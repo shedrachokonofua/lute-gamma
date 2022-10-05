@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { assessmentSettingsSchema } from "../assessment";
+import { assessmentSettingsSchema } from "./assessment-schema";
 
 export const recommendationSettingsSchema = z.object({
   assessmentSettings: assessmentSettingsSchema.default({}),

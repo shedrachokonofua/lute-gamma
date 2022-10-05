@@ -2,7 +2,7 @@ import {
   buildRymDataClient,
   buildCatalogClient,
   buildRymLookupClient,
-} from "@lute/shared";
+} from "@lute/clients";
 import {
   CATALOG_SERVER_URL,
   RYM_DATA_SERVER_URL,

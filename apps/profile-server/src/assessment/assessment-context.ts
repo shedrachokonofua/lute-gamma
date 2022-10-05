@@ -5,8 +5,8 @@ import {
   assessableAlbumSchema,
   AssessableProfileDetails,
   assessableProfileSchema,
-} from "./assessment-schema";
-import { AssessmentSettings } from "./assessment-settings";
+  AssessmentSettings,
+} from "@lute/domain";
 
 export interface AssessmentContext {
   profileDetails: AssessableProfileDetails;

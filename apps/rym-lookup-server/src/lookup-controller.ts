@@ -1,4 +1,5 @@
-import { buildControllerFactory, getSearchFileName } from "@lute/shared";
+import { buildControllerFactory } from "@lute/shared";
+import { getSearchFileName } from "@lute/clients";
 import { LookupRepo } from "./lookup-repo";
 import { crawlerClient } from "./utils";
 

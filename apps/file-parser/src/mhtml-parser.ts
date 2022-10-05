@@ -1,4 +1,4 @@
-import { FileSavedEvent, LuteEvent, LuteEventClient } from "@lute/shared";
+import { FileSavedEvent } from "@lute/shared";
 import { fileServerClient } from "./utils";
 
 const removeLineTrailingEquals = (lines: string): string => {

@@ -1,9 +1,11 @@
 import { buildControllerFactory } from "@lute/shared";
+import {
+  recommendationSettingsSchema,
+  assessmentSettingsSchema,
+} from "@lute/domain";
 import { Db } from "mongodb";
-import { assessmentSettingsSchema } from "./assessment";
 import { buildProfileInteractor } from "./profile-interactor";
 import { buildProfileRepo } from "./profile-repo";
-import { recommendationSettingsSchema } from "./recommendation";
 import { seedDefaultProfile } from "./seeders";
 
 export const buildProfileController = buildControllerFactory<{

@@ -1,0 +1,19 @@
+{
+  "name": "@lute/domain",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./build/index.js",
+  "source": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+    "date-fns": "^2.29.3",
+    "zod": "^3.19.1"
+  },
+  "devDependencies": {
+    "@lute/ts-config": "*",
+    "typescript": "^4.8.4"
+  }
+}

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { Filter } from "mongodb";
-import { AlbumDocument } from "@lute/shared";
+import { AlbumDocument } from "@lute/domain";
 import { DataRepo } from "./data-repo";
 
 export const albumQuerySchema = z.object({

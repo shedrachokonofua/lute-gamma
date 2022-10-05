@@ -1,10 +1,10 @@
+import { RedisClient } from "@lute/shared";
 import {
-  RedisClient,
   LookupKey,
   PutLookupPayload,
   Lookup,
   LookupStatus,
-} from "@lute/shared";
+} from "@lute/domain";
 import hash from "object-hash";
 
 const normalizeString = (str: string) => str.toLowerCase().trim();

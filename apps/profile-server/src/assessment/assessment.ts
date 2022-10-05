@@ -1,19 +1,6 @@
-import { AlbumDocument } from "@lute/shared";
+import { AlbumDocument, assessableAlbumSchema, Assessment } from "@lute/domain";
 import * as ss from "simple-statistics";
 import { AssessmentContext } from "./assessment-context";
-import { assessableAlbumSchema } from "./assessment-schema";
-
-export interface Assessment {
-  albumFileName: string;
-  ratingQuantile: number;
-  ratingCountQuantile: number;
-  averagePrimaryGenreQuantile: number;
-  averageSecondaryGenreQuantile?: number;
-  averagePrimaryCrossGenreQuantile: number;
-  averageSecondaryCrossGenreQuantile?: number;
-  averageDescriptorQuantile: number;
-  averageQuantile: number;
-}
 
 const repeat = (value: number, times: number) =>
   Array.from({ length: times }, () => value);
