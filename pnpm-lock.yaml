@@ -4,13 +4,8 @@ importers:
 
   .:
     specifiers:
-      '@lute/domain': workspace:*
-      clients: ^1.1.1
       rimraf: ^3.0.2
       turbo: ^1.5.3
-    dependencies:
-      '@lute/domain': link:packages/domain
-      clients: 1.1.1
     devDependencies:
       rimraf: 3.0.2
       turbo: 1.5.3
@@ -342,10 +337,12 @@ importers:
       '@lute/domain': '*'
       '@lute/ts-config': '*'
       '@types/axios': ^0.14.0
+      '@types/cors': ^2.8.12
       '@types/express': ^4.17.14
       '@types/x-ray': ^2.3.3
       axios: ^0.27.2
       cls-rtracer: ^2.6.2
+      cors: ^2.8.5
       date-fns: ^2.29.3
       env-var: ^7.3.0
       express: ^4.18.1
@@ -363,6 +360,7 @@ importers:
       '@lute/domain': link:../domain
       axios: 0.27.2
       cls-rtracer: 2.6.2
+      cors: 2.8.5
       date-fns: 2.29.3
       env-var: 7.3.0
       express: 4.18.1
@@ -378,6 +376,7 @@ importers:
     devDependencies:
       '@lute/ts-config': link:../ts-config
       '@types/axios': 0.14.0
+      '@types/cors': 2.8.12
       '@types/express': 4.17.14
       '@types/x-ray': 2.3.3
       typescript: 4.8.4
@@ -2255,6 +2254,10 @@ packages:
       '@types/node': 18.7.23
     dev: true
 
+  /@types/cors/2.8.12:
+    resolution: {integrity: sha512-vt+kDhq/M2ayberEtJcIN/hxXy1Pk+59g2FV/ZQceeaTyCtCucjL2Q7FXlFjtWn4n15KCr1NE2lNNFhp0lEThw==}
+    dev: true
+
   /@types/express-serve-static-core/4.17.31:
     resolution: {integrity: sha512-DxMhY+NAsTwMMFHBTtJFNp5qiHKJ7TeqOo23zVEM9alT1Ml27Q3xcTH0xwxn7Q0BbMcVEJOs/7aQtUWupUQN3Q==}
     dependencies:
@@ -2843,12 +2846,6 @@ packages:
     optionalDependencies:
       fsevents: 2.3.2
 
-  /clients/1.1.1:
-    resolution: {integrity: sha512-1SBChKaPvqUjVltZeDXJzgOtRnpYUNcvwqTesvpHwI3kKGMokAMr/KuzrcvILXW8I5HhTo0mg8DT56MNwOxOOA==}
-    dependencies:
-      colors: 1.4.0
-    dev: false
-
   /cliui/7.0.4:
     resolution: {integrity: sha512-OcRE68cOsVMXp1Yvonl/fzkQOyjLSu/8bhPDfQt0e0/Eb283TKP20Fs2MqoPsr9SwA595rRCA+QMzYc9nBP+JQ==}
     dependencies:
@@ -2896,11 +2893,6 @@ packages:
 
   /color-name/1.1.4:
     resolution: {integrity: sha512-dOy+3AuW3a2wNbZHIuMZpTcgjGuLU/uBL/ubcZF9OXbDo8ff4O8yVp5Bf0efS8uEoYo5q4Fx7dY9OgQGXgAsQA==}
-
-  /colors/1.4.0:
-    resolution: {integrity: sha512-a+UqTh4kgZg/SlGvfbzDHpgRu7AAQOmmqRHJnxhRZICKFUT91brVhNNt58CMWU9PsBbv3PDCZUHbVxuDiH2mtA==}
-    engines: {node: '>=0.1.90'}
-    dev: false
 
   /combined-stream/1.0.8:
     resolution: {integrity: sha512-FQN4MRfuJeHf7cBbBMJFXhKSDq+2kAArBlmRBvcvFE5BB1HZKXtSFASDhdlz9zOYwxh8lDdnvmMOe/+5cdoEdg==}
@@ -2978,6 +2970,14 @@ packages:
 
   /core-util-is/1.0.3:
     resolution: {integrity: sha512-ZQBvi1DcpJ4GDqanjucZ2Hj3wEO5pZDS89BWbkcrvdxksJorwUDDZamX9ldFkp9aw2lmBDLgkObEA4DWNJ9FYQ==}
+    dev: false
+
+  /cors/2.8.5:
+    resolution: {integrity: sha512-KIHbLJqu73RGr/hnbrO9uBeixNGuvSQjul/jdFvS/KFSIH1hWVd1ng7zOHx+YrEfInLG7q4n6GHQ9cDtxv/P6g==}
+    engines: {node: '>= 0.10'}
+    dependencies:
+      object-assign: 4.1.1
+      vary: 1.1.2
     dev: false
 
   /cosmiconfig/7.0.1:
