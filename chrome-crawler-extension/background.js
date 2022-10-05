@@ -20,12 +20,14 @@ const getFileName = (url) =>
     .filter((x) => x !== "")
     .join("/") + ".mhtml";
 
+const FILE_SERVER_URL = "http://138.197.145.94:3333";
+
 const upload = (url, mhtml) => {
   const formData = new FormData();
   formData.append("name", getFileName(url));
   formData.append("file", mhtml);
 
-  fetch("http://localhost:3333/", {
+  fetch(FILE_SERVER_URL, {
     method: "POST",
     body: formData,
   });
@@ -33,7 +35,7 @@ const upload = (url, mhtml) => {
 
 const getCanUpload = async (url) => {
   const name = getFileName(url);
-  const res = await fetch(`http://localhost:3333/exists?name=${name}`);
+  const res = await fetch(`${FILE_SERVER_URL}/exists?name=${name}`);
   const json = await res.json();
   return !json.data.exists;
 };
