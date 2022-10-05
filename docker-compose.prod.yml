@@ -154,8 +154,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      target: build
       args:
         workspace: dashboard
+    command: npx turbo run start --filter=dashboard
     ports:
       - ${DASHBOARD_PORT}:80
     restart: always
