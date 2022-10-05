@@ -1,11 +1,9 @@
 import { AlbumDocument } from "@lute/shared";
 import * as ss from "simple-statistics";
-import { z } from "zod";
-import { Profile } from "../profile-repo";
-import { rymDataClient } from "../utils";
-import { AssessmentSettings } from "./assessment-settings";
+import { AssessmentContext } from "./assessment-context";
+import { assessableAlbumSchema } from "./assessment-schema";
 
-interface Assessment {
+export interface Assessment {
   albumFileName: string;
   ratingQuantile: number;
   ratingCountQuantile: number;
@@ -17,65 +15,17 @@ interface Assessment {
   averageQuantile: number;
 }
 
-const assessableAlbumSchema = z
-  .object({
-    fileName: z.string(),
-    rating: z.number(),
-    ratingCount: z.number(),
-    primaryGenres: z.array(z.string()).nonempty(),
-    secondaryGenres: z.array(z.string()),
-    descriptors: z.array(z.string()).nonempty(),
-  })
-  .passthrough();
-
-type AssessableAlbum = z.infer<typeof assessableAlbumSchema>;
-
-const itemAndCountSchema = z.object({
-  item: z.string(),
-  count: z.number(),
-});
-
-const assessableProfileDetailsSchema = z
-  .object({
-    artists: z.array(itemAndCountSchema),
-    primaryGenres: z.array(itemAndCountSchema),
-    secondaryGenres: z.array(itemAndCountSchema),
-    descriptors: z.array(itemAndCountSchema),
-  })
-  .passthrough();
-
-const assessableProfileSchema = z
-  .object({
-    albums: z.array(itemAndCountSchema).min(10),
-    details: assessableProfileDetailsSchema,
-    weightedProfileDetails: assessableProfileDetailsSchema,
-  })
-  .passthrough();
-
 const repeat = (value: number, times: number) =>
   Array.from({ length: times }, () => value);
 
 const flatCompact = <T>(arr: (T[] | undefined)[]) =>
   arr.reduce<T[]>((acc, val) => acc.concat(val || []), [] as T[]);
 
-export const buildAssessment = async ({
-  profile: inputProfile,
-  album: inputAlbum,
-  settings,
-}: {
-  profile: Profile;
-  album: AlbumDocument;
-  settings: AssessmentSettings;
-}): Promise<Assessment> => {
-  const profile = assessableProfileSchema.parse(inputProfile);
+export const buildAssessment = (
+  { profileAlbums, profileDetails, settings }: AssessmentContext,
+  inputAlbum: AlbumDocument
+): Assessment => {
   const album = assessableAlbumSchema.parse(inputAlbum);
-
-  const rawProfileAlbums = await rymDataClient.queryAlbums({
-    keys: profile.albums.map((album) => album.item),
-  });
-  const profileAlbums = rawProfileAlbums.filter(
-    (album) => assessableAlbumSchema.safeParse(album).success
-  ) as unknown as AssessableAlbum[];
 
   const ratingQuantile = ss.quantileRank(
     profileAlbums.map((a) => a.rating),
@@ -86,10 +36,6 @@ export const buildAssessment = async ({
     profileAlbums.map((a) => a.ratingCount),
     album.ratingCount
   );
-
-  const profileDetails = settings.useAlbumWeight
-    ? profile.weightedProfileDetails
-    : profile.details;
 
   const averagePrimaryGenreQuantile =
     ss.mean(

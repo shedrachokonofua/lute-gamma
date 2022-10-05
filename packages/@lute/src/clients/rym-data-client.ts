@@ -45,8 +45,11 @@ export const buildRymDataClient = (rymDataServerUrl: string) => {
     },
     async queryAlbums(query: {
       keys?: string[];
+      excludeKeys?: string[];
       artists?: string[];
+      excludeArtists?: string[];
       primaryGenres?: string[];
+      excludePrimaryGenres?: string[];
       secondaryGenres?: string[];
       descriptors?: string[];
       minRating?: number;

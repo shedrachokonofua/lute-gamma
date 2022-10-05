@@ -3,7 +3,7 @@ import { z } from "zod";
 const weightSchema = z.preprocess(Number, z.number().min(0).max(100));
 
 export const assessmentSettingsSchema = z.object({
-  noveltyFactor: z.preprocess(Number, z.number().min(0).max(1).default(0.5)),
+  noveltyFactor: z.preprocess(Number, z.number().min(0).max(1)).default(0.5),
   useAlbumWeight: z
     .preprocess((val) => val === "true", z.boolean())
     .default(false),

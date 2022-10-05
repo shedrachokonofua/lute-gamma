@@ -5,8 +5,11 @@ import { DataRepo } from "./data-repo";
 
 export const albumQuerySchema = z.object({
   keys: z.array(z.string()).optional(),
+  excludeKeys: z.array(z.string()).optional(),
   artists: z.array(z.string()).optional(),
+  excludeArtists: z.array(z.string()).optional(),
   primaryGenres: z.array(z.string()).optional(),
+  excludePrimaryGenres: z.array(z.string()).optional(),
   secondaryGenres: z.array(z.string()).optional(),
   descriptors: z.array(z.string()).optional(),
   minRating: z.number().optional(),
@@ -29,12 +32,31 @@ const buildDbAlbumQuery = (albumQuery: AlbumQuery): Filter<AlbumDocument> => {
     ];
   }
 
+  if (albumQuery.excludeKeys) {
+    (query as any).$nor = [
+      {
+        fileName: { $in: albumQuery.excludeKeys },
+      },
+      {
+        fileId: { $in: albumQuery.excludeKeys },
+      },
+    ];
+  }
+
   if (albumQuery.artists) {
     query["artists"] = { $in: albumQuery.artists };
   }
 
+  if (albumQuery.excludeArtists) {
+    query["artists"] = { $nin: albumQuery.excludeArtists };
+  }
+
   if (albumQuery.primaryGenres) {
     query["primaryGenres"] = { $in: albumQuery.primaryGenres };
+  }
+
+  if (albumQuery.excludePrimaryGenres) {
+    query["primaryGenres"] = { $nin: albumQuery.excludePrimaryGenres };
   }
 
   if (albumQuery.secondaryGenres) {

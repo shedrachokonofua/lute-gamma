@@ -16,6 +16,7 @@ export const startServer = buildServer<{
       .get("/:id", controller.getProfile)
       .post("/:id/album", controller.putAlbumOnProfile)
       .get("/:id/album/:albumFileId/assessment", controller.getAlbumAssessment)
+      .get("/:id/recommendations", controller.getRecommendations)
       .post("/seed/default", controller.seedDefaultProfile);
   },
   logger,

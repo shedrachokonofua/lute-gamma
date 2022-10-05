@@ -3,6 +3,7 @@ import { Db } from "mongodb";
 import { assessmentSettingsSchema } from "./assessment";
 import { buildProfileInteractor } from "./profile-interactor";
 import { buildProfileRepo } from "./profile-repo";
+import { recommendationSettingsSchema } from "./recommendation";
 import { seedDefaultProfile } from "./seeders";
 
 export const buildProfileController = buildControllerFactory<{
@@ -69,6 +70,18 @@ export const buildProfileController = buildControllerFactory<{
         settings,
       });
       return res.json({ ok: true, data: assessment });
+    },
+    async getRecommendations(req, res) {
+      const { id: profileId } = req.params;
+      const settings = recommendationSettingsSchema.parse(req.query);
+      if (!profileId) {
+        return res.status(400).json({ ok: false, error: "Bad request" });
+      }
+      const recommendations = await profileInteractor.getRecommendations({
+        profileId,
+        settings,
+      });
+      return res.json({ ok: true, data: recommendations });
     },
   };
 });

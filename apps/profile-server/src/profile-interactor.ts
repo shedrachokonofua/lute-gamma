@@ -1,6 +1,5 @@
 import {
   AddAlbumToProfilePayload,
-  ItemAndCount,
   ProfileDetails,
   ProfileRepo,
   ProfileSummary,
@@ -8,7 +7,13 @@ import {
 import { rymDataClient } from "./utils";
 import { startOfDecade } from "date-fns";
 import { logger } from "./logger";
-import { AssessmentSettings, buildAssessment } from "./assessment";
+import {
+  Assessment,
+  AssessmentSettings,
+  buildAssessment,
+  buildAssessmentContext,
+} from "./assessment";
+import { RecommendationSettings } from "./recommendation";
 
 export const buildProfileInteractor = ({
   profileRepo,
@@ -197,12 +202,49 @@ export const buildProfileInteractor = ({
       if (!album) {
         throw new Error("Unknown album");
       }
-
-      return await buildAssessment({
-        album,
+      return buildAssessment(
+        await buildAssessmentContext({
+          profile,
+          settings,
+        }),
+        album
+      );
+    },
+    async getRecommendations({
+      profileId,
+      settings,
+    }: {
+      profileId: string;
+      settings: RecommendationSettings;
+    }) {
+      const profile = await interactor.getProfile(profileId);
+      if (!profile) {
+        throw new Error("Unknown profile");
+      }
+      const assessmentContext = await buildAssessmentContext({
         profile,
-        settings,
+        settings: settings.assessmentSettings,
       });
+      const albums = await rymDataClient.queryAlbums({
+        excludeArtists: [
+          ...profile.details.artists.map((a) => a.item),
+          ...settings.filter.excludeArtists,
+        ],
+        excludePrimaryGenres: [...settings.filter.excludePrimaryGenres],
+        excludeKeys: [...settings.filter.excludeAlbums],
+      });
+      const assessments = albums.map((album) => {
+        try {
+          return buildAssessment(assessmentContext, album);
+        } catch {
+          return undefined;
+        }
+      });
+      const recommendations = assessments
+        .filter((a): a is Assessment => a !== undefined)
+        .sort((a, b) => b.averageQuantile - a.averageQuantile)
+        .slice(0, settings.count);
+      return recommendations;
     },
   };
 
