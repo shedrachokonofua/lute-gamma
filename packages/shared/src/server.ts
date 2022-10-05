@@ -1,4 +1,5 @@
 import express, { Request, Response, NextFunction } from "express";
+import cors from "cors";
 import * as rTracer from "cls-rtracer";
 import { Logger } from "pino";
 import pinoHttp from "pino-http";
@@ -17,6 +18,7 @@ export const buildServer = <Context extends {}>({
   return async (context: Context) => {
     const router = await buildRouter(context);
     server.use(express.json());
+    server.use(cors());
     server.use(
       rTracer.expressMiddleware({
         echoHeader: true,
