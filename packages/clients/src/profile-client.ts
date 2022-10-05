@@ -12,7 +12,7 @@ export const buildProfileClient = (profileServerUrl: string) => {
       const response = await http.get(`/${profileId}/recommendations`, {
         params: settings,
       });
-      return response.data || [];
+      return response.data?.data || [];
     },
   };
 };
