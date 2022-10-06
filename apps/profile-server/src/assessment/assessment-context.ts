@@ -1,4 +1,3 @@
-import { Profile } from "../profile-repo";
 import { rymDataClient } from "../utils";
 import {
   AssessableAlbum,
@@ -6,6 +5,7 @@ import {
   AssessableProfileDetails,
   assessableProfileSchema,
   AssessmentSettings,
+  Profile,
 } from "@lute/domain";
 
 export interface AssessmentContext {

@@ -5,6 +5,10 @@ body {
   font-family: 'Lato', sans-serif;
 }
 
+body {
+  background-color: #eee
+}
+
 a {
   color: inherit;
   text-decoration: none;

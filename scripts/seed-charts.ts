@@ -1,14 +1,29 @@
-import { buildCrawlerClient, runWithTraceId } from "../packages/@lute";
+import { buildCrawlerClient, buildProfileClient } from "../packages/clients";
+import { runWithTraceId } from "../packages/shared";
 
+const profileClient = buildProfileClient("http://localhost:3338");
 const crawlerClient = buildCrawlerClient("http://localhost:3335");
-for (let year = 1950; year < new Date().getFullYear(); year++) {
-  for (let page = 1; page <= 5; page++) {
-    runWithTraceId(() => {
-      crawlerClient
-        .schedule({
-          fileName: `charts/top/album/${year}/${page}`,
-        })
-        .catch((err) => console.log(err));
-    });
-  }
-}
+
+console.log(profileClient);
+(async () => {
+  runWithTraceId(async () => {
+    const profile = await profileClient.getProfile("default");
+    if (!profile) {
+      throw new Error("Profile not found");
+    }
+    const genres = profile.details.primaryGenres.map((g) =>
+      g.item.toLowerCase().replace(/ /g, "-").replace(/&/g, "and")
+    );
+    const names = genres.map(
+      (genre) => `charts/top/album/all-time/g:${genre}/`
+    );
+    for (const name of names) {
+      for (let i = 1; i <= 5; i++) {
+        await crawlerClient.schedule({
+          fileName: `${name}${i}`,
+        });
+      }
+    }
+  });
+})();
+//https://rateyourmusic.com/charts/top/album/all-time/g:hip-hop

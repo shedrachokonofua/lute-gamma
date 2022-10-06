@@ -9,20 +9,18 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@blueprintjs/core": "^4.11.0",
+    "@emotion/react": "^11.10.4",
+    "@emotion/styled": "^11.10.4",
     "@lute/clients": "*",
     "@lute/domain": "*",
-    "@emotion/react": "^11.10.4",
-    "@emotion/server": "^11.10.0",
-    "@mantine/core": "^5.5.2",
-    "@mantine/form": "^5.5.2",
-    "@mantine/hooks": "^5.5.2",
-    "@mantine/next": "^5.5.2",
     "@newrelic/next": "^0.3.0",
     "env-var": "^7.3.0",
     "newrelic": "^9.1.0",
     "next": "12.3.1",
     "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "react-dom": "18.2.0",
+    "react-hook-form": "^7.36.1"
   },
   "devDependencies": {
     "@lute/ts-config": "*",

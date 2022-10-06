@@ -3,7 +3,7 @@ import { assessmentSettingsSchema } from "./assessment-schema";
 
 export const recommendationSettingsSchema = z.object({
   assessmentSettings: assessmentSettingsSchema.default({}),
-  count: z.number().min(1).max(100).default(20),
+  count: z.preprocess(Number, z.number().min(1).max(100)).default(20),
   filter: z
     .object({
       excludeAlbums: z.array(z.string()).default([]),

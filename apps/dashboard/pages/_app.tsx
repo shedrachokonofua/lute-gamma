@@ -1,6 +1,6 @@
 import "../styles/globals.css";
+import "@blueprintjs/core/lib/css/blueprint.css";
 import type { AppProps } from "next/app";
-import { MantineProvider } from "@mantine/core";
 import Head from "next/head";
 
 function MyApp({ Component, pageProps }: AppProps) {
@@ -12,22 +12,13 @@ function MyApp({ Component, pageProps }: AppProps) {
           name="viewport"
           content="minimum-scale=1, initial-scale=1, width=device-width"
         />
+        <link
+          rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css"
+        />
       </Head>
 
-      <MantineProvider
-        withGlobalStyles
-        withNormalizeCSS
-        theme={{
-          /** Put your mantine theme override here */
-          colorScheme: "light",
-          fontFamily: "Lato, sans-serif",
-          headings: {
-            fontFamily: "Lato, sans-serif",
-          },
-        }}
-      >
-        <Component {...pageProps} />
-      </MantineProvider>
+      <Component {...pageProps} />
     </>
   );
 }

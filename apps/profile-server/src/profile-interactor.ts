@@ -1,14 +1,11 @@
 import {
   Assessment,
   AssessmentSettings,
+  ProfileDetails,
+  ProfileSummary,
   RecommendationSettings,
 } from "@lute/domain";
-import {
-  AddAlbumToProfilePayload,
-  ProfileDetails,
-  ProfileRepo,
-  ProfileSummary,
-} from "./profile-repo";
+import { AddAlbumToProfilePayload, ProfileRepo } from "./profile-repo";
 import { rymDataClient } from "./utils";
 import { startOfDecade } from "date-fns";
 import { logger } from "./logger";
