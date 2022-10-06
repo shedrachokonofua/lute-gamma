@@ -193,5 +193,6 @@ services:
       - CRAWLER_SERVER_URL
       - PROFILE_SERVER_URL
       - CATALOG_SERVER_URL
+      - BROWSER_PROFILE_SERVER_URL
       - REDIS_URL
       - PORT=80
