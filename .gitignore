@@ -6,7 +6,6 @@ node_modules
 .npm
 .turbo
 build
-*.js
 *.map
 *.d.ts
 newrelic_agent.log
