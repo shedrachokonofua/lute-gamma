@@ -1,4 +1,4 @@
-import { Assessment, RecommendationSettings, Profile } from "@lute/domain";
+import { RecommendationSettings, Profile, Recommendation } from "@lute/domain";
 import * as qs from "qs";
 import { buildHttpClient } from "./shared";
 
@@ -13,7 +13,7 @@ export const buildProfileClient = (profileServerUrl: string) => {
     getRecommendations: async (
       profileId: string,
       settings: RecommendationSettings
-    ): Promise<Assessment[]> => {
+    ): Promise<Recommendation[]> => {
       const response = await http.get(
         `/${profileId}/recommendations?${qs.stringify(settings)}`
       );

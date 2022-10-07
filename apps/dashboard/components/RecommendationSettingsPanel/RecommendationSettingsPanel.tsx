@@ -3,21 +3,18 @@ import { RecommendationSettings } from "@lute/domain";
 import {
   ActionIcon,
   Button,
-  Center,
   Grid,
   Group,
   NumberInput,
-  Paper,
   Stack,
   Switch,
   TextInput,
   Title,
 } from "@mantine/core";
-import { useMemo } from "react";
 import { useForm } from "@mantine/form";
 import { Panel } from "../Panel";
 import { CollapsibleSection } from "./CollapsibleSection";
-import { IconCircleMinus, IconTrash } from "@tabler/icons";
+import { IconCircleMinus } from "@tabler/icons";
 
 const getValueByPath = (obj: any, path: string) =>
   path.split(".").reduce((acc, key) => acc[key], obj);

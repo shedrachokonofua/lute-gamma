@@ -1,9 +1,11 @@
 import {
   AlbumDocument,
+  AssessableAlbum,
   Assessment,
   AssessmentSettings,
   ProfileDetails,
   ProfileSummary,
+  Recommendation,
   RecommendationSettings,
 } from "@lute/domain";
 import Bottleneck from "bottleneck";
@@ -220,7 +222,7 @@ export const buildProfileInteractor = ({
     }: {
       profileId: string;
       settings: RecommendationSettings;
-    }) {
+    }): Promise<Recommendation[]> {
       const profile = await interactor.getProfile(profileId);
       if (!profile) {
         throw new Error("Unknown profile");
@@ -233,34 +235,39 @@ export const buildProfileInteractor = ({
 
       const albums = await rymDataClient.queryAlbums({
         primaryGenres: [...settings.filter.primaryGenres],
-        excludeArtists: [
-          ...profile.details.artists.map((a) => a.item),
-          ...settings.filter.excludeArtists,
-        ],
+        excludeArtists: [...settings.filter.excludeArtists],
         excludePrimaryGenres: [...settings.filter.excludePrimaryGenres],
-        excludeKeys: [...settings.filter.excludeAlbums],
+        excludeKeys: [
+          ...profile.albums.map((a) => a.item),
+          ...settings.filter.excludeAlbums,
+        ],
       });
       logger.info({ albums: albums.length }, "Got albums");
 
-      const assessments = albums.map((album) => {
+      const recommendations = albums.map((album) => {
         try {
-          return buildAssessment(assessmentContext, album);
+          return {
+            album: album as any,
+            assessment: buildAssessment(assessmentContext, album),
+          };
         } catch {
           return undefined;
         }
       });
-      logger.info({ assessments: assessments.length }, "Built assessments");
-
-      const recommendations = assessments
-        .filter((a): a is Assessment => a !== undefined)
-        .sort((a, b) => b.averageQuantile - a.averageQuantile)
-        .slice(0, settings.count);
       logger.info(
         { recommendations: recommendations.length },
-        "Built recommendations"
+        "Built assessments"
       );
 
-      return recommendations;
+      const results = recommendations
+        .filter((a): a is Recommendation => a !== undefined)
+        .sort(
+          (a, b) => b.assessment.averageQuantile - a.assessment.averageQuantile
+        )
+        .slice(0, settings.count);
+      logger.info({ recommendations: results.length }, "Built recommendations");
+
+      return results;
     },
   };
 

@@ -18,18 +18,13 @@ export const albumQuerySchema = z.object({
 
 type AlbumQuery = z.infer<typeof albumQuerySchema>;
 
-const setOrUpdate = <T extends {}>(obj: T | undefined, update: Partial<T>) => {
-  if (obj === undefined) {
-    obj = {} as T;
-  }
-  Object.assign(obj, update);
-  return obj;
-};
+const inNonEmptyArray = <T>(arr: T[] | undefined): arr is T[] =>
+  arr !== undefined && arr.length > 0;
 
 const buildDbAlbumQuery = (albumQuery: AlbumQuery): Filter<AlbumDocument> => {
   const query: Filter<AlbumDocument> = {};
 
-  if (albumQuery.keys) {
+  if (inNonEmptyArray(albumQuery.keys)) {
     (query as any).$or = [
       {
         fileName: { $in: albumQuery.keys },
@@ -40,7 +35,7 @@ const buildDbAlbumQuery = (albumQuery: AlbumQuery): Filter<AlbumDocument> => {
     ];
   }
 
-  if (albumQuery.excludeKeys) {
+  if (inNonEmptyArray(albumQuery.excludeKeys)) {
     (query as any).$nor = [
       {
         fileName: { $in: albumQuery.excludeKeys },
@@ -51,29 +46,29 @@ const buildDbAlbumQuery = (albumQuery: AlbumQuery): Filter<AlbumDocument> => {
     ];
   }
 
-  if (albumQuery.artists) {
+  if (inNonEmptyArray(albumQuery.artists)) {
     query["artists"] = { $in: albumQuery.artists };
   }
 
-  if (albumQuery.excludeArtists) {
+  if (inNonEmptyArray(albumQuery.excludeArtists)) {
     query["artists"] = { $nin: albumQuery.excludeArtists };
   }
 
-  if (albumQuery.primaryGenres) {
+  if (inNonEmptyArray(albumQuery.primaryGenres)) {
     query["primaryGenres"] = query["primaryGenres"] || {};
     (query["primaryGenres"] as any)["$in"] = albumQuery.primaryGenres;
   }
 
-  if (albumQuery.excludePrimaryGenres) {
+  if (inNonEmptyArray(albumQuery.excludePrimaryGenres)) {
     query["primaryGenres"] = query["primaryGenres"] || {};
     (query["primaryGenres"] as any)["$nin"] = albumQuery.excludePrimaryGenres;
   }
 
-  if (albumQuery.secondaryGenres) {
+  if (inNonEmptyArray(albumQuery.secondaryGenres)) {
     query["secondaryGenres"] = { $in: albumQuery.secondaryGenres };
   }
 
-  if (albumQuery.descriptors) {
+  if (inNonEmptyArray(albumQuery.descriptors)) {
     query["descriptors"] = { $in: albumQuery.descriptors };
   }
 

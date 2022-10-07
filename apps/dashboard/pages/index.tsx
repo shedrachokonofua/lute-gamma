@@ -4,11 +4,12 @@ import { profileClient } from "../clients";
 import {
   Header,
   Container,
-  Paper,
-  Group,
   Stack,
   Grid,
   Title,
+  Text,
+  Badge,
+  Group,
 } from "@mantine/core";
 import {
   Panel,
@@ -16,7 +17,8 @@ import {
   RecommendationSettingsPanel,
   Spinner,
 } from "../components";
-import { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
+import { IconPlayerTrackNext } from "@tabler/icons";
 
 const useRecommendations = () => {
   const request = useCallback((settingsForm: RecommendationSettingsForm) => {
@@ -26,32 +28,6 @@ const useRecommendations = () => {
 
   return useAsync(request, false);
 };
-
-// const Home: NextPage = () => {
-//   useRecommendations("default", {} as RecommendationSettings);
-//   return (
-//     <>
-//       <Header height={60} p="md">
-//         <Container size="md">Lute</Container>
-//       </Header>
-//       <Container
-//         size="md"
-//         sx={{
-//           paddingTop: 32,
-//         }}
-//       >
-//         <Stack>
-//           <Grid>
-//             <Grid.Col md={4}>
-//               <Text>Recommedation Settings</Text>
-//             </Grid.Col>
-//             <Grid.Col md={8}>Recommendations</Grid.Col>
-//           </Grid>
-//         </Stack>
-//       </Container>
-//     </>
-//   );
-// };
 
 const defaultRecommendationSettings = {
   profileId: "default",
@@ -79,66 +55,147 @@ const defaultRecommendationSettings = {
   },
 } as RecommendationSettingsForm;
 
-const getInitialRecommendationSettings = () => {
-  const settings =
-    typeof window !== "undefined"
-      ? localStorage.getItem("settings")
-      : undefined;
+const getInitialRecommendationSettings = async () => {
+  const settings = localStorage.getItem("settings");
   return settings ? JSON.parse(settings) : defaultRecommendationSettings;
 };
 
-const Home: NextPage = () => {
-  const [settingsFormValue, setSettingsFormValue] =
-    useState<RecommendationSettingsForm>(getInitialRecommendationSettings);
+const useInitialSettings = () => useAsync(getInitialRecommendationSettings);
 
-  const { status, value: recommendations, execute } = useRecommendations();
+const Home: NextPage = () => {
+  const { status: initialSettingsStatus, value: initialSettings } =
+    useInitialSettings();
+  const [settingsFormValue, setSettingsFormValue] = useState<
+    RecommendationSettingsForm | undefined
+  >(undefined);
+
+  const {
+    status: recommendationStatus,
+    value: recommendations,
+    execute,
+  } = useRecommendations();
 
   useEffect(() => {
-    localStorage.setItem("settings", JSON.stringify(settingsFormValue));
-    execute(settingsFormValue);
+    if (initialSettingsStatus === "success" && !settingsFormValue) {
+      setSettingsFormValue(initialSettings);
+    }
+  }, [initialSettings, initialSettingsStatus, settingsFormValue]);
+
+  useEffect(() => {
+    if (settingsFormValue) {
+      localStorage.setItem("settings", JSON.stringify(settingsFormValue));
+      execute(settingsFormValue);
+    }
   }, [execute, settingsFormValue]);
 
   return (
     <main>
       <Header
-        height={50}
+        height={60}
         sx={(theme) => ({
           boxShadow: theme.shadows.xs,
         })}
       >
-        <Container size="lg">Lute</Container>
+        <Container size="lg" sx={{ height: "100%" }}>
+          <Group align="center" spacing="xs" sx={{ height: "100%" }}>
+            <IconPlayerTrackNext />
+            <Title order={1} size="h3" weight="normal">
+              Lute
+            </Title>
+          </Group>
+        </Container>
       </Header>
       <Container size="lg" py="lg">
-        <Grid>
-          <Grid.Col md={4}>
-            <RecommendationSettingsPanel
-              defaultSettings={getInitialRecommendationSettings()}
-              onSubmit={setSettingsFormValue}
-            />
-          </Grid.Col>
-          <Grid.Col md={8}>
-            <Panel>
-              <Stack spacing="md">
-                <Title order={4}>Recommendations</Title>
-                {status === "pending" && (
-                  <div>
-                    <Spinner />
-                  </div>
-                )}
-                {status === "success" && (
-                  <Stack spacing="lg">
-                    {recommendations &&
-                      recommendations.map((recommendation) => (
-                        <div key={recommendation.albumFileName}>
-                          {recommendation.albumFileName}
-                        </div>
-                      ))}
-                  </Stack>
-                )}
-              </Stack>
-            </Panel>
-          </Grid.Col>
-        </Grid>
+        {initialSettingsStatus === "pending" && <Spinner />}
+        {initialSettingsStatus === "success" && initialSettings && (
+          <Grid>
+            <Grid.Col md={4}>
+              <RecommendationSettingsPanel
+                defaultSettings={initialSettings}
+                onSubmit={setSettingsFormValue}
+              />
+            </Grid.Col>
+            <Grid.Col md={8}>
+              <Panel>
+                <Stack spacing="md">
+                  <Title order={4}>Recommendations</Title>
+                  {recommendationStatus === "pending" && (
+                    <div>
+                      <Spinner />
+                    </div>
+                  )}
+                  {recommendationStatus === "success" && (
+                    <Grid gutter="xl">
+                      {recommendations &&
+                        recommendations.map((recommendation) => (
+                          <React.Fragment key={recommendation.album.fileName}>
+                            <Grid.Col xs={10}>
+                              <Group spacing="xs">
+                                <Text
+                                  size="xl"
+                                  color="blue"
+                                  sx={{
+                                    ":hover": {
+                                      textDecoration: "underline",
+                                    },
+                                  }}
+                                >
+                                  <a
+                                    href={
+                                      "http://rateyourmusic.com/" +
+                                      recommendation.album.fileName
+                                    }
+                                    target="_blank"
+                                    rel="noreferrer"
+                                  >
+                                    {decodeURI(recommendation.album.name)}
+                                  </a>
+                                </Text>
+                                <Badge>{recommendation.album.rating} / 5</Badge>
+                              </Group>
+                              <div>
+                                <Text size="lg" weight="bold">
+                                  {recommendation.album.artists.join(", ")}
+                                </Text>
+                              </div>
+                              <div>
+                                <Text>
+                                  {recommendation.album.primaryGenres.join(
+                                    ", "
+                                  )}
+                                </Text>
+                              </div>
+                              <div>
+                                <Text size="md">
+                                  {recommendation.album.secondaryGenres.join(
+                                    ", "
+                                  )}
+                                </Text>
+                              </div>
+                              <div>
+                                <Text size="sm" color="gray">
+                                  {recommendation.album.descriptors.join(", ")}
+                                </Text>
+                              </div>
+                            </Grid.Col>
+                            <Grid.Col xs={2}>
+                              <Text size="xl" weight="bold">
+                                {(
+                                  recommendation.assessment.averageQuantile *
+                                  100
+                                ).toFixed(1)}
+                                %
+                              </Text>
+                            </Grid.Col>
+                          </React.Fragment>
+                        ))}
+                    </Grid>
+                  )}
+                </Stack>
+              </Panel>
+            </Grid.Col>
+          </Grid>
+        )}
       </Container>
     </main>
   );
