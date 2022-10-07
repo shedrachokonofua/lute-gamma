@@ -1,8 +1,8 @@
 import { buildCrawlerClient, buildProfileClient } from "../packages/clients";
 import { runWithTraceId } from "../packages/shared";
 
-const profileClient = buildProfileClient("http://localhost:3338");
-const crawlerClient = buildCrawlerClient("http://localhost:3335");
+const profileClient = buildProfileClient("http://138.197.145.94:3338");
+const crawlerClient = buildCrawlerClient("http://138.197.145.94:3335");
 
 console.log(profileClient);
 (async () => {
@@ -19,9 +19,10 @@ console.log(profileClient);
     );
     for (const name of names) {
       for (let i = 1; i <= 5; i++) {
-        await crawlerClient.schedule({
-          fileName: `${name}${i}`,
-        });
+        // await crawlerClient.schedule({
+        //   fileName: `${name}${i}`,
+        // });
+        console.log(`${name}${i}`);
       }
     }
   });

@@ -1,4 +1,5 @@
-import { Button, Collapse } from "@blueprintjs/core";
+import { Button, Collapse } from "@mantine/core";
+import { IconChevronDown, IconChevronUp } from "@tabler/icons";
 import { useState } from "react";
 
 interface CollapsibleSectionProps {
@@ -11,16 +12,20 @@ export const CollapsibleSection = ({
   children,
 }: CollapsibleSectionProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const Icon = isOpen ? IconChevronUp : IconChevronDown;
 
   return (
     <div>
       <Button
-        rightIcon={isOpen ? "caret-up" : "caret-down"}
-        text={`${isOpen ? "Hide" : "Show"} ${title}`}
+        rightIcon={<Icon size={16} />}
         onClick={() => setIsOpen(!isOpen)}
-        fill
-      />
-      <Collapse isOpen={isOpen}>
+        variant="light"
+        compact
+        fullWidth
+      >
+        {`${isOpen ? "Hide" : "Show"} ${title}`}
+      </Button>
+      <Collapse in={isOpen}>
         <div
           style={{
             padding: "1rem 0.5rem",

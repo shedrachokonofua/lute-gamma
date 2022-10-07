@@ -8,7 +8,9 @@ export const recommendationSettingsSchema = z.object({
     .object({
       excludeAlbums: z.array(z.string()).default([]),
       excludeArtists: z.array(z.string()).default([]),
+      primaryGenres: z.array(z.string()).default([]),
       excludePrimaryGenres: z.array(z.string()).default([]),
+      secondaryGenres: z.array(z.string()).default([]),
       excludeSecondaryGenres: z.array(z.string()).default([]),
     })
     .default({}),

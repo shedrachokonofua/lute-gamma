@@ -1,15 +1,23 @@
 import {
+  AlbumDocument,
   Assessment,
   AssessmentSettings,
   ProfileDetails,
   ProfileSummary,
   RecommendationSettings,
 } from "@lute/domain";
+import Bottleneck from "bottleneck";
 import { AddAlbumToProfilePayload, ProfileRepo } from "./profile-repo";
 import { rymDataClient } from "./utils";
 import { startOfDecade } from "date-fns";
 import { logger } from "./logger";
-import { buildAssessment, buildAssessmentContext } from "./assessment";
+import {
+  AssessmentContext,
+  buildAssessment,
+  buildAssessmentContext,
+} from "./assessment";
+
+const limiter = new Bottleneck({ maxConcurrent: 5000 });
 
 export const buildProfileInteractor = ({
   profileRepo,
@@ -221,7 +229,10 @@ export const buildProfileInteractor = ({
         profile,
         settings: settings.assessmentSettings,
       });
+      logger.info({ assessmentContext }, "Built assessment context");
+
       const albums = await rymDataClient.queryAlbums({
+        primaryGenres: [...settings.filter.primaryGenres],
         excludeArtists: [
           ...profile.details.artists.map((a) => a.item),
           ...settings.filter.excludeArtists,
@@ -229,6 +240,8 @@ export const buildProfileInteractor = ({
         excludePrimaryGenres: [...settings.filter.excludePrimaryGenres],
         excludeKeys: [...settings.filter.excludeAlbums],
       });
+      logger.info({ albums: albums.length }, "Got albums");
+
       const assessments = albums.map((album) => {
         try {
           return buildAssessment(assessmentContext, album);
@@ -236,10 +249,17 @@ export const buildProfileInteractor = ({
           return undefined;
         }
       });
+      logger.info({ assessments: assessments.length }, "Built assessments");
+
       const recommendations = assessments
         .filter((a): a is Assessment => a !== undefined)
         .sort((a, b) => b.averageQuantile - a.averageQuantile)
         .slice(0, settings.count);
+      logger.info(
+        { recommendations: recommendations.length },
+        "Built recommendations"
+      );
+
       return recommendations;
     },
   };

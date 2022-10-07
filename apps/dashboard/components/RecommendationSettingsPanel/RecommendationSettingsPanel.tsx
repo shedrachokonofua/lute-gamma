@@ -1,20 +1,26 @@
-import {
-  Card,
-  Elevation,
-  FormGroup,
-  InputGroup,
-  NumericInput,
-  Button,
-  Switch,
-} from "@blueprintjs/core";
 import styled from "@emotion/styled";
 import { RecommendationSettings } from "@lute/domain";
+import {
+  ActionIcon,
+  Button,
+  Center,
+  Grid,
+  Group,
+  NumberInput,
+  Paper,
+  Stack,
+  Switch,
+  TextInput,
+  Title,
+} from "@mantine/core";
 import { useMemo } from "react";
-import { useForm, Controller } from "react-hook-form";
-import { Grid } from "../Grid";
-import { Heading } from "../Heading";
-import { HStack, VStack } from "../Stack";
+import { useForm } from "@mantine/form";
+import { Panel } from "../Panel";
 import { CollapsibleSection } from "./CollapsibleSection";
+import { IconCircleMinus, IconTrash } from "@tabler/icons";
+
+const getValueByPath = (obj: any, path: string) =>
+  path.split(".").reduce((acc, key) => acc[key], obj);
 
 export type RecommendationSettingsForm = RecommendationSettings & {
   profileId: string;
@@ -30,257 +36,243 @@ const AlignRight = styled.div`
   justify-content: flex-end;
 `;
 
+const FilterInputs = ({
+  value,
+  getProps,
+  onRemove,
+}: {
+  value: string[];
+  getProps: (index: number) => any;
+  onRemove: (index: number) => void;
+}) => (
+  <>
+    {value.map((filter, index) => (
+      <Group key={index}>
+        <TextInput value={filter} {...getProps(index)} />
+        <ActionIcon onClick={() => onRemove(index)} color="red">
+          <IconCircleMinus size={16} />
+        </ActionIcon>
+      </Group>
+    ))}
+  </>
+);
+
+const FilterSection = ({
+  form,
+  path,
+  title,
+}: {
+  form: ReturnType<typeof useForm<RecommendationSettingsForm>>;
+  path: string;
+  title: string;
+}) => (
+  <CollapsibleSection title={title}>
+    <Stack>
+      <FilterInputs
+        value={getValueByPath(form.values, path)}
+        getProps={(index) => form.getInputProps(`${path}.${index}`)}
+        onRemove={(index) => form.removeListItem(path, index)}
+      />
+      <Button onClick={() => form.insertListItem(path, "")}>Add Item</Button>
+    </Stack>
+  </CollapsibleSection>
+);
+
 export const RecommendationSettingsPanel = ({
   defaultSettings,
   onSubmit,
 }: RecommendationSettingsPaneProps) => {
-  const { control, handleSubmit } = useForm<RecommendationSettingsForm>({
-    defaultValues: defaultSettings,
+  const form = useForm<RecommendationSettingsForm>({
+    initialValues: defaultSettings,
   });
+  const handleSubmit = form.onSubmit((values) => onSubmit(values));
 
   return (
-    <Card
-      elevation={Elevation.ONE}
-      style={{
-        minWidth: 360,
-      }}
-    >
-      <VStack>
-        <Heading level={5}>Recommendation Settings</Heading>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <VStack gap="lg">
-            <VStack gap="sm">
-              <FormGroup label="Profile ID" labelFor="profile-id">
-                <Controller
-                  name="profileId"
-                  control={control}
-                  render={({ field: { value, onChange } }) => (
-                    <InputGroup
-                      id="profile-id"
-                      placeholder="Profile ID"
-                      value={value}
-                      onChange={onChange}
-                    />
-                  )}
-                />
-              </FormGroup>
-              <FormGroup label="Recommendations Count" labelFor="count">
-                <Controller
-                  name="count"
-                  control={control}
-                  render={({ field: { value, onChange } }) => (
-                    <NumericInput
-                      id="count"
-                      placeholder="Recommendations Count"
-                      value={value}
-                      onValueChange={onChange}
-                      min={1}
-                      max={100}
-                    />
-                  )}
-                />
-              </FormGroup>
+    <Panel>
+      <Stack spacing="lg">
+        <Title order={4}>Settings</Title>
+        <form onSubmit={handleSubmit}>
+          <Stack spacing="xl">
+            <Stack spacing="sm">
+              <TextInput
+                label="Profile ID"
+                placeholder="Profile ID"
+                variant="filled"
+                {...form.getInputProps("profileId")}
+              />
+              <NumberInput
+                label="Recommendations Count"
+                placeholder="Recommendations Count"
+                variant="filled"
+                min={1}
+                max={100}
+                {...form.getInputProps("count")}
+              />
               <CollapsibleSection title="Assessment Settings">
-                <VStack gap="sm">
-                  <FormGroup label="Novelty Factor" labelFor="noveltyFactor">
-                    <Controller
-                      name="assessmentSettings.noveltyFactor"
-                      control={control}
-                      render={({ field: { value, onChange } }) => (
-                        <NumericInput
-                          id="count"
-                          placeholder="Novelty Factor"
-                          value={value}
-                          onValueChange={onChange}
-                          style={{ width: "100px" }}
-                          minorStepSize={0.01}
-                          stepSize={0.01}
-                          min={0}
-                          max={1}
-                        />
+                <Stack spacing="md">
+                  <div>
+                    <NumberInput
+                      label="Novelty Factor"
+                      placeholder="Novelty Factor"
+                      variant="filled"
+                      min={0}
+                      max={1}
+                      step={0.1}
+                      precision={1}
+                      {...form.getInputProps(
+                        "assessmentSettings.noveltyFactor"
                       )}
                     />
-                  </FormGroup>
-                  <Controller
-                    name="assessmentSettings.useAlbumWeight"
-                    control={control}
-                    render={({ field: { value, onChange } }) => (
-                      <Switch
-                        label="Weight albums"
-                        checked={value}
-                        onChange={onChange}
-                        id="useAlbumWeight"
-                      />
-                    )}
-                  />
-                  <div>
-                    <Heading level={6}>Parameter Weights</Heading>
-                    <Grid cols={2}>
-                      <FormGroup
-                        label="Descriptors"
-                        labelFor="parameterWeights.descriptors"
-                      >
-                        <Controller
-                          name="assessmentSettings.parameterWeights.descriptors"
-                          control={control}
-                          render={({ field: { value, onChange } }) => (
-                            <NumericInput
-                              id="count"
-                              placeholder="Descriptors"
-                              value={value}
-                              onValueChange={onChange}
-                              style={{ width: "100px" }}
-                              minorStepSize={1}
-                              min={0}
-                              max={100}
-                            />
-                          )}
-                        />
-                      </FormGroup>
-
-                      <FormGroup
-                        label="Primary Genres"
-                        labelFor="parameterWeights.primaryGenres"
-                      >
-                        <Controller
-                          name="assessmentSettings.parameterWeights.primaryGenres"
-                          control={control}
-                          render={({ field: { value, onChange } }) => (
-                            <NumericInput
-                              id="parameterWeights.primaryGenres"
-                              placeholder="Primary Genres"
-                              value={value}
-                              onValueChange={onChange}
-                              style={{ width: "100px" }}
-                              minorStepSize={1}
-                              min={0}
-                              max={100}
-                            />
-                          )}
-                        />
-                      </FormGroup>
-
-                      <FormGroup
-                        label="Secondary Genres"
-                        labelFor="parameterWeights.secondaryGenres"
-                      >
-                        <Controller
-                          name="assessmentSettings.parameterWeights.secondaryGenres"
-                          control={control}
-                          render={({ field: { value, onChange } }) => (
-                            <NumericInput
-                              id="parameterWeights.secondaryGenres"
-                              placeholder="Secondary Genres"
-                              value={value}
-                              onValueChange={onChange}
-                              style={{ width: "100px" }}
-                              minorStepSize={1}
-                              min={0}
-                              max={100}
-                            />
-                          )}
-                        />
-                      </FormGroup>
-
-                      <FormGroup
-                        label="Primary Cross Genres"
-                        labelFor="parameterWeights.primaryCrossGenres"
-                      >
-                        <Controller
-                          name="assessmentSettings.parameterWeights.primaryCrossGenres"
-                          control={control}
-                          render={({ field: { value, onChange } }) => (
-                            <NumericInput
-                              id="parameterWeights.primaryCrossGenres"
-                              placeholder="Primary Cross Genres"
-                              value={value}
-                              onValueChange={onChange}
-                              style={{ width: "100px" }}
-                              minorStepSize={1}
-                              min={0}
-                              max={100}
-                            />
-                          )}
-                        />
-                      </FormGroup>
-
-                      <FormGroup
-                        label="2-ary Cross Genres"
-                        labelFor="parameterWeights.secondaryCrossGenres"
-                      >
-                        <Controller
-                          name="assessmentSettings.parameterWeights.secondaryCrossGenres"
-                          control={control}
-                          render={({ field: { value, onChange } }) => (
-                            <NumericInput
-                              id="parameterWeights.secondaryCrossGenres"
-                              placeholder="Secondary Cross Genres"
-                              value={value}
-                              onValueChange={onChange}
-                              style={{ width: "100px" }}
-                              minorStepSize={1}
-                              min={0}
-                              max={100}
-                            />
-                          )}
-                        />
-                      </FormGroup>
-
-                      <FormGroup
-                        label="Rating"
-                        labelFor="parameterWeights.rating"
-                      >
-                        <Controller
-                          name="assessmentSettings.parameterWeights.rating"
-                          control={control}
-                          render={({ field: { value, onChange } }) => (
-                            <NumericInput
-                              id="parameterWeights.rating"
-                              placeholder="Rating"
-                              value={value}
-                              onValueChange={onChange}
-                              style={{ width: "100px" }}
-                              minorStepSize={1}
-                              min={0}
-                              max={100}
-                            />
-                          )}
-                        />
-                      </FormGroup>
-
-                      <FormGroup
-                        label="Rating Count"
-                        labelFor="parameterWeights.ratingCount"
-                      >
-                        <Controller
-                          name="assessmentSettings.parameterWeights.ratingCount"
-                          control={control}
-                          render={({ field: { value, onChange } }) => (
-                            <NumericInput
-                              id="parameterWeights.ratingCount"
-                              placeholder="Rating Count"
-                              value={value}
-                              onValueChange={onChange}
-                              style={{ width: "100px" }}
-                              minorStepSize={1}
-                              min={0}
-                              max={100}
-                            />
-                          )}
-                        />
-                      </FormGroup>
-                    </Grid>
                   </div>
-                </VStack>
+                  <div>
+                    <Switch
+                      label="Use Album Weight"
+                      {...form.getInputProps(
+                        "assessmentSettings.useAlbumWeight",
+                        {
+                          type: "checkbox",
+                        }
+                      )}
+                    />
+                  </div>
+                  <Title order={6}>Parameter Weights</Title>
+                  <Grid gutter="xs">
+                    <Grid.Col md={6}>
+                      <NumberInput
+                        label="Primary Genres"
+                        placeholder="Primary Genres"
+                        variant="filled"
+                        min={0}
+                        max={100}
+                        step={1}
+                        {...form.getInputProps(
+                          "assessmentSettings.parameterWeights.primaryGenres"
+                        )}
+                      />
+                    </Grid.Col>
+                    <Grid.Col md={6}>
+                      <NumberInput
+                        label="Secondary Genres"
+                        name="assessmentSettings.parameterWeights.secondaryGenres"
+                        placeholder="Secondary Genres"
+                        variant="filled"
+                        min={0}
+                        max={100}
+                        step={1}
+                        {...form.getInputProps(
+                          "assessmentSettings.parameterWeights.secondaryGenres"
+                        )}
+                      />
+                    </Grid.Col>
+                    <Grid.Col md={6}>
+                      <NumberInput
+                        label="Primary Cross Genres"
+                        name="assessmentSettings.parameterWeights.primaryCrossGenres"
+                        placeholder="P. Cross Genres"
+                        variant="filled"
+                        min={0}
+                        max={100}
+                        step={1}
+                        {...form.getInputProps(
+                          "assessmentSettings.parameterWeights.primaryCrossGenres"
+                        )}
+                      />
+                    </Grid.Col>
+                    <Grid.Col md={6}>
+                      <NumberInput
+                        label="2-ary Cross Genres"
+                        name="assessmentSettings.parameterWeights.secondaryCrossGenres"
+                        placeholder="S. Cross Genres"
+                        variant="filled"
+                        min={0}
+                        max={100}
+                        step={1}
+                        {...form.getInputProps(
+                          "assessmentSettings.parameterWeights.secondaryCrossGenres"
+                        )}
+                      />
+                    </Grid.Col>
+                    <Grid.Col md={6}>
+                      <NumberInput
+                        label="Rating"
+                        name="assessmentSettings.parameterWeights.rating"
+                        placeholder="Rating"
+                        variant="filled"
+                        min={0}
+                        max={100}
+                        step={1}
+                        {...form.getInputProps(
+                          "assessmentSettings.parameterWeights.rating"
+                        )}
+                      />
+                    </Grid.Col>
+                    <Grid.Col md={6}>
+                      <NumberInput
+                        label="Rating Count"
+                        name="assessmentSettings.parameterWeights.ratingCount"
+                        placeholder="Rating"
+                        variant="filled"
+                        min={0}
+                        max={100}
+                        step={1}
+                        {...form.getInputProps(
+                          "assessmentSettings.parameterWeights.ratingCount"
+                        )}
+                      />
+                    </Grid.Col>
+                    <Grid.Col md={6}>
+                      <NumberInput
+                        label="Descriptors"
+                        name="assessmentSettings.parameterWeights.descriptors"
+                        placeholder="Descriptors"
+                        variant="filled"
+                        min={0}
+                        max={100}
+                        step={1}
+                        {...form.getInputProps(
+                          "assessmentSettings.parameterWeights.descriptors"
+                        )}
+                      />
+                    </Grid.Col>
+                  </Grid>
+                </Stack>
               </CollapsibleSection>
-              <CollapsibleSection title="Filters">Filters</CollapsibleSection>
-            </VStack>
+              <CollapsibleSection title="Filter Settings">
+                <Stack spacing="sm" px="lg">
+                  <FilterSection
+                    form={form}
+                    path="filter.primaryGenres"
+                    title="Included Primary Genres"
+                  />
+                  <FilterSection
+                    form={form}
+                    path="filter.excludeAlbums"
+                    title="Exclude Albums"
+                  />
+                  <FilterSection
+                    form={form}
+                    path="filter.excludeArtists"
+                    title="Exclude Artists"
+                  />
+                  <FilterSection
+                    form={form}
+                    path="filter.excludePrimaryGenres"
+                    title="Exclude Primary Genres"
+                  />
+                  <FilterSection
+                    form={form}
+                    path="filter.excludeSecondaryGenres"
+                    title="Exclude Secondary Genres"
+                  />
+                </Stack>
+              </CollapsibleSection>
+            </Stack>
             <div>
-              <Button text="Submit" type="submit" />
+              <Button type="submit">Submit</Button>
             </div>
-          </VStack>
+          </Stack>
         </form>
-      </VStack>
-    </Card>
+      </Stack>
+    </Panel>
   );
 };

@@ -1,15 +1,20 @@
 import type { NextPage } from "next";
-import { Card, Elevation, Navbar, NavbarGroup } from "@blueprintjs/core";
 import { useAsync } from "../hooks/use-async";
 import { profileClient } from "../clients";
 import {
+  Header,
   Container,
-  Heading,
-  HStack,
+  Paper,
+  Group,
+  Stack,
+  Grid,
+  Title,
+} from "@mantine/core";
+import {
+  Panel,
   RecommendationSettingsForm,
   RecommendationSettingsPanel,
   Spinner,
-  VStack,
 } from "../components";
 import { useCallback, useEffect, useState } from "react";
 
@@ -64,6 +69,14 @@ const defaultRecommendationSettings = {
       ratingCount: 1,
     },
   },
+  filter: {
+    excludeAlbums: [],
+    excludeArtists: [],
+    primaryGenres: [],
+    excludePrimaryGenres: [],
+    secondaryGenres: [],
+    excludeSecondaryGenres: [],
+  },
 } as RecommendationSettingsForm;
 
 const getInitialRecommendationSettings = () => {
@@ -87,46 +100,45 @@ const Home: NextPage = () => {
 
   return (
     <main>
-      <Navbar>
-        <NavbarGroup>
-          <Navbar.Heading>Lute</Navbar.Heading>
-        </NavbarGroup>
-      </Navbar>
-      <Container>
-        <HStack gap="xl">
-          <div>
+      <Header
+        height={50}
+        sx={(theme) => ({
+          boxShadow: theme.shadows.xs,
+        })}
+      >
+        <Container size="lg">Lute</Container>
+      </Header>
+      <Container size="lg" py="lg">
+        <Grid>
+          <Grid.Col md={4}>
             <RecommendationSettingsPanel
               defaultSettings={getInitialRecommendationSettings()}
               onSubmit={setSettingsFormValue}
             />
-          </div>
-          <div
-            style={{
-              flex: 1,
-            }}
-          >
-            <Card elevation={Elevation.ONE}>
-              <VStack gap="md">
-                <Heading level={5}>Recommendations</Heading>
+          </Grid.Col>
+          <Grid.Col md={8}>
+            <Panel>
+              <Stack spacing="md">
+                <Title order={4}>Recommendations</Title>
                 {status === "pending" && (
                   <div>
                     <Spinner />
                   </div>
                 )}
                 {status === "success" && (
-                  <VStack gap="lg">
+                  <Stack spacing="lg">
                     {recommendations &&
                       recommendations.map((recommendation) => (
                         <div key={recommendation.albumFileName}>
                           {recommendation.albumFileName}
                         </div>
                       ))}
-                  </VStack>
+                  </Stack>
                 )}
-              </VStack>
-            </Card>
-          </div>
-        </HStack>
+              </Stack>
+            </Panel>
+          </Grid.Col>
+        </Grid>
       </Container>
     </main>
   );

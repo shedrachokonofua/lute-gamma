@@ -18,6 +18,14 @@ export const albumQuerySchema = z.object({
 
 type AlbumQuery = z.infer<typeof albumQuerySchema>;
 
+const setOrUpdate = <T extends {}>(obj: T | undefined, update: Partial<T>) => {
+  if (obj === undefined) {
+    obj = {} as T;
+  }
+  Object.assign(obj, update);
+  return obj;
+};
+
 const buildDbAlbumQuery = (albumQuery: AlbumQuery): Filter<AlbumDocument> => {
   const query: Filter<AlbumDocument> = {};
 
@@ -52,11 +60,13 @@ const buildDbAlbumQuery = (albumQuery: AlbumQuery): Filter<AlbumDocument> => {
   }
 
   if (albumQuery.primaryGenres) {
-    query["primaryGenres"] = { $in: albumQuery.primaryGenres };
+    query["primaryGenres"] = query["primaryGenres"] || {};
+    (query["primaryGenres"] as any)["$in"] = albumQuery.primaryGenres;
   }
 
   if (albumQuery.excludePrimaryGenres) {
-    query["primaryGenres"] = { $nin: albumQuery.excludePrimaryGenres };
+    query["primaryGenres"] = query["primaryGenres"] || {};
+    (query["primaryGenres"] as any)["$nin"] = albumQuery.excludePrimaryGenres;
   }
 
   if (albumQuery.secondaryGenres) {

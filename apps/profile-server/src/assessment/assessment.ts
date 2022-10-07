@@ -26,61 +26,61 @@ export const buildAssessment = (
 
   const averagePrimaryGenreQuantile =
     ss.mean(
-      album.primaryGenres.map((albumGenre) => {
-        return ss.quantileRank(
+      album.primaryGenres.map((albumGenre) =>
+        ss.quantileRank(
           profileDetails.primaryGenres.map((a) => a.count),
           profileDetails.primaryGenres.find((g) => g.item === albumGenre)
             ?.count || 0
-        );
-      })
+        )
+      )
     ) || settings.noveltyFactor;
 
   const averageSecondaryGenreQuantile =
     album.secondaryGenres.length > 0
       ? ss.mean(
-          album.secondaryGenres.map((albumGenre) => {
-            return ss.quantileRank(
+          album.secondaryGenres.map((albumGenre) =>
+            ss.quantileRank(
               profileDetails.secondaryGenres.map((a) => a.count),
               profileDetails.secondaryGenres.find((g) => g.item === albumGenre)
                 ?.count || 0
-            );
-          })
+            )
+          )
         ) || settings.noveltyFactor
       : undefined;
 
   const averagePrimaryCrossGenreQuantile =
     ss.mean(
-      album.primaryGenres.map((albumGenre) => {
-        return ss.quantileRank(
+      album.primaryGenres.map((albumGenre) =>
+        ss.quantileRank(
           profileDetails.secondaryGenres.map((a) => a.count),
           profileDetails.secondaryGenres.find((g) => g.item === albumGenre)
             ?.count || 0
-        );
-      })
+        )
+      )
     ) || settings.noveltyFactor;
 
   const averageSecondaryCrossGenreQuantile =
     album.secondaryGenres.length > 0
       ? ss.mean(
-          album.secondaryGenres.map((albumGenre) => {
-            return ss.quantileRank(
+          album.secondaryGenres.map((albumGenre) =>
+            ss.quantileRank(
               profileDetails.primaryGenres.map((a) => a.count),
               profileDetails.primaryGenres.find((g) => g.item === albumGenre)
                 ?.count || 0
-            );
-          })
+            )
+          )
         ) || settings.noveltyFactor
       : undefined;
 
   const averageDescriptorQuantile =
     ss.mean(
-      album.descriptors.map((descriptor) => {
-        return ss.quantileRank(
+      album.descriptors.map((descriptor) =>
+        ss.quantileRank(
           profileDetails.descriptors.map((a) => a.count),
           profileDetails.descriptors.find((d) => d.item === descriptor)
             ?.count || 0
-        );
-      })
+        )
+      )
     ) || settings.noveltyFactor;
 
   const averageQuantile = ss.mean(
