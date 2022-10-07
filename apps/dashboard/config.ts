@@ -7,4 +7,4 @@ export const PROFILE_SERVER_URL = env
 
 export const BROWSER_PROFILE_SERVER_URL =
   (process.env.NEXT_PUBLIC_PROFILE_SERVER_URL as string) ||
-  "http://138.197.145.94:3338";
+  "http://localhost:3338";
