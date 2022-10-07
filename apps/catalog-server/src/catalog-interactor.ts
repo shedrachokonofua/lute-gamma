@@ -1,6 +1,6 @@
 import { PaginatedValue, CatalogTrack, SpotifyCredentials } from "@lute/domain";
 import { CatalogRepo } from "./catalog-repo";
-import { buildAuthorizedSpotifyApi } from "./spotify";
+import { buildAuthorizedSpotifyApi, SpotifyTrack } from "./spotify";
 import { logger } from "./logger";
 
 const getNextOffset = (
@@ -14,6 +14,22 @@ const getNextOffset = (
   const nextOffset = offset + limit;
   return nextOffset < total ? nextOffset : undefined;
 };
+
+const spotifyTrackToCatalogTrack = (
+  spotifyTrack: SpotifyTrack
+): CatalogTrack => ({
+  spotifyId: spotifyTrack.id,
+  name: spotifyTrack.name,
+  artists: spotifyTrack.artists.map((artist) => ({
+    spotifyId: artist.id,
+    name: artist.name,
+  })),
+  album: {
+    spotifyId: spotifyTrack.album.id,
+    name: spotifyTrack.album.name,
+    type: spotifyTrack.album.album_type,
+  },
+});
 
 export const buildCatalogInteractor = (catalogRepo: CatalogRepo) => {
   return {
@@ -37,19 +53,41 @@ export const buildCatalogInteractor = (catalogRepo: CatalogRepo) => {
       const nextOffset = getNextOffset(offset, limit, total);
 
       return {
-        items: items.map((item) => ({
-          spotifyId: item.track.id,
-          name: item.track.name,
-          artists: item.track.artists.map((artist) => ({
-            spotifyId: artist.id,
-            name: artist.name,
-          })),
-          album: {
-            spotifyId: item.track.album.id,
-            name: item.track.album.name,
-            type: item.track.album.album_type,
-          },
-        })),
+        items: items.map((item) => spotifyTrackToCatalogTrack(item.track)),
+        nextOffset,
+        total,
+      };
+    },
+    async getPlaylistTracks({
+      spotifyCredentials,
+      playlistId,
+      offset = 0,
+      limit = 50,
+    }: {
+      spotifyCredentials: SpotifyCredentials;
+      playlistId: string;
+      offset?: number;
+      limit?: number;
+    }): Promise<PaginatedValue<CatalogTrack>> {
+      const spotifyApi = buildAuthorizedSpotifyApi(spotifyCredentials);
+      const {
+        body: { items, total },
+      } = await spotifyApi.getPlaylistTracks(playlistId, {
+        offset,
+        limit,
+      });
+      logger.info({ items, total }, "Got tracks from spotify");
+      const nextOffset = getNextOffset(offset, limit, total);
+
+      const spotifyTracks = items.reduce<SpotifyTrack[]>((acc, item) => {
+        if (item.track) {
+          acc.push(item.track);
+        }
+        return acc;
+      }, []);
+
+      return {
+        items: spotifyTracks.map(spotifyTrackToCatalogTrack),
         nextOffset,
         total,
       };

@@ -16,11 +16,13 @@ export const startServer = buildServer<{
       catalogRepo,
     });
 
-    const authRequiredRouter = Router().get(
-      "/tracks",
-      authGuard,
-      catalogController.getTracks
-    );
+    const authRequiredRouter = Router()
+      .get("/tracks", authGuard, catalogController.getSavedTracks)
+      .get(
+        "/playlists/:playlistId/tracks",
+        authGuard,
+        catalogController.getPlaylistTracks
+      );
 
     return Router()
       .use("/auth", buildAuthRouter(catalogRepo))

@@ -22,3 +22,9 @@ export const buildAuthorizedSpotifyApi = (credentials: SpotifyCredentials) => {
   api.setRefreshToken(credentials.refreshToken);
   return api;
 };
+
+type SpotifyApi = ReturnType<typeof buildAuthorizedSpotifyApi>;
+
+export type SpotifyTrack = Awaited<
+  ReturnType<SpotifyApi["getMySavedTracks"]>
+>["body"]["items"][0]["track"];
