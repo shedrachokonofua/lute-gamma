@@ -1,37 +1,26 @@
-FROM node:lts-alpine AS base
-RUN npm install -g pnpm
-RUN apk add g++ make py3-pip
-
-FROM base AS install
-
-WORKDIR /app
-RUN pnpm add turbo
-COPY . .
+FROM node:lts-buster-slim AS base
 ARG workspace
-RUN npx turbo prune --scope=${workspace} --docker
+ENV WORKSPACE=${workspace}
+RUN npm install -g pnpm turbo
 
-FROM base AS prebuild
+FROM base as builder
+WORKDIR /app
+COPY . .
+RUN npx turbo prune --scope=${WORKSPACE} --docker
+
+FROM base AS installer
 WORKDIR /app
 COPY .npmrc .npmrc
 COPY .gitignore .gitignore
-COPY --from=install /app/out/json/ .
-COPY --from=install /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
-COPY --from=install /app/out/pnpm-workspace.yaml ./pnpm-workspace.yaml
+COPY --from=builder /app/out/json/ .
+COPY --from=builder /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
+COPY --from=builder /app/out/pnpm-workspace.yaml ./pnpm-workspace.yaml
 RUN npx pnpm install
-COPY --from=install /app/out/full/ .
+COPY --from=builder /app/out/full/ .
 COPY turbo.json turbo.json
+RUN npx turbo run build --filter=${WORKSPACE}
 
-FROM base as build
+FROM base as runner
 WORKDIR /app
-COPY --from=prebuild /app .
-ARG workspace
-RUN npx turbo run build --filter=${workspace}
-
-FROM base as run
-RUN addgroup --system --gid 1001 app
-RUN adduser --system --uid 1001 lute
-USER lute
-COPY --from=build /app .
-ARG workspace
-WORKDIR /apps/${workspace}/build/
-CMD node index.js
+COPY --from=installer /app .
+CMD npx turbo run start --filter=${WORKSPACE}
