@@ -6,7 +6,7 @@ import {
 import { Db } from "mongodb";
 import { buildProfileInteractor } from "./profile-interactor";
 import { buildProfileRepo } from "./profile-repo";
-import { seedDefaultProfile } from "./seeders";
+import { seedDefaultProfile, seedProfileWithPlaylist } from "./seeders";
 
 export const buildProfileController = buildControllerFactory<{
   mongoDatabase: Db;
@@ -56,6 +56,18 @@ export const buildProfileController = buildControllerFactory<{
     },
     async seedDefaultProfile(req, res) {
       seedDefaultProfile({ profileInteractor });
+      return res.json({ ok: true });
+    },
+    async seedProfileWithPlaylist(req, res) {
+      const { id, playlistId } = req.params;
+      if (!id || !playlistId) {
+        return res.status(400).json({ ok: false, error: "Bad request" });
+      }
+      seedProfileWithPlaylist({
+        profileId: id,
+        playlistId,
+        profileInteractor,
+      });
       return res.json({ ok: true });
     },
     async getAlbumAssessment(req, res) {

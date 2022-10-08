@@ -17,7 +17,11 @@ export const startServer = buildServer<{
       .post("/:id/album", controller.putAlbumOnProfile)
       .get("/:id/album/:albumFileId/assessment", controller.getAlbumAssessment)
       .get("/:id/recommendations", controller.getRecommendations)
-      .post("/seed/default", controller.seedDefaultProfile);
+      .post("/seed/default", controller.seedDefaultProfile)
+      .post(
+        "/seed/:id/playlists/:playlistId",
+        controller.seedProfileWithPlaylist
+      );
   },
   logger,
 });
