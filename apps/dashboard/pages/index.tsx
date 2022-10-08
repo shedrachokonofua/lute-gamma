@@ -1,23 +1,15 @@
 import type { NextPage } from "next";
 import { useAsync } from "../hooks/use-async";
 import { profileClient } from "../clients";
-import {
-  Header,
-  Container,
-  Stack,
-  Grid,
-  Title,
-  Text,
-  Badge,
-  Group,
-} from "@mantine/core";
+import { Header, Container, Stack, Grid, Title, Group } from "@mantine/core";
 import {
   Panel,
+  Recommendations,
   RecommendationSettingsForm,
   RecommendationSettingsPanel,
   Spinner,
 } from "../components";
-import React, { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { IconPlayerTrackNext } from "@tabler/icons";
 
 const useRecommendations = () => {
@@ -96,7 +88,7 @@ const Home: NextPage = () => {
           boxShadow: theme.shadows.xs,
         })}
       >
-        <Container size="lg" sx={{ height: "100%" }}>
+        <Container size="xl" sx={{ height: "100%" }}>
           <Group align="center" spacing="xs" sx={{ height: "100%" }}>
             <IconPlayerTrackNext />
             <Title order={1} size="h3" weight="normal">
@@ -105,17 +97,17 @@ const Home: NextPage = () => {
           </Group>
         </Container>
       </Header>
-      <Container size="lg" py="lg">
+      <Container size="xl" py="lg">
         {initialSettingsStatus === "pending" && <Spinner />}
         {initialSettingsStatus === "success" && initialSettings && (
           <Grid>
-            <Grid.Col md={4}>
+            <Grid.Col md={3}>
               <RecommendationSettingsPanel
                 defaultSettings={initialSettings}
                 onSubmit={setSettingsFormValue}
               />
             </Grid.Col>
-            <Grid.Col md={8}>
+            <Grid.Col md={9}>
               <Panel>
                 <Stack spacing="md">
                   <Title order={4}>Recommendations</Title>
@@ -124,72 +116,8 @@ const Home: NextPage = () => {
                       <Spinner />
                     </div>
                   )}
-                  {recommendationStatus === "success" && (
-                    <Grid gutter="xl">
-                      {recommendations &&
-                        recommendations.map((recommendation) => (
-                          <React.Fragment key={recommendation.album.fileName}>
-                            <Grid.Col xs={10}>
-                              <Group spacing="xs">
-                                <Text
-                                  size="xl"
-                                  color="blue"
-                                  sx={{
-                                    ":hover": {
-                                      textDecoration: "underline",
-                                    },
-                                  }}
-                                >
-                                  <a
-                                    href={
-                                      "http://rateyourmusic.com/" +
-                                      recommendation.album.fileName
-                                    }
-                                    target="_blank"
-                                    rel="noreferrer"
-                                  >
-                                    {decodeURI(recommendation.album.name)}
-                                  </a>
-                                </Text>
-                                <Badge>{recommendation.album.rating} / 5</Badge>
-                              </Group>
-                              <div>
-                                <Text size="lg" weight="bold">
-                                  {recommendation.album.artists.join(", ")}
-                                </Text>
-                              </div>
-                              <div>
-                                <Text>
-                                  {recommendation.album.primaryGenres.join(
-                                    ", "
-                                  )}
-                                </Text>
-                              </div>
-                              <div>
-                                <Text size="md">
-                                  {recommendation.album.secondaryGenres.join(
-                                    ", "
-                                  )}
-                                </Text>
-                              </div>
-                              <div>
-                                <Text size="sm" color="gray">
-                                  {recommendation.album.descriptors.join(", ")}
-                                </Text>
-                              </div>
-                            </Grid.Col>
-                            <Grid.Col xs={2}>
-                              <Text size="xl" weight="bold">
-                                {(
-                                  recommendation.assessment.averageQuantile *
-                                  100
-                                ).toFixed(1)}
-                                %
-                              </Text>
-                            </Grid.Col>
-                          </React.Fragment>
-                        ))}
-                    </Grid>
+                  {recommendationStatus === "success" && recommendations && (
+                    <Recommendations recommendations={recommendations} />
                   )}
                 </Stack>
               </Panel>

@@ -28,7 +28,7 @@ export const CollapsibleSection = ({
       <Collapse in={isOpen}>
         <div
           style={{
-            padding: "1rem 0.5rem",
+            padding: "0.75rem 0.5rem",
             boxSizing: "border-box",
           }}
         >

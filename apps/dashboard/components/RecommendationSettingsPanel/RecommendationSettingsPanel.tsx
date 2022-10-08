@@ -45,7 +45,14 @@ const FilterInputs = ({
   <>
     {value.map((filter, index) => (
       <Group key={index}>
-        <TextInput value={filter} {...getProps(index)} />
+        <TextInput
+          value={filter}
+          {...getProps(index)}
+          variant="filled"
+          sx={{
+            width: "160px",
+          }}
+        />
         <ActionIcon onClick={() => onRemove(index)} color="red">
           <IconCircleMinus size={16} />
         </ActionIcon>
@@ -163,7 +170,7 @@ export const RecommendationSettingsPanel = ({
                     </Grid.Col>
                     <Grid.Col md={6}>
                       <NumberInput
-                        label="Primary Cross Genres"
+                        label="Pr. Cross Genres"
                         name="assessmentSettings.parameterWeights.primaryCrossGenres"
                         placeholder="P. Cross Genres"
                         variant="filled"
@@ -235,7 +242,7 @@ export const RecommendationSettingsPanel = ({
                 </Stack>
               </CollapsibleSection>
               <CollapsibleSection title="Filter Settings">
-                <Stack spacing="sm" px="lg">
+                <Stack spacing="sm" px="md">
                   <FilterSection
                     form={form}
                     path="filter.primaryGenres"
