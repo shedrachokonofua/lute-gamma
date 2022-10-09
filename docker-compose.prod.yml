@@ -20,7 +20,7 @@ services:
   catalog-server:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.prod
       args:
         workspace: catalog-server
     ports:
@@ -39,7 +39,7 @@ services:
   crawler:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.prod
       args:
         workspace: crawler
     ports:
@@ -61,7 +61,7 @@ services:
   file-parser:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.prod
       args:
         workspace: file-parser
     restart: always
@@ -79,7 +79,7 @@ services:
   file-server:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.prod
       args:
         workspace: file-server
     ports:
@@ -100,7 +100,7 @@ services:
   profile-server:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.prod
       args:
         workspace: profile-server
     ports:
@@ -120,7 +120,7 @@ services:
   rym-data-server:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.prod
       args:
         workspace: rym-data-server
     ports:
@@ -136,7 +136,7 @@ services:
   rym-lookup-server:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.prod
       args:
         workspace: rym-lookup-server
     ports:
@@ -153,9 +153,10 @@ services:
   dashboard:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.prod
       args:
         workspace: dashboard
+        next_profile_service_url: ${PROFILE_SERVER_URL}
     ports:
       - ${DASHBOARD_PORT}:80
     restart: always

@@ -18,9 +18,7 @@ COPY --from=builder /app/out/pnpm-workspace.yaml ./pnpm-workspace.yaml
 RUN npx pnpm install
 COPY --from=builder /app/out/full/ .
 COPY turbo.json turbo.json
-RUN npx turbo run build --filter=${WORKSPACE}
 
 FROM base as runner
 WORKDIR /app
 COPY --from=installer /app .
-CMD npx turbo run start --filter=${WORKSPACE}
