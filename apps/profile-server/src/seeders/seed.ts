@@ -3,6 +3,7 @@ import {
   hashLookupKey,
   isSavedLookup,
   LookupKey,
+  LookupStatus,
   PaginatedValue,
 } from "@lute/domain";
 import { rymLookupClient } from "../utils";
@@ -90,6 +91,8 @@ export const seedProfile = async ({
 
       if (isSavedLookup(lookupResult)) {
         await seedLookupInteractor.handleSavedLookup(lookupResult);
+      } else if (lookupResult.status === LookupStatus.NotFound) {
+        await seedLookupInteractor.handleLookupNotFound(lookupResult.keyHash);
       }
     })
   );
