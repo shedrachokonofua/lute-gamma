@@ -1,4 +1,5 @@
 import {
+  buildLuteEventClient,
   buildLuteEventSubscriber,
   buildRedisClient,
   LuteEvent,
@@ -17,7 +18,6 @@ const handleSearchResult = async (event: PageDataParsedEvent) => {
   }
   logger.info({ event }, "Lookup search found");
   const data = JSON.parse(event.dataString) as SearchBestMatch;
-
   const albumData = await rymDataClient.getAlbum(data.fileName);
   const putLookupPayload = albumData
     ? {
@@ -31,14 +31,17 @@ const handleSearchResult = async (event: PageDataParsedEvent) => {
         status: LookupStatus.Found,
         bestMatch: data,
       };
+
   logger.info({ event, putLookupPayload }, "Put lookup");
-  const lookupInteractor = buildLookupInteractor(
-    buildLookupRepo(await buildRedisClient({ logger, url: REDIS_URL }))
-  );
+  const redisClient = await buildRedisClient({ logger, url: REDIS_URL });
+  const lookupInteractor = buildLookupInteractor({
+    lookupRepo: buildLookupRepo(redisClient),
+    eventClient: buildLuteEventClient(redisClient),
+  });
   await lookupInteractor.putLookup(event.lookupId, putLookupPayload);
 
-  if (albumData) {
-    logger.info({ event, albumData }, "Lookup album data saved");
+  if (!albumData) {
+    logger.info({ event, albumData }, "Scheduling album for crawling");
     await crawlerClient.schedule({
       fileName: data.fileName,
       lookupId: event.lookupId,

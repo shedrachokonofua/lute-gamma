@@ -14,7 +14,7 @@ Queuing data for profile generation
 - Already saved look-ups are added to the "profile generation queue"
 - Started or Found look-ups are added to the "profile candidate hset"
 - New event "LookupAlbumSaved"
-- New listener for "LookupAlbumSaved", for each item check if member of "profile candidate hset". If so, unset and add to "profile generation queue"
+- New listener for "LookupAlbumSaved", for each item check if member of "profile candidate hset". If so, delete and add to "profile generation queue"
 
 Profile generation
 

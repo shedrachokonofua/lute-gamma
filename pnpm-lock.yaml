@@ -338,14 +338,18 @@ importers:
   packages/domain:
     specifiers:
       '@lute/ts-config': '*'
+      '@types/object-hash': ^2.2.1
       date-fns: ^2.29.3
+      object-hash: ^3.0.0
       typescript: ^4.8.4
       zod: ^3.19.1
     dependencies:
       date-fns: 2.29.3
+      object-hash: 3.0.0
       zod: 3.19.1
     devDependencies:
       '@lute/ts-config': link:../ts-config
+      '@types/object-hash': 2.2.1
       typescript: 4.8.4
 
   packages/shared:

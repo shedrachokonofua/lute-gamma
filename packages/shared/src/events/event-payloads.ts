@@ -14,7 +14,10 @@ export type PageDataParsedEvent = {
   lookupId?: string;
 };
 
-export type LookupAlbumDataSaved = {
+export type LookupSavedEvent = {
   lookupId: string;
-  dataString: string;
+};
+
+export type LookupNotFoundEvent = {
+  lookupId: string;
 };

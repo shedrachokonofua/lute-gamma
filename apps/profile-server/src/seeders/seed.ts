@@ -1,7 +1,12 @@
-import { CatalogTrack, LookupStatus, PaginatedValue } from "@lute/domain";
-import { logger } from "../logger";
-import { ProfileInteractor } from "../profile-interactor";
+import {
+  CatalogTrack,
+  hashLookupKey,
+  isSavedLookup,
+  LookupKey,
+  PaginatedValue,
+} from "@lute/domain";
 import { rymLookupClient } from "../utils";
+import { SeedLookupInteractor } from "./seed-lookup-interactor";
 
 interface CatalogTrackWithAlbum extends CatalogTrack {
   album: Exclude<CatalogTrack["album"], undefined>;
@@ -12,16 +17,17 @@ interface SeederState {
   limit: number;
   offset: number;
   trackCountBySpotifyAlbumId: Record<string, number>;
+  lookupKeyBySpotifyAlbumId: Record<string, LookupKey>;
   skippedAlbumSpotifyIds: Set<string>;
 }
 
 export const seedProfile = async ({
   profileId,
-  profileInteractor,
+  seedLookupInteractor,
   fetchTracks,
 }: {
   profileId: string;
-  profileInteractor: ProfileInteractor;
+  seedLookupInteractor: SeedLookupInteractor;
   fetchTracks: (state: SeederState) => Promise<PaginatedValue<CatalogTrack>>;
 }) => {
   const state = {
@@ -29,6 +35,7 @@ export const seedProfile = async ({
     offset: 0,
     limit: 50,
     trackCountBySpotifyAlbumId: {} as Record<string, number>,
+    lookupKeyBySpotifyAlbumId: {} as Record<string, LookupKey>,
     skippedAlbumSpotifyIds: new Set<string>(),
   };
   while (state.hasNext) {
@@ -38,6 +45,7 @@ export const seedProfile = async ({
       (track): track is CatalogTrackWithAlbum =>
         !!track.album?.spotifyId && track.album.type === "album"
     );
+
     const tracksBySpotifyAlbumId = relevantTracks.reduce<{
       [spotifyAlbumId: string]: CatalogTrackWithAlbum[];
     }>((acc, track) => {
@@ -47,43 +55,42 @@ export const seedProfile = async ({
       return acc;
     }, {});
 
-    await Promise.all(
-      Object.keys(tracksBySpotifyAlbumId).map(async (albumId) => {
-        const tracks = tracksBySpotifyAlbumId[albumId];
-        const trackCount =
-          tracks.length + (state.trackCountBySpotifyAlbumId[albumId] || 0);
-
-        const lookupResult = await rymLookupClient.getOrCreateLookup(
-          tracks[0].artists[0].name,
-          tracks[0].album.name
-        );
-
-        if (!lookupResult) return;
-
-        if (
-          lookupResult.status !== LookupStatus.Saved ||
-          !lookupResult.bestMatch?.fileName
-        ) {
-          logger.info({ lookupResult }, "Skipping unsaved lookup");
-          return;
-        }
-
-        try {
-          await profileInteractor.putAlbumOnProfile({
-            profileId,
-            albumFileName: lookupResult.bestMatch.fileName,
-            count: trackCount,
-          });
-        } catch (error) {
-          logger.error(
-            { error, lookupResult, albumId, trackCount },
-            "Failed to put album on profile"
-          );
-        }
-      })
-    );
+    Object.keys(tracksBySpotifyAlbumId).forEach((albumId) => {
+      const tracks = tracksBySpotifyAlbumId[albumId];
+      state.trackCountBySpotifyAlbumId[albumId] =
+        tracks.length + (state.trackCountBySpotifyAlbumId[albumId] || 0);
+      state.lookupKeyBySpotifyAlbumId[albumId] = {
+        artist: tracks[0].artists[0].name,
+        album: tracks[0].album.name,
+      };
+    });
 
     state.hasNext = result.items.length === 50;
     state.offset = state.hasNext ? state.offset + 50 : state.offset;
   }
+
+  const trackCountByLookupHash = Object.keys(
+    state.trackCountBySpotifyAlbumId
+  ).reduce<Record<string, number>>((acc, albumId) => {
+    const lookupHash = hashLookupKey(state.lookupKeyBySpotifyAlbumId[albumId]);
+    acc[lookupHash] = state.trackCountBySpotifyAlbumId[albumId];
+    return acc;
+  }, {});
+
+  await seedLookupInteractor.buildTable(profileId, trackCountByLookupHash);
+
+  await Promise.all(
+    Object.values(state.lookupKeyBySpotifyAlbumId).map(async (key) => {
+      const lookupResult = await rymLookupClient.getOrCreateLookup(
+        key.artist,
+        key.album
+      );
+
+      if (!lookupResult) return;
+
+      if (isSavedLookup(lookupResult)) {
+        await seedLookupInteractor.handleSavedLookup(lookupResult);
+      }
+    })
+  );
 };

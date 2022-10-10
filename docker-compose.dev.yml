@@ -176,6 +176,7 @@ services:
       - ENV
       - CRAWLER_SERVER_URL
       - PROFILE_SERVER_URL
+      - NEXT_PUBLIC_PROFILE_SERVER_URL
       - CATALOG_SERVER_URL
       - REDIS_URL
       - PORT=80

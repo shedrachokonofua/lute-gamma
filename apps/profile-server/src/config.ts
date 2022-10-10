@@ -29,3 +29,8 @@ export const MONGO_DB_NAME = env
   .get("MONGO_DB_NAME")
   .default("profile")
   .asString();
+
+export const REDIS_URL = env
+  .get("REDIS_URL")
+  .default("redis://redis:6379")
+  .asString();

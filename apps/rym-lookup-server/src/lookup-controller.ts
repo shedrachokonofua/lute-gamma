@@ -1,10 +1,16 @@
-import { buildControllerFactory } from "@lute/shared";
+import { buildControllerFactory, LuteEventClient } from "@lute/shared";
 import { LookupRepo } from "./lookup-repo";
 import { buildLookupInteractor } from "./lookup-interactor";
 
 export const buildLookupController = buildControllerFactory(
-  ({ lookupRepo }: { lookupRepo: LookupRepo }) => {
-    const lookupInteractor = buildLookupInteractor(lookupRepo);
+  ({
+    lookupRepo,
+    eventClient,
+  }: {
+    lookupRepo: LookupRepo;
+    eventClient: LuteEventClient;
+  }) => {
+    const lookupInteractor = buildLookupInteractor({ lookupRepo, eventClient });
 
     return {
       async getLookupByHash(req, res) {

@@ -6,6 +6,8 @@ import { retry } from "../utils";
 export enum LuteEvent {
   FileSaved = "file-saved",
   PageDataParsed = "page-data-parsed",
+  LookupSaved = "lookup-saved",
+  LookupNotFound = "lookup-not-found",
 }
 
 const getEventStreamKey = (event: LuteEvent) => `event:${event}`;

@@ -19,5 +19,5 @@ export const CRAWLER_SERVER_URL = env
 
 export const RYM_DATA_SERVER_URL = env
   .get("RYM_DATA_SERVER_URL")
-  .default("http://rym-data")
+  .default("http://rym-data-server")
   .asString();

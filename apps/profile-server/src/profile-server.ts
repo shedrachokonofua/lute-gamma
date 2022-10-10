@@ -1,12 +1,10 @@
 import { buildServer } from "@lute/shared";
 import { Router } from "express";
-import { Db } from "mongodb";
 import { logger } from "./logger";
 import { buildProfileController } from "./profile-controller";
+import { ServerContext } from "./server-context";
 
-export const startServer = buildServer<{
-  mongoDatabase: Db;
-}>({
+export const startServer = buildServer<ServerContext>({
   name: "profile-server",
   buildRouter(context) {
     const controller = buildProfileController(context);

@@ -1,15 +1,15 @@
 import { catalogClient } from "../../utils";
-import { ProfileInteractor } from "../../profile-interactor";
 import { seedProfile } from "../seed";
+import { SeedLookupInteractor } from "../seed-lookup-interactor";
 
 export const seedDefaultProfile = async ({
-  profileInteractor,
+  seedLookupInteractor,
 }: {
-  profileInteractor: ProfileInteractor;
+  seedLookupInteractor: SeedLookupInteractor;
 }) => {
   await seedProfile({
     profileId: "default",
-    profileInteractor,
+    seedLookupInteractor,
     fetchTracks: (state) =>
       catalogClient.getTracks({
         limit: state.limit,

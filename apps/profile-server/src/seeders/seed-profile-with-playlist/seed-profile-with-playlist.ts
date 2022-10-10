@@ -1,19 +1,19 @@
-import { ProfileInteractor } from "../../profile-interactor";
 import { catalogClient } from "../../utils";
 import { seedProfile } from "../seed";
+import { SeedLookupInteractor } from "../seed-lookup-interactor";
 
 export const seedProfileWithPlaylist = async ({
   profileId,
-  profileInteractor,
+  seedLookupInteractor,
   playlistId,
 }: {
   profileId: string;
-  profileInteractor: ProfileInteractor;
+  seedLookupInteractor: SeedLookupInteractor;
   playlistId: string;
 }) => {
   await seedProfile({
     profileId,
-    profileInteractor,
+    seedLookupInteractor,
     fetchTracks: (state) =>
       catalogClient.getPlaylistTracks({
         limit: state.limit,

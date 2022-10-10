@@ -27,5 +27,5 @@ export const PROXY_PASSWORD = env.get("PROXY_PASSWORD").required().asString();
 
 export const COOL_DOWN_SECONDS = env
   .get("COOL_DOWN_SECONDS")
-  .default(2)
+  .default(0)
   .asIntPositive();
