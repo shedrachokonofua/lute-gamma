@@ -10,4 +10,4 @@ export const MONGO_URL = env
   .default("mongodb://mongodb:27017")
   .asString();
 
-export const IS_TS_NODE = env.get("TS_NODE").default("true").asBool();
+export const IS_TS_NODE = env.get("TS_NODE").default("false").asBool();
