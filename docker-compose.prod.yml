@@ -58,7 +58,20 @@ services:
       - NEW_RELIC_LICENSE_KEY=${MY_NEWRELIC_LICENSE_KEY}
       - NEW_RELIC_APP_NAME=crawler
 
-
+  crons:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+      args:
+        workspace: crons
+    restart: always
+    environment:
+      - ENV
+      - PROFILE_SERVER_URL
+      - MONGO_URL
+      - NEW_RELIC_LICENSE_KEY=${MY_NEWRELIC_LICENSE_KEY}
+      - NEW_RELIC_APP_NAME=crons
+  
   dashboard:
     build:
       context: .
@@ -79,20 +92,6 @@ services:
       - PORT=80
       - NEW_RELIC_LICENSE_KEY=${MY_NEWRELIC_LICENSE_KEY}
       - NEW_RELIC_APP_NAME=dashboard
-  
-  crons:
-    build:
-      context: .
-      dockerfile: Dockerfile.prod
-      args:
-        workspace: crons
-    restart: always
-    environment:
-      - ENV
-      - PROFILE_SERVER_URL
-      - MONGO_URL
-      - NEW_RELIC_LICENSE_KEY=${MY_NEWRELIC_LICENSE_KEY}
-      - NEW_RELIC_APP_NAME=crons
       
   file-parser:
     build:
