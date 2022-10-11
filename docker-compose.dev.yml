@@ -62,7 +62,43 @@ services:
       - PROXY_USERNAME
       - PROXY_PASSWORD
       - COOL_DOWN_SECONDS
+  
+  crons:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      args:
+        workspace: crons
+    command: npx turbo run dev --filter=crons
+    restart: always
+    volumes:
+      - ./apps/crons:/app/apps/crons
+    environment:
+      - ENV
+      - PROFILE_SERVER_URL
+      - MONGO_URL
 
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      args:
+        workspace: dashboard
+    command: npx turbo run dev --filter=dashboard
+    ports:
+      - ${DASHBOARD_PORT}:80
+    restart: always
+    volumes:
+      - ./apps/dashboard:/app/apps/dashboard
+    environment:
+      - ENV
+      - CRAWLER_SERVER_URL
+      - PROFILE_SERVER_URL
+      - NEXT_PUBLIC_PROFILE_SERVER_URL
+      - CATALOG_SERVER_URL
+      - REDIS_URL
+      - PORT=80
+      
   file-parser:
     build:
       context: .
@@ -160,23 +196,3 @@ services:
       - CRAWLER_SERVER_URL
       - REDIS_URL
   
-  dashboard:
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
-      args:
-        workspace: dashboard
-    command: npx turbo run dev --filter=dashboard
-    ports:
-      - ${DASHBOARD_PORT}:80
-    restart: always
-    volumes:
-      - ./apps/dashboard:/app/apps/dashboard
-    environment:
-      - ENV
-      - CRAWLER_SERVER_URL
-      - PROFILE_SERVER_URL
-      - NEXT_PUBLIC_PROFILE_SERVER_URL
-      - CATALOG_SERVER_URL
-      - REDIS_URL
-      - PORT=80

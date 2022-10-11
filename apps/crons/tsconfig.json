@@ -1,0 +1,8 @@
+{
+  "extends": "@lute/ts-config/base.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "build"
+  },
+  "include": ["src/**/*.ts"]
+}

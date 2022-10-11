@@ -58,6 +58,42 @@ services:
       - NEW_RELIC_LICENSE_KEY=${MY_NEWRELIC_LICENSE_KEY}
       - NEW_RELIC_APP_NAME=crawler
 
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+      args:
+        workspace: dashboard
+        next_profile_service_url: ${NEXT_PUBLIC_PROFILE_SERVER_URL}
+    ports:
+      - ${DASHBOARD_PORT}:80
+    restart: always
+    environment:
+      - ENV
+      - CRAWLER_SERVER_URL
+      - PROFILE_SERVER_URL
+      - CATALOG_SERVER_URL
+      - REDIS_URL
+      - NEXT_PUBLIC_PROFILE_SERVER_URL
+      - PORT=80
+      - NEW_RELIC_LICENSE_KEY=${MY_NEWRELIC_LICENSE_KEY}
+      - NEW_RELIC_APP_NAME=dashboard
+  
+  crons:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+      args:
+        workspace: crons
+    restart: always
+    environment:
+      - ENV
+      - PROFILE_SERVER_URL
+      - MONGO_URL
+      - NEW_RELIC_LICENSE_KEY=${MY_NEWRELIC_LICENSE_KEY}
+      - NEW_RELIC_APP_NAME=crons
+      
   file-parser:
     build:
       context: .
@@ -150,23 +186,3 @@ services:
       - NEW_RELIC_LICENSE_KEY=${MY_NEWRELIC_LICENSE_KEY}
       - NEW_RELIC_APP_NAME=rym-lookup-server
   
-  dashboard:
-    build:
-      context: .
-      dockerfile: Dockerfile.prod
-      args:
-        workspace: dashboard
-        next_profile_service_url: ${NEXT_PUBLIC_PROFILE_SERVER_URL}
-    ports:
-      - ${DASHBOARD_PORT}:80
-    restart: always
-    environment:
-      - ENV
-      - CRAWLER_SERVER_URL
-      - PROFILE_SERVER_URL
-      - CATALOG_SERVER_URL
-      - REDIS_URL
-      - NEXT_PUBLIC_PROFILE_SERVER_URL
-      - PORT=80
-      - NEW_RELIC_LICENSE_KEY=${MY_NEWRELIC_LICENSE_KEY}
-      - NEW_RELIC_APP_NAME=dashboard

@@ -19,5 +19,8 @@ export const buildProfileClient = (profileServerUrl: string) => {
       );
       return response.data?.data || [];
     },
+    seedDefaultProfile: async (): Promise<void> => {
+      await http.post(`/seed/default`);
+    },
   };
 };
