@@ -39,6 +39,7 @@ export const buildSeedLookupInteractor = ({
               "Failed to put album on profile"
             );
           } finally {
+            logger.info({ lookup, profileId }, "Deleting seed lookup");
             await seedLookupRepo.deleteSeedLookup(lookup.keyHash, profileId);
           }
         })
