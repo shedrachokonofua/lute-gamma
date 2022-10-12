@@ -9,10 +9,13 @@ import { logger } from "./logger";
 import { REDIS_URL } from "./config";
 import { LookupStatus, PageType, SearchBestMatch } from "@lute/domain";
 import { crawlerClient, rymDataClient } from "./utils";
-import { buildLookupInteractor } from "./lookup-interactor";
+import { buildLookupInteractor, LookupInteractor } from "./lookup-interactor";
 import { buildLookupRepo } from "./lookup-repo";
 
-const handleSearchResult = async (event: PageDataParsedEvent) => {
+const handleSearchResult = async (
+  lookupInteractor: LookupInteractor,
+  event: PageDataParsedEvent
+) => {
   if (event.pageType !== PageType.Search || !event.lookupId) {
     return;
   }
@@ -33,11 +36,7 @@ const handleSearchResult = async (event: PageDataParsedEvent) => {
       };
 
   logger.info({ event, putLookupPayload }, "Put lookup");
-  const redisClient = await buildRedisClient({ logger, url: REDIS_URL });
-  const lookupInteractor = buildLookupInteractor({
-    lookupRepo: buildLookupRepo(redisClient),
-    eventClient: buildLuteEventClient(redisClient),
-  });
+
   await lookupInteractor.putLookup(event.lookupId, putLookupPayload);
 
   if (!albumData) {
@@ -50,10 +49,16 @@ const handleSearchResult = async (event: PageDataParsedEvent) => {
 };
 
 export const buildLookupEventSubscribers = async () => {
+  const redisClient = await buildRedisClient({ logger, url: REDIS_URL });
+  const lookupInteractor = buildLookupInteractor({
+    lookupRepo: buildLookupRepo(redisClient),
+    eventClient: buildLuteEventClient(redisClient),
+  });
+
   buildLuteEventSubscriber<PageDataParsedEvent>({
     name: "lookup-search-handler",
     event: LuteEvent.PageDataParsed,
-    handler: handleSearchResult,
+    handler: (event) => handleSearchResult(lookupInteractor, event),
     redisClient: await buildRedisClient({ logger, url: REDIS_URL }),
     logger,
   });
