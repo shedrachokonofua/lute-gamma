@@ -65,11 +65,13 @@ export const startCrawler = async ({
           await wait();
           return;
         }
+        logger.info({ queueItem }, "Crawling");
         const {
           data: { fileName, lookupId },
           traceId,
         } = queueItem;
         const response = await network.get(encodeURI(fileName));
+        logger.info({ fileName, lookupId, traceId }, "Page fetched");
         const html = response.data;
         await runWithTraceId(async () => {
           await fileServerClient.uploadFile({
@@ -77,6 +79,7 @@ export const startCrawler = async ({
             file: html,
             lookupId,
           });
+          logger.info({ fileName, lookupId }, "Page uploaded");
         }, traceId);
         await crawlerRepo.clearError();
         await queue.pop();

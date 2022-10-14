@@ -80,3 +80,8 @@ export type PutChartPayload = ChartPage & {
   fileName: string;
   fileId: string;
 };
+
+export const isLuteAlbumFileName = (fileName: string) =>
+  fileName.startsWith("release/album/") ||
+  fileName.startsWith("release/mixtape/") ||
+  fileName.startsWith("release/ep/");

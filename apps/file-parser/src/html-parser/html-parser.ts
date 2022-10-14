@@ -1,4 +1,4 @@
-import { LookupStatus, PageType } from "@lute/domain";
+import { LookupStatus, PageType, isLuteAlbumFileName } from "@lute/domain";
 import { FileSavedEvent, LuteEvent, LuteEventClient } from "@lute/shared";
 import { logger } from "../logger";
 import { fileServerClient, rymLookupClient } from "../utils";
@@ -7,7 +7,7 @@ import { parseChart } from "./page-parsers/chart";
 import { parseSearch } from "./page-parsers/search";
 
 const getPageTypeFromFileName = (fileName: string): PageType | undefined => {
-  if (fileName.startsWith("release/album/")) {
+  if (isLuteAlbumFileName(fileName)) {
     return PageType.Album;
   }
   if (fileName.startsWith("charts/")) {

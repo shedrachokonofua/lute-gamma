@@ -39,8 +39,8 @@ export const buildSeedLookupRepo = (redisClient: RedisClient) => {
       }
       return Number(res);
     },
-    deleteAllSeedLookups: async (lookupId: string) => {
-      await redisClient.del(getLookupHsetKey(lookupId));
+    deleteAllSeedLookups: async (lookupHash: string) => {
+      await redisClient.del(getLookupHsetKey(lookupHash));
     },
     deleteSeedLookup: async (lookupHash: string, profileId: string) => {
       const hashSetKey = getLookupHsetKey(lookupHash);
