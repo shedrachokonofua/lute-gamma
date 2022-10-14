@@ -9,7 +9,10 @@ const shouldSave = (urlStr) => {
 
   return (
     url.hostname === "rateyourmusic.com" &&
-    (isSubPath(url, "/release/album/") || isSubPath(url, "/charts/")) &&
+    (isSubPath(url, "/release/album/") ||
+      isSubPath(url, "/release/mixtape/") ||
+      isSubPath(url, "/release/ep/") ||
+      isSubPath(url, "/charts/")) &&
     !url.pathname.endsWith("/buy/")
   );
 };
