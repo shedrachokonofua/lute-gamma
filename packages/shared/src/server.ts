@@ -1,4 +1,9 @@
-import express, { Request, Response, NextFunction } from "express";
+import express, {
+  Request,
+  Response,
+  NextFunction,
+  RequestHandler,
+} from "express";
 import cors from "cors";
 import * as rTracer from "cls-rtracer";
 import { Logger } from "pino";
@@ -53,17 +58,12 @@ export const buildServer = <Context extends {}>({
   };
 };
 
-type ControllerGroup = Record<
-  string,
-  (req: Request, res: Response, next: NextFunction) => Promise<any>
->;
+type ControllerGroup = Record<string, RequestHandler>;
 
-type ControllerGroupFactory<T> = (context: T) => ControllerGroup;
-
-export const buildControllerFactory = <T>(
-  builder: ControllerGroupFactory<T>
-): ControllerGroupFactory<T> => {
-  return (context: T) => {
+export const buildControllerFactory = <ContextType = {}>(
+  builder: (context: ContextType) => ControllerGroup
+): typeof builder => {
+  return (context: ContextType) => {
     const controllers = builder(context);
     return Object.fromEntries(
       Object.entries(controllers).map(([name, controller]) => [
@@ -76,6 +76,6 @@ export const buildControllerFactory = <T>(
           }
         },
       ])
-    );
+    ) as ReturnType<typeof builder>;
   };
 };
