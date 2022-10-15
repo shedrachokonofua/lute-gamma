@@ -1,12 +1,12 @@
 export interface CatalogTrack {
-  spotifyId: string;
+  catalogId: string;
   name: string;
   artists: {
-    spotifyId: string;
+    catalogId: string;
     name: string;
   }[];
   album?: {
-    spotifyId: string;
+    catalogId: string;
     name: string;
     type: "album" | "single" | "compilation";
   };

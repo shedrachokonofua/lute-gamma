@@ -17,9 +17,9 @@ interface SeederState {
   hasNext: boolean;
   limit: number;
   offset: number;
-  trackCountBySpotifyAlbumId: Record<string, number>;
-  lookupKeyBySpotifyAlbumId: Record<string, LookupKey>;
-  skippedAlbumSpotifyIds: Set<string>;
+  trackCountByCatalogAlbumId: Record<string, number>;
+  lookupKeyByCatalogAlbumId: Record<string, LookupKey>;
+  skippedAlbumcatalogIds: Set<string>;
 }
 
 export const seedProfile = async ({
@@ -35,32 +35,32 @@ export const seedProfile = async ({
     hasNext: true,
     offset: 0,
     limit: 50,
-    trackCountBySpotifyAlbumId: {} as Record<string, number>,
-    lookupKeyBySpotifyAlbumId: {} as Record<string, LookupKey>,
-    skippedAlbumSpotifyIds: new Set<string>(),
+    trackCountByCatalogAlbumId: {} as Record<string, number>,
+    lookupKeyByCatalogAlbumId: {} as Record<string, LookupKey>,
+    skippedAlbumcatalogIds: new Set<string>(),
   };
   while (state.hasNext) {
     const result = await fetchTracks(state);
 
     const relevantTracks = result.items.filter(
       (track): track is CatalogTrackWithAlbum =>
-        !!track.album?.spotifyId && track.album.type === "album"
+        !!track.album?.catalogId && track.album.type === "album"
     );
 
-    const tracksBySpotifyAlbumId = relevantTracks.reduce<{
-      [spotifyAlbumId: string]: CatalogTrackWithAlbum[];
+    const tracksByCatalogAlbumId = relevantTracks.reduce<{
+      [catalogAlbumId: string]: CatalogTrackWithAlbum[];
     }>((acc, track) => {
-      const albumId = track.album.spotifyId;
+      const albumId = track.album.catalogId;
       acc[albumId] = acc[albumId] || [];
       acc[albumId].push(track);
       return acc;
     }, {});
 
-    Object.keys(tracksBySpotifyAlbumId).forEach((albumId) => {
-      const tracks = tracksBySpotifyAlbumId[albumId];
-      state.trackCountBySpotifyAlbumId[albumId] =
-        tracks.length + (state.trackCountBySpotifyAlbumId[albumId] || 0);
-      state.lookupKeyBySpotifyAlbumId[albumId] = {
+    Object.keys(tracksByCatalogAlbumId).forEach((albumId) => {
+      const tracks = tracksByCatalogAlbumId[albumId];
+      state.trackCountByCatalogAlbumId[albumId] =
+        tracks.length + (state.trackCountByCatalogAlbumId[albumId] || 0);
+      state.lookupKeyByCatalogAlbumId[albumId] = {
         artist: tracks[0].artists[0].name,
         album: tracks[0].album.name,
       };
@@ -71,17 +71,17 @@ export const seedProfile = async ({
   }
 
   const trackCountByLookupHash = Object.keys(
-    state.trackCountBySpotifyAlbumId
+    state.trackCountByCatalogAlbumId
   ).reduce<Record<string, number>>((acc, albumId) => {
-    const lookupHash = hashLookupKey(state.lookupKeyBySpotifyAlbumId[albumId]);
-    acc[lookupHash] = state.trackCountBySpotifyAlbumId[albumId];
+    const lookupHash = hashLookupKey(state.lookupKeyByCatalogAlbumId[albumId]);
+    acc[lookupHash] = state.trackCountByCatalogAlbumId[albumId];
     return acc;
   }, {});
 
   await seedLookupInteractor.buildTable(profileId, trackCountByLookupHash);
 
   await Promise.all(
-    Object.values(state.lookupKeyBySpotifyAlbumId).map(async (key) => {
+    Object.values(state.lookupKeyByCatalogAlbumId).map(async (key) => {
       const lookupResult = await rymLookupClient.getOrCreateLookup(
         key.artist,
         key.album

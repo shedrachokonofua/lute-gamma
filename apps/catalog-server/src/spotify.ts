@@ -23,8 +23,6 @@ export const buildAuthorizedSpotifyApi = (credentials: SpotifyCredentials) => {
   return api;
 };
 
-type SpotifyApi = ReturnType<typeof buildAuthorizedSpotifyApi>;
-
 export type SpotifyTrack = Awaited<
-  ReturnType<SpotifyApi["getMySavedTracks"]>
+  ReturnType<SpotifyWebApi["getMySavedTracks"]>
 >["body"]["items"][0]["track"];
