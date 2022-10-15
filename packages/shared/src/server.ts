@@ -1,9 +1,4 @@
-import express, {
-  Request,
-  Response,
-  NextFunction,
-  RequestHandler,
-} from "express";
+import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import * as rTracer from "cls-rtracer";
 import { Logger } from "pino";
@@ -58,7 +53,36 @@ export const buildServer = <Context extends {}>({
   };
 };
 
-type ControllerGroup = Record<string, RequestHandler>;
+interface LuteExpressResponse extends Response {
+  success: (data?: any) => void;
+  badRequest: (error: string) => void;
+}
+
+const errorResponse = (res: Response, code: number, error: string) => {
+  res.status(code).json({
+    ok: false,
+    error,
+  });
+};
+
+const buildLuteExpressResponse = (res: Response): LuteExpressResponse => {
+  const luteExpressResponse = res as LuteExpressResponse;
+
+  luteExpressResponse.success = (data?: any) =>
+    res.json({
+      ok: true,
+      data,
+    });
+
+  luteExpressResponse.badRequest = (error) => errorResponse(res, 400, error);
+
+  return luteExpressResponse;
+};
+
+type ControllerGroup = Record<
+  string,
+  (req: Request, res: LuteExpressResponse, next: NextFunction) => void
+>;
 
 export const buildControllerFactory = <ContextType = {}>(
   builder: (context: ContextType) => ControllerGroup
@@ -70,7 +94,7 @@ export const buildControllerFactory = <ContextType = {}>(
         name,
         async (req: Request, res: Response, next: NextFunction) => {
           try {
-            await controller(req, res, next);
+            await controller(req, buildLuteExpressResponse(res), next);
           } catch (err) {
             next(err);
           }
