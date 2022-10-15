@@ -1,7 +1,7 @@
 import { RedisClient } from "@lute/shared";
 import { SpotifyCredentials } from "@lute/domain";
 
-export const buildCatalogRepo = (redisClient: RedisClient) => ({
+export const buildAuthRepo = (redisClient: RedisClient) => ({
   async getSpotifyCredentials(): Promise<SpotifyCredentials | null> {
     const credentials = (await redisClient.hGetAll(
       "catalog:spotify-credentials"
@@ -32,4 +32,4 @@ export const buildCatalogRepo = (redisClient: RedisClient) => ({
   },
 });
 
-export type CatalogRepo = ReturnType<typeof buildCatalogRepo>;
+export type AuthRepo = ReturnType<typeof buildAuthRepo>;

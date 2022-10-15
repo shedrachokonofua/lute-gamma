@@ -1,11 +1,10 @@
 import { Router } from "express";
-import { CatalogRepo } from "../catalog-repo";
-import { buildAuthInteractor } from "./auth-interactor";
 import { buildAuthController } from "./auth-controller";
+import { AuthRepo } from "./auth-repo";
 
-export const buildAuthRouter = (catalogRepo: CatalogRepo) => {
+export const buildAuthRouter = (authRepo: AuthRepo) => {
   const controller = buildAuthController({
-    catalogRepo,
+    authRepo,
   });
 
   return Router()

@@ -11,7 +11,9 @@ export const buildCatalogClient = (catalogServerUrl: string) => {
     }: { limit?: number; offset?: number } = {}): Promise<
       PaginatedValue<CatalogTrack>
     > {
-      const tracks = await http.get(`/tracks?limit=${limit}&offset=${offset}`);
+      const tracks = await http.get(
+        `/library/tracks?limit=${limit}&offset=${offset}`
+      );
       return tracks.data?.data || [];
     },
     async getPlaylistTracks({
@@ -24,7 +26,7 @@ export const buildCatalogClient = (catalogServerUrl: string) => {
       offset?: number;
     }): Promise<PaginatedValue<CatalogTrack>> {
       const tracks = await http.get(
-        `/playlists/${playlistId}/tracks?limit=${limit}&offset=${offset}`
+        `/library/playlists/${playlistId}/tracks?limit=${limit}&offset=${offset}`
       );
       return tracks.data?.data || [];
     },

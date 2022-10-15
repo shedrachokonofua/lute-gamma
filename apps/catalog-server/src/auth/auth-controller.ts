@@ -1,13 +1,12 @@
 import { buildControllerFactory } from "@lute/shared";
 import { buildAuthInteractor } from "./auth-interactor";
+import { AuthRepo } from "./auth-repo";
 import { logger } from "../logger";
-import { CatalogRepo } from "../catalog-repo";
-
 
 export const buildAuthController = buildControllerFactory<{
-  catalogRepo: CatalogRepo;
-}>(({ catalogRepo }) => {
-  const authInteractor = buildAuthInteractor(catalogRepo);
+  authRepo: AuthRepo;
+}>(({ authRepo }) => {
+  const authInteractor = buildAuthInteractor(authRepo);
 
   return {
     async redirectToAuthorizationUrl(_, res) {
@@ -18,33 +17,25 @@ export const buildAuthController = buildControllerFactory<{
     async handleAuthorizationCallback(req, res) {
       const { code } = req.query;
       if (!code) {
-        return res.status(400).send({
-          ok: false,
-          error: "Missing code query parameter",
-        });
+        return res.badRequest("No code provided");
       }
       const credentials = await authInteractor.grantAndStoreCredentials(
         code as string
       );
       logger.info({ credentials }, "Got spotify credentials");
-      return res.send({
-        ok: true,
-        data: { credentials },
-      });
+      return res.success({ credentials });
     },
     async clearCredentials(_, res) {
-      await catalogRepo.clearSpotifyCredentials();
-      return res.send({
-        ok: true,
-      });
+      await authRepo.clearSpotifyCredentials();
+      return res.success();
     },
     async getStatus(_, res) {
-      const credentials = await catalogRepo.getSpotifyCredentials();
+      const credentials = await authRepo.getSpotifyCredentials();
       const status = await authInteractor.getAuthStatus();
 
-      return res.send({
-        ok: true,
-        data: { status, credentials },
+      return res.success({
+        status,
+        credentials,
       });
     },
   };

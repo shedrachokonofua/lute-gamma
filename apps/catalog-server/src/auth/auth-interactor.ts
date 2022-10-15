@@ -1,14 +1,14 @@
 import { AuthStatus, SpotifyCredentials } from "@lute/domain";
 import { add as dateAdd } from "date-fns";
-import { CatalogRepo } from "../catalog-repo";
 import { logger } from "../logger";
 import {
   buildAuthorizedSpotifyApi,
   spotifyApi,
   SPOTIFY_SCOPES,
 } from "../spotify";
+import { AuthRepo } from "./auth-repo";
 
-export const buildAuthInteractor = (catalogRepo: CatalogRepo) => {
+export const buildAuthInteractor = (authRepo: AuthRepo) => {
   return {
     async getAuthUrl() {
       return spotifyApi.createAuthorizeURL(SPOTIFY_SCOPES, "");
@@ -23,11 +23,11 @@ export const buildAuthInteractor = (catalogRepo: CatalogRepo) => {
         expiresAt: dateAdd(new Date(), { seconds: expires_in }).getTime(),
       };
       logger.info({ credentials }, "Storing spotify credentials");
-      await catalogRepo.setSpotifyCredentials(credentials);
+      await authRepo.setSpotifyCredentials(credentials);
       return credentials;
     },
     async getAuthStatus(): Promise<AuthStatus> {
-      const credentials = await catalogRepo.getSpotifyCredentials();
+      const credentials = await authRepo.getSpotifyCredentials();
       if (!credentials) {
         return AuthStatus.Unauthorized;
       }
@@ -41,7 +41,7 @@ export const buildAuthInteractor = (catalogRepo: CatalogRepo) => {
       return AuthStatus.Authorized;
     },
     async refreshCredentials(): Promise<SpotifyCredentials> {
-      const credentials = await catalogRepo.getSpotifyCredentials();
+      const credentials = await authRepo.getSpotifyCredentials();
       if (!credentials) {
         throw new Error("No credentials to refresh");
       }
@@ -59,7 +59,7 @@ export const buildAuthInteractor = (catalogRepo: CatalogRepo) => {
         expiresAt: dateAdd(new Date(), { seconds: expires_in }).getTime(),
       };
       logger.info({ newCredentials }, "Storing new spotify credentials");
-      await catalogRepo.setSpotifyCredentials(newCredentials);
+      await authRepo.setSpotifyCredentials(newCredentials);
       return newCredentials;
     },
   };
