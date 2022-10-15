@@ -1,4 +1,9 @@
-import express, { Request, Response, NextFunction } from "express";
+import express, {
+  Request,
+  Response,
+  NextFunction,
+  RequestHandler,
+} from "express";
 import cors from "cors";
 import * as rTracer from "cls-rtracer";
 import { Logger } from "pino";
@@ -84,9 +89,14 @@ type ControllerGroup = Record<
   (req: Request, res: LuteExpressResponse, next: NextFunction) => void
 >;
 
-export const buildControllerFactory = <ContextType = {}>(
-  builder: (context: ContextType) => ControllerGroup
-): typeof builder => {
+export const buildControllerFactory = <
+  ContextType = {},
+  T extends ControllerGroup = ControllerGroup
+>(
+  builder: (context: ContextType) => T
+): ((context: ContextType) => {
+  [K in keyof T]: RequestHandler;
+}) => {
   return (context: ContextType) => {
     const controllers = builder(context);
     return Object.fromEntries(
@@ -100,6 +110,6 @@ export const buildControllerFactory = <ContextType = {}>(
           }
         },
       ])
-    ) as ReturnType<typeof builder>;
+    ) as any;
   };
 };
