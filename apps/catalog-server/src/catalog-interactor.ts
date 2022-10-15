@@ -18,14 +18,14 @@ const getNextOffset = (
 const spotifyTrackToCatalogTrack = (
   spotifyTrack: SpotifyTrack
 ): CatalogTrack => ({
-  catalogId: spotifyTrack.id,
+  catalogId: spotifyTrack.uri,
   name: spotifyTrack.name,
   artists: spotifyTrack.artists.map((artist) => ({
-    catalogId: artist.id,
+    catalogId: artist.uri,
     name: artist.name,
   })),
   album: {
-    catalogId: spotifyTrack.album.id,
+    catalogId: spotifyTrack.album.uri,
     name: spotifyTrack.album.name,
     type: spotifyTrack.album.album_type,
   },
