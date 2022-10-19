@@ -4,39 +4,6 @@ import { Filter } from "mongodb";
 import { logger } from "./logger";
 import { ServerContext } from "./ServerContext";
 
-const mergeArrays = <T>(
-  existingArray: T[] | undefined,
-  newArray: T[] | undefined
-): T[] => [...new Set([...(existingArray || []), ...(newArray || [])])];
-
-const mergeAlbumDocuments = (
-  existingAlbum: AlbumDocument,
-  newAlbum: Partial<AlbumDocument>
-): AlbumDocument => {
-  const artists = mergeArrays(existingAlbum.artists, newAlbum.artists);
-  const descriptors = mergeArrays(
-    existingAlbum.descriptors,
-    newAlbum.descriptors
-  );
-  const primaryGenres = mergeArrays(
-    existingAlbum.primaryGenres,
-    newAlbum.primaryGenres
-  );
-  const secondaryGenres = mergeArrays(
-    existingAlbum.secondaryGenres,
-    newAlbum.secondaryGenres
-  );
-
-  return {
-    ...existingAlbum,
-    ...newAlbum,
-    artists,
-    descriptors,
-    primaryGenres,
-    secondaryGenres,
-  };
-};
-
 const getPutAlbumKey = (album: PutAlbumPayload) =>
   album.fileName
     ? { fileName: album.fileName }
@@ -56,7 +23,10 @@ export const buildDataRepo = (serverContext: ServerContext) => ({
       .findOne<AlbumDocument>(key);
 
     const albumToSave = existingAlbum
-      ? mergeAlbumDocuments(existingAlbum, album)
+      ? {
+          ...existingAlbum,
+          ...album,
+        }
       : album;
 
     const transformedAlbum = transformObject(albumToSave, {
