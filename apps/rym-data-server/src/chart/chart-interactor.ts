@@ -1,7 +1,14 @@
 import { ChartDocument, PutChartPayload } from "@lute/domain";
-import { DataRepo } from "./data-repo";
+import { AlbumInteractor } from "../album";
+import { ChartRepo } from "./chart-repo";
 
-export const buildChartInteractor = (dataRepo: DataRepo) => {
+export const buildChartInteractor = ({
+  chartRepo,
+  albumInteractor,
+}: {
+  chartRepo: ChartRepo;
+  albumInteractor: AlbumInteractor;
+}) => {
   return {
     async putChart(chart: PutChartPayload): Promise<ChartDocument> {
       const chartDocument: ChartDocument = {
@@ -11,9 +18,9 @@ export const buildChartInteractor = (dataRepo: DataRepo) => {
           fileName: album.fileName,
         })),
       };
-      await dataRepo.putChart(chartDocument);
+      await chartRepo.putChart(chartDocument);
       await Promise.all(
-        chart.albums.map((album) => dataRepo.patchAlbum(album.albumData))
+        chart.albums.map((album) => albumInteractor.putAlbum(album.albumData))
       );
 
       return chartDocument;

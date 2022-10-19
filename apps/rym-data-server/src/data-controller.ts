@@ -1,37 +1,40 @@
 import { buildControllerFactory } from "@lute/shared";
-import { Request, Response } from "express";
-import { buildChartInteractor } from "./chart-interactor";
-import { buildDataRepo } from "./data-repo";
-import { albumQuerySchema, buildQueryInteractor } from "./query-interactor";
+import {
+  albumQuerySchema,
+  buildAlbumInteractor,
+  buildAlbumRepo,
+} from "./album";
+import { buildChartRepo, buildChartInteractor } from "./chart";
 import { ServerContext } from "./ServerContext";
 
 export const buildDataController = buildControllerFactory(
   (serverContext: ServerContext) => {
-    const dataRepo = buildDataRepo(serverContext);
-    const chartInteractor = buildChartInteractor(dataRepo);
-    const queryInteractor = buildQueryInteractor(dataRepo);
+    const albumInteractor = buildAlbumInteractor(buildAlbumRepo(serverContext));
+    const chartInteractor = buildChartInteractor({
+      chartRepo: buildChartRepo(serverContext),
+      albumInteractor,
+    });
 
     return {
-      async patchAlbum(req: Request, res: Response) {
-        const album = await dataRepo.patchAlbum(req.body);
-        return res.json({ ok: true, data: album });
+      async patchAlbum(req, res) {
+        const album = await albumInteractor.putAlbum(req.body);
+        return res.success(album);
       },
-      async putChart(req: Request, res: Response) {
+      async putChart(req, res) {
         const chart = await chartInteractor.putChart(req.body);
         return res.json({ ok: true, data: chart });
       },
-      async getAlbum(req: Request, res: Response) {
-        const album = await dataRepo.getAlbum(req.params[0]);
+      async getAlbum(req, res) {
+        const album = await albumInteractor.getAlbum(req.params[0]);
         if (!album) {
           return res.status(404).json({ ok: false, error: "Not found" });
         }
-        return res.json({ ok: true, data: album });
+        return res.success(album);
       },
-      async query(req: Request, res: Response) {
+      async query(req, res) {
         const query = albumQuerySchema.parse(req.body);
-        const albums = await queryInteractor.getAlbums(query);
-
-        return res.json({ ok: true, data: albums });
+        const albums = await albumInteractor.findAlbums(query);
+        return res.success(albums);
       },
     };
   }

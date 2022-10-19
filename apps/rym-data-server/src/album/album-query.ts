@@ -1,7 +1,6 @@
 import { z } from "zod";
 import { Filter } from "mongodb";
 import { AlbumDocument } from "@lute/domain";
-import { DataRepo } from "./data-repo";
 
 export const albumQuerySchema = z.object({
   keys: z.array(z.string()).optional(),
@@ -16,12 +15,14 @@ export const albumQuerySchema = z.object({
   maxRating: z.number().optional(),
 });
 
-type AlbumQuery = z.infer<typeof albumQuerySchema>;
+export type AlbumQuery = z.infer<typeof albumQuerySchema>;
 
 const inNonEmptyArray = <T>(arr: T[] | undefined): arr is T[] =>
   arr !== undefined && arr.length > 0;
 
-const buildDbAlbumQuery = (albumQuery: AlbumQuery): Filter<AlbumDocument> => {
+export const buildDbAlbumQuery = (
+  albumQuery: AlbumQuery
+): Filter<AlbumDocument> => {
   const query: Filter<AlbumDocument> = {};
 
   if (inNonEmptyArray(albumQuery.keys)) {
@@ -82,10 +83,3 @@ const buildDbAlbumQuery = (albumQuery: AlbumQuery): Filter<AlbumDocument> => {
 
   return query;
 };
-
-export const buildQueryInteractor = (repo: DataRepo) => ({
-  async getAlbums(albumQuery: AlbumQuery) {
-    const dbAlbumQuery = buildDbAlbumQuery(albumQuery);
-    return repo.findAlbums(dbAlbumQuery);
-  },
-});
