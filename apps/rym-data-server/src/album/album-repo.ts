@@ -63,6 +63,24 @@ export const buildAlbumRepo = (serverContext: ServerContext) => ({
       .find(query)
       .toArray();
   },
+  async createAlbumIfNotExists(album: PutAlbumPayload): Promise<void> {
+    const key = getPutAlbumKey(album);
+    if (!key) {
+      throw new Error("No key provided");
+    }
+
+    const existingAlbum = await serverContext.mongoDatabase
+      .collection("albums")
+      .findOne<AlbumDocument>(key);
+
+    if (existingAlbum) return;
+
+    const albumToSave = transformPutAlbumPayload(album);
+
+    await serverContext.mongoDatabase
+      .collection<Partial<AlbumDocument>>("albums")
+      .insertOne(albumToSave);
+  },
 });
 
 export type AlbumRepo = ReturnType<typeof buildAlbumRepo>;

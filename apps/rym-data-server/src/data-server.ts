@@ -11,7 +11,7 @@ export const startServer = buildServer<ServerContext>({
 
     return Router()
       .get("/album/*", controller.getAlbum)
-      .patch("/album", controller.patchAlbum)
+      .put("/album", controller.putAlbum)
       .put("/chart", controller.putChart)
       .post("/query", controller.query);
   },

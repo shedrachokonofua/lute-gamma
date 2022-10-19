@@ -17,7 +17,7 @@ const storeAlbumData = async (
     ...data,
   };
 
-  await rymDataClient.patchAlbum(album);
+  await rymDataClient.putAlbum(album);
 
   if (event.lookupId) {
     logger.info({ event, album }, "Lookup album data saved");

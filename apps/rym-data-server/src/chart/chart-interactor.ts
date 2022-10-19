@@ -20,7 +20,9 @@ export const buildChartInteractor = ({
       };
       await chartRepo.putChart(chartDocument);
       await Promise.all(
-        chart.albums.map((album) => albumInteractor.putAlbum(album.albumData))
+        chart.albums.map((album) =>
+          albumInteractor.createAlbumIfNotExists(album.albumData)
+        )
       );
 
       return chartDocument;

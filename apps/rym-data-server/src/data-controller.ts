@@ -16,13 +16,13 @@ export const buildDataController = buildControllerFactory(
     });
 
     return {
-      async patchAlbum(req, res) {
+      async putAlbum(req, res) {
         const album = await albumInteractor.putAlbum(req.body);
         return res.success(album);
       },
       async putChart(req, res) {
         const chart = await chartInteractor.putChart(req.body);
-        return res.json({ ok: true, data: chart });
+        return res.success(chart);
       },
       async getAlbum(req, res) {
         const album = await albumInteractor.getAlbum(req.params[0]);

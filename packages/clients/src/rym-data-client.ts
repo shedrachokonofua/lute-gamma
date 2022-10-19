@@ -5,8 +5,8 @@ export const buildRymDataClient = (rymDataServerUrl: string) => {
   const http = buildHttpClient(rymDataServerUrl);
 
   return {
-    async patchAlbum(album: PutAlbumPayload): Promise<void> {
-      await http.patch("/album", album);
+    async putAlbum(album: PutAlbumPayload): Promise<void> {
+      await http.put("/album", album);
     },
     async putChart(chart: PutChartPayload): Promise<void> {
       await http.put("/chart", chart);
