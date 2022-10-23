@@ -15,7 +15,8 @@
     "prod": "docker-compose -f ./docker-compose.prod.yml up",
     "prod:build": "docker-compose -f ./docker-compose.prod.yml up --build",
     "prod:stop": "docker-compose -f ./docker-compose.prod.yml stop",
-    "prod:down": "docker-compose -f ./docker-compose.prod.yml down"
+    "prod:down": "docker-compose -f ./docker-compose.prod.yml down",
+    "script": "ts-node --cwd=./scripts --"
   },
   "devDependencies": {
     "rimraf": "^3.0.2",
