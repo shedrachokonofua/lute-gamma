@@ -21,6 +21,18 @@ export const config = {
       .default("")
       .asString(),
   },
+  proxy: {
+    host: env.get("PROXY_HOST").required().asString(),
+    port: env.get("PROXY_PORT").required().asPortNumber(),
+    username: env.get("PROXY_USERNAME").required().asString(),
+    password: env.get("PROXY_PASSWORD").required().asString(),
+  },
+  crawler: {
+    coolDownSeconds: env
+      .get("COOL_DOWN_SECONDS")
+      .default(0.25)
+      .asFloatPositive(),
+  },
   files: {
     ttlSeconds: env
       .get("FILE_TTL_SECONDS")

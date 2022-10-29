@@ -25,17 +25,23 @@ const parseFileLocation = (
   return { directory, fileName };
 };
 
+const getPathOnDisk = (name: string) =>
+  `${config.files.localBucketPath}/${name}.html`;
+
+const ensureDirectoryExists = async (name: string) => {
+  const { directory } = parseFileLocation(name);
+  const path = `${config.files.localBucketPath}/${directory}`;
+  if (!(await doesDirectoryExist(path))) {
+    await fs.mkdir(path, { recursive: true });
+  }
+  return path;
+};
+
 export const diskStorage: FileStorageClient = {
   multer: multer({
     storage: multer.diskStorage({
       destination: async (req, _, cb) => {
-        const { directory } = parseFileLocation(req.body.name);
-        const targetPath = `${config.files.localBucketPath}/${directory}`;
-        if (!(await doesDirectoryExist(targetPath))) {
-          logger.debug({ targetPath }, "Creating directory");
-          await fs.mkdir(targetPath, { recursive: true });
-        }
-        logger.debug({ targetPath }, "Using directory");
+        const targetPath = await ensureDirectoryExists(req.body.name);
         cb(null, targetPath);
       },
       filename: function (req, _, cb) {
@@ -47,13 +53,19 @@ export const diskStorage: FileStorageClient = {
     }),
   }),
   getFile: async (name: string) => {
-    const path = `${config.files.localBucketPath}/${name}.html`;
+    const path = getPathOnDisk(name);
     logger.debug({ path }, "Getting file");
     return fs.readFile(path);
   },
   deleteFile: (name: string) => {
-    const path = `${config.files.localBucketPath}/${name}.html`;
+    const path = getPathOnDisk(name);
     logger.debug({ path }, "Deleting file");
     fs.unlink(path);
+  },
+  saveFile: async (name: string, data: string) => {
+    await ensureDirectoryExists(name);
+    const path = getPathOnDisk(name);
+    logger.debug({ path }, "Saving file");
+    await fs.writeFile(path, data);
   },
 };

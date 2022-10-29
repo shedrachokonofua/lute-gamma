@@ -48,4 +48,11 @@ export const spacesStorage: FileStorageClient = {
       Key: name,
     });
   },
+  saveFile: async (name: string, data: string) => {
+    await s3Client.putObject({
+      Bucket: config.spaces.bucket,
+      Key: name,
+      Body: data,
+    });
+  },
 };

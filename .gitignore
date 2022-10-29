@@ -9,3 +9,4 @@ build
 *.map
 *.d.ts
 newrelic_agent.log
+*.html
