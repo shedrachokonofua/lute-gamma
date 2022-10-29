@@ -1,7 +1,7 @@
 import { buildLogger } from "@lute/shared";
-import { MONGO_URL } from "./config";
+import { config } from "./config";
 
 export const logger = buildLogger({
-  name: "file-server",
-  mongoUrl: MONGO_URL,
+  name: "lute",
+  mongoUrl: config.mongo.url,
 });

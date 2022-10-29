@@ -1,12 +1,13 @@
-import { ServerContext } from "./ServerContext";
 import { buildFileRepo } from "./file-repo";
-import { FileSavedEvent, LuteEvent } from "@lute/shared";
-import { logger } from "./logger";
+import { LuteEventClient, LuteEvent, RedisClient } from "@lute/shared";
 
 export const buildFileInteractor = ({
   redisClient,
   eventClient,
-}: ServerContext) => {
+}: {
+  redisClient: RedisClient;
+  eventClient: LuteEventClient;
+}) => {
   const fileRepo = buildFileRepo(redisClient);
 
   return {

@@ -1,11 +1,11 @@
-import { ENV } from "../config";
+import { config } from "../../../config";
 import { diskStorage } from "./disk-storage";
 import { spacesStorage } from "./spaces-storage";
 import { FileStorageClient } from "./storage";
-import { logger } from "../logger";
+import { logger } from "../../../logger";
 
 export const buildFileStorageClient = (): FileStorageClient => {
-  if (ENV === "production") {
+  if (config.isProduction) {
     logger.info("Using spaces storage");
     return spacesStorage;
   } else {

@@ -1,14 +1,14 @@
 import { RedisClient } from "@lute/shared";
 import { nanoid } from "nanoid";
-import { FILE_TTL_SECONDS } from "./config";
-import { logger } from "./logger";
+import { config } from "../../config";
+import { logger } from "../../logger";
 
 export const buildFileRepo = (redisClient: RedisClient) => ({
   async saveFileName(name: string) {
     const id = nanoid();
     await redisClient.set(`file:${id}`, name);
     await redisClient.set(`file:name:${name}`, id, {
-      EX: FILE_TTL_SECONDS,
+      EX: config.files.ttlSeconds,
     });
     logger.info({ id, name }, "Saved file name");
 

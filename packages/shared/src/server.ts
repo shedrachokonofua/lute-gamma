@@ -13,10 +13,12 @@ export const buildServer = <Context extends {}>({
   name,
   buildRouter,
   logger,
+  port = 80,
 }: {
   name: string;
   buildRouter: (context: Context) => express.Router | Promise<express.Router>;
   logger: Logger;
+  port?: number;
 }) => {
   const server = express();
 
@@ -50,7 +52,7 @@ export const buildServer = <Context extends {}>({
       }
     );
     new Promise((resolve) => {
-      server.listen(80, () => {
+      server.listen(port, () => {
         logger.debug({ serverName: name }, "Server listening");
         resolve(undefined);
       });

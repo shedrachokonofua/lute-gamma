@@ -1,17 +1,17 @@
 import { S3 } from "@aws-sdk/client-s3";
-import { SPACES_KEY, SPACES_SECRET, SPACES_BUCKET } from "../config";
 import multer from "multer";
 import multerS3 from "multer-s3";
 import streamConsumers from "stream/consumers";
-import { logger } from "../logger";
+import { config } from "../../../config";
+import { logger } from "../../../logger";
 import { FileStorageClient } from "./storage";
 
 const s3Client = new S3({
   endpoint: "https://nyc3.digitaloceanspaces.com",
   region: "us-east-1",
   credentials: {
-    accessKeyId: SPACES_KEY,
-    secretAccessKey: SPACES_SECRET,
+    accessKeyId: config.spaces.key,
+    secretAccessKey: config.spaces.secret,
   },
 });
 
@@ -22,7 +22,7 @@ export const spacesStorage: FileStorageClient = {
   multer: multer({
     storage: multerS3({
       s3: s3Client,
-      bucket: SPACES_BUCKET,
+      bucket: config.spaces.bucket,
       key: function (req, file, cb) {
         const name = dropBackslash((req as any).body.name);
         logger.info({ name }, "Storing file in spaces");
@@ -32,7 +32,7 @@ export const spacesStorage: FileStorageClient = {
   }),
   getFile: async (name: string) => {
     const { Body } = await s3Client.getObject({
-      Bucket: SPACES_BUCKET,
+      Bucket: config.spaces.bucket,
       Key: name,
     });
 
@@ -44,7 +44,7 @@ export const spacesStorage: FileStorageClient = {
   },
   deleteFile: async (name: string) => {
     await s3Client.deleteObject({
-      Bucket: SPACES_BUCKET,
+      Bucket: config.spaces.bucket,
       Key: name,
     });
   },

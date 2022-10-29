@@ -1,7 +1,7 @@
 import multer from "multer";
 import fs from "fs/promises";
-import { LOCAL_BUCKET_PATH } from "../config";
-import { logger } from "../logger";
+import { config } from "../../../config";
+import { logger } from "../../../logger";
 import { FileStorageClient } from "./storage";
 
 const doesDirectoryExist = async (path: string) => {
@@ -30,7 +30,7 @@ export const diskStorage: FileStorageClient = {
     storage: multer.diskStorage({
       destination: async (req, _, cb) => {
         const { directory } = parseFileLocation(req.body.name);
-        const targetPath = `${LOCAL_BUCKET_PATH}/${directory}`;
+        const targetPath = `${config.files.localBucketPath}/${directory}`;
         if (!(await doesDirectoryExist(targetPath))) {
           logger.debug({ targetPath }, "Creating directory");
           await fs.mkdir(targetPath, { recursive: true });
@@ -47,12 +47,12 @@ export const diskStorage: FileStorageClient = {
     }),
   }),
   getFile: async (name: string) => {
-    const path = `${LOCAL_BUCKET_PATH}/${name}.html`;
+    const path = `${config.files.localBucketPath}/${name}.html`;
     logger.debug({ path }, "Getting file");
     return fs.readFile(path);
   },
   deleteFile: (name: string) => {
-    const path = `${LOCAL_BUCKET_PATH}/${name}.html`;
+    const path = `${config.files.localBucketPath}/${name}.html`;
     logger.debug({ path }, "Deleting file");
     fs.unlink(path);
   },
