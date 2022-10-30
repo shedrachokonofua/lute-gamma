@@ -1,4 +1,4 @@
-import { buildServer } from "@lute/shared";
+import { buildServer } from "./lib";
 import { Router } from "express";
 import { Context } from "./context";
 import { logger } from "./logger";

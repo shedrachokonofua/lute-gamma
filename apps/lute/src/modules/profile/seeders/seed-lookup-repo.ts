@@ -1,4 +1,4 @@
-import { RedisClient } from "@lute/shared";
+import { RedisClient } from "../../../lib";
 
 const getLookupHsetKey = (lookupHash: string): string =>
   `seeder:lookup:${lookupHash}`;

@@ -1,4 +1,4 @@
-import { buildControllerFactory } from "@lute/shared";
+import { buildControllerFactory } from "../../../lib";
 import { Context } from "../../../context";
 
 export const buildLibraryController = buildControllerFactory<Context>(

@@ -1,5 +1,5 @@
-import { RedisClient } from "@lute/shared";
 import { nanoid } from "nanoid";
+import { RedisClient } from "../../lib";
 import { config } from "../../config";
 import { logger } from "../../logger";
 

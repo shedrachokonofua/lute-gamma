@@ -11,7 +11,7 @@ import {
   LuteEventClient,
   PageDataParsedEvent,
   RedisClient,
-} from "@lute/shared";
+} from "../../lib";
 import { logger } from "../../logger";
 import { AlbumInteractor } from "../albums";
 import { CrawlerInteractor } from "../crawler";

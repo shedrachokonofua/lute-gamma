@@ -1,4 +1,4 @@
-import { buildControllerFactory, extIsMhtml } from "@lute/shared";
+import { buildControllerFactory, extIsMhtml } from "../../lib";
 import { logger } from "../../logger";
 import { Context } from "../../context";
 

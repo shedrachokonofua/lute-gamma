@@ -1,4 +1,4 @@
-import { buildControllerFactory } from "@lute/shared";
+import { buildControllerFactory } from "../../lib";
 import {
   recommendationSettingsSchema,
   assessmentSettingsSchema,

@@ -1,5 +1,5 @@
 import https from "https";
-import { buildQueue, retry, delay, runWithTraceId } from "@lute/shared";
+import { buildQueue, retry, delay, runWithTraceId } from "../../lib";
 import { CrawlerStatus } from "@lute/domain";
 import axios from "axios";
 import { buildCrawlerRepo } from "./crawler-repo";

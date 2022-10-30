@@ -1,6 +1,6 @@
-import { buildRedisClient, buildLuteEventClient } from "@lute/shared";
 import { MongoClient } from "mongodb";
 import { config } from "./config";
+import { buildRedisClient, buildLuteEventClient } from "./lib";
 import { logger } from "./logger";
 import { buildAlbumInteractor } from "./modules/albums";
 import { buildChartInteractor } from "./modules/charts";

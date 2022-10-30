@@ -1,7 +1,7 @@
 import { parentPort } from "node:worker_threads";
 import process from "node:process";
 import { buildContext } from "../context";
-import { runWithTraceId } from "@lute/shared";
+import { runWithTraceId } from "../lib";
 import { logger } from "../logger";
 import { seedDefaultProfile } from "../modules/profile/seeders";
 

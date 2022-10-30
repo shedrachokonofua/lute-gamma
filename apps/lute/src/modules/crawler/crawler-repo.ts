@@ -1,4 +1,4 @@
-import { RedisClient, buildQueue, QueueItem } from "@lute/shared";
+import { RedisClient, buildQueue, QueueItem } from "../../lib";
 import { CrawlerStatus, CrawlerItem } from "@lute/domain";
 
 export const isCrawlerStatus = (status: string): status is CrawlerStatus =>

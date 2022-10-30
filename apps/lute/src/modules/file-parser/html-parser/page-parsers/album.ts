@@ -1,4 +1,4 @@
-import { FileSavedEvent, transformObject } from "@lute/shared";
+import { FileSavedEvent, transformObject } from "../../../../lib";
 import { AlbumPage, parseReleaseDateString, Track } from "@lute/domain";
 import { xRay, xRayMetaSelector } from "./xray";
 

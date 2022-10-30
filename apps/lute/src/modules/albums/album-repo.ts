@@ -1,5 +1,5 @@
 import { AlbumDocument, PutAlbumPayload } from "@lute/domain";
-import { transformObject } from "@lute/shared";
+import { transformObject } from "../../lib";
 import { Filter, MongoClient } from "mongodb";
 import { logger } from "../../logger";
 

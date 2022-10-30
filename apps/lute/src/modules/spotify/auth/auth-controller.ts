@@ -1,4 +1,4 @@
-import { buildControllerFactory } from "@lute/shared";
+import { buildControllerFactory } from "../../../lib";
 import { buildAuthInteractor } from "./auth-interactor";
 import { logger } from "../../../logger";
 import { Context } from "../../../context";

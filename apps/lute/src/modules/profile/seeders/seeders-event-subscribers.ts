@@ -3,7 +3,7 @@ import {
   LookupNotFoundEvent,
   LookupSavedEvent,
   LuteEvent,
-} from "@lute/shared";
+} from "../../../lib";
 import { logger } from "../logger";
 import {
   buildSeedLookupInteractor,

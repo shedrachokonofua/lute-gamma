@@ -1,4 +1,4 @@
-import { FileSavedEvent } from "@lute/shared";
+import { FileSavedEvent } from "../../lib";
 import { Context } from "../../context";
 
 const removeLineTrailingEquals = (lines: string): string => {

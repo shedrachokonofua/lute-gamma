@@ -4,7 +4,7 @@ import {
   LuteEvent,
   extIsMhtml,
   PageDataParsedEvent,
-} from "@lute/shared";
+} from "../../lib";
 import { Context } from "../../context";
 import { logger } from "../../logger";
 import { parseHtmlToPageData } from "./html-parser";

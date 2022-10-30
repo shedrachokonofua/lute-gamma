@@ -1,5 +1,5 @@
+import { LuteEventClient, LuteEvent, RedisClient } from "../../lib";
 import { buildFileRepo } from "./file-repo";
-import { LuteEventClient, LuteEvent, RedisClient } from "@lute/shared";
 import { FileStorageClient } from "./storage";
 
 export const buildFileInteractor = ({

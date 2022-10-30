@@ -1,5 +1,5 @@
 import { AuthStatus, SpotifyCredentials } from "@lute/domain";
-import { RedisClient } from "@lute/shared";
+import { RedisClient } from "../../../lib";
 import { add as dateAdd } from "date-fns";
 import { logger } from "../../../logger";
 import {

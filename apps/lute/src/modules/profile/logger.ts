@@ -1,4 +1,4 @@
-import { buildLogger } from "@lute/shared";
+import { buildLogger } from "../../lib";
 import { MONGO_URL } from "./config";
 
 export const logger = buildLogger({

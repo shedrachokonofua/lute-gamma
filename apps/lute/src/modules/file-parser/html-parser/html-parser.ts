@@ -1,5 +1,5 @@
 import { LookupStatus, PageType, isLuteAlbumFileName } from "@lute/domain";
-import { FileSavedEvent, LuteEvent } from "@lute/shared";
+import { FileSavedEvent, LuteEvent } from "../../../lib";
 import { Context } from "../../../context";
 import { logger } from "../../../logger";
 import { parseAlbum } from "./page-parsers/album";

@@ -4,7 +4,7 @@ import {
   AlbumPage,
   parseReleaseDateString,
 } from "@lute/domain";
-import { FileSavedEvent, transformObject } from "@lute/shared";
+import { FileSavedEvent, transformObject } from "../../../../lib";
 import { xRay } from "./xray";
 
 const parseYearSegment = (

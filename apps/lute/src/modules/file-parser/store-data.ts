@@ -1,5 +1,5 @@
 import { AlbumPage, PageType, LookupStatus, ChartPage } from "@lute/domain";
-import { PageDataParsedEvent } from "@lute/shared";
+import { PageDataParsedEvent } from "../../lib";
 import { Context } from "../../context";
 import { logger } from "../../logger";
 

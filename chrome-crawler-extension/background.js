@@ -23,7 +23,7 @@ const getFileName = (url) =>
     .filter((x) => x !== "")
     .join("/") + ".mhtml";
 
-const FILE_SERVER_URL = "http://138.197.145.94:3333";
+const FILE_SERVER_URL = "http://138.197.145.94:4000/files";
 
 const upload = (url, mhtml) => {
   const formData = new FormData();

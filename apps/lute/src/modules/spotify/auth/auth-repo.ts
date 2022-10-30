@@ -1,5 +1,5 @@
-import { RedisClient } from "@lute/shared";
 import { SpotifyCredentials } from "@lute/domain";
+import { RedisClient } from "../../../lib";
 
 export const buildAuthRepo = (redisClient: RedisClient) => ({
   async getSpotifyCredentials(): Promise<SpotifyCredentials | null> {

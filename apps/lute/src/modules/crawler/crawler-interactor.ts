@@ -1,5 +1,5 @@
 import { CrawlerStatus } from "@lute/domain";
-import { RedisClient } from "@lute/shared";
+import { RedisClient } from "../../lib";
 import { buildCrawlerRepo } from "./crawler-repo";
 
 export const buildCrawlerInteractor = (redisClient: RedisClient) => {

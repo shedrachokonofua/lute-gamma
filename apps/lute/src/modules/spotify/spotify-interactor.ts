@@ -1,4 +1,4 @@
-import { RedisClient } from "@lute/shared";
+import { RedisClient } from "../../lib";
 import { buildAuthInteractor } from "./auth/auth-interactor";
 import { buildLibraryInteractor } from "./library/library-interactor";
 

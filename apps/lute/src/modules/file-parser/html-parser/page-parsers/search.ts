@@ -1,5 +1,5 @@
 import { SearchBestMatch, isLuteAlbumFileName } from "@lute/domain";
-import { FileSavedEvent } from "@lute/shared";
+import { FileSavedEvent } from "../../../../lib";
 import { logger } from "../../../../logger";
 import { xRay } from "./xray";
 

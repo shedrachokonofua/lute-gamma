@@ -1,5 +1,5 @@
 import { SavedLookup } from "@lute/domain";
-import { RedisClient } from "@lute/shared";
+import { RedisClient } from "../../../lib";
 import { logger } from "../logger";
 import { ProfileInteractor } from "../profile-interactor";
 import { buildSeedLookupRepo } from "./seed-lookup-repo";

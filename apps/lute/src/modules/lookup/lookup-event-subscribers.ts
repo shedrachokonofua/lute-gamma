@@ -2,7 +2,7 @@ import {
   buildLuteEventSubscriber,
   LuteEvent,
   PageDataParsedEvent,
-} from "@lute/shared";
+} from "../../lib";
 import { Context } from "../../context";
 import { logger } from "../../logger";
 
