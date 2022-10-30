@@ -24,7 +24,7 @@ services:
       dockerfile: Dockerfile.prod
       args:
         workspace: dashboard
-        next_profile_service_url: ${NEXT_PUBLIC_PROFILE_SERVER_URL}
+        next_lute_service_url: ${NEXT_PUBLIC_LUTE_SERVER_URL}
     ports:
       - ${DASHBOARD_PORT}:80
     restart: always

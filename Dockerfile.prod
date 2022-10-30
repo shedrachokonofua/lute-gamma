@@ -10,8 +10,8 @@ RUN npx turbo prune --scope=${WORKSPACE} --docker
 
 FROM base AS installer
 WORKDIR /app
-ARG next_profile_service_url
-ENV NEXT_PUBLIC_PROFILE_SERVER_URL=${next_profile_service_url}
+ARG next_lute_service_url
+ENV NEXT_PUBLIC_LUTE_SERVER_URL=${next_lute_service_url}
 COPY .npmrc .npmrc
 COPY .gitignore .gitignore
 COPY --from=builder /app/out/json/ .
