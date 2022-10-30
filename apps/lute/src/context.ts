@@ -2,6 +2,8 @@ import { buildRedisClient, buildLuteEventClient } from "@lute/shared";
 import { MongoClient } from "mongodb";
 import { config } from "./config";
 import { logger } from "./logger";
+import { buildAlbumInteractor } from "./modules/albums";
+import { buildChartInteractor } from "./modules/charts";
 import { buildCrawlerInteractor } from "./modules/crawler";
 import { buildFileInteractor, buildFileStorageClient } from "./modules/files";
 
@@ -14,6 +16,11 @@ export const buildContext = async () => {
   const fileStorageClient = buildFileStorageClient();
   const eventClient = buildLuteEventClient(redisClient);
 
+  const albumInteractor = buildAlbumInteractor(mongoClient);
+  const chartInteractor = buildChartInteractor({
+    albumInteractor,
+    mongoClient,
+  });
   const crawlerInteractor = buildCrawlerInteractor(redisClient);
   const fileInteractor = buildFileInteractor({
     eventClient,
@@ -26,6 +33,8 @@ export const buildContext = async () => {
     mongoClient,
     redisClient,
     fileStorageClient,
+    albumInteractor,
+    chartInteractor,
     crawlerInteractor,
     fileInteractor,
   };

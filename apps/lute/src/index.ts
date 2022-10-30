@@ -1,5 +1,5 @@
 import { buildContext } from "./context";
-import { startCrawler } from "./modules/crawler/crawler";
+import { startCrawler } from "./modules/crawler";
 import { startServer } from "./server";
 
 (async () => {

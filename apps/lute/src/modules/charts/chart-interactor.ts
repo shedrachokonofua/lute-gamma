@@ -1,14 +1,17 @@
 import { ChartDocument, PutChartPayload } from "@lute/domain";
-import { AlbumInteractor } from "../album";
-import { ChartRepo } from "./chart-repo";
+import { MongoClient } from "mongodb";
+import { AlbumInteractor } from "../albums";
+import { buildChartRepo } from "./chart-repo";
 
 export const buildChartInteractor = ({
-  chartRepo,
   albumInteractor,
+  mongoClient,
 }: {
-  chartRepo: ChartRepo;
   albumInteractor: AlbumInteractor;
+  mongoClient: MongoClient;
 }) => {
+  const chartRepo = buildChartRepo(mongoClient);
+
   return {
     async putChart(chart: PutChartPayload): Promise<ChartDocument> {
       const chartDocument: ChartDocument = {
