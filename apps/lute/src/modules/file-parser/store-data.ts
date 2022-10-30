@@ -1,9 +1,10 @@
 import { AlbumPage, PageType, LookupStatus, ChartPage } from "@lute/domain";
 import { PageDataParsedEvent } from "@lute/shared";
-import { logger } from "./logger";
-import { crawlerClient, rymDataClient, rymLookupClient } from "./utils";
+import { Context } from "../../context";
+import { logger } from "../../logger";
 
 const storeAlbumData = async (
+  context: Context,
   event: PageDataParsedEvent,
   data: AlbumPage
 ): Promise<void> => {
@@ -17,11 +18,11 @@ const storeAlbumData = async (
     ...data,
   };
 
-  await rymDataClient.putAlbum(album);
+  await context.albumInteractor.putAlbum(album);
 
   if (event.lookupId) {
     logger.info({ event, album }, "Lookup album data saved");
-    await rymLookupClient.putLookup(event.lookupId, {
+    await context.lookupInteractor.putLookup(event.lookupId, {
       status: LookupStatus.Saved,
       bestMatch: {
         albumData: album,
@@ -31,6 +32,7 @@ const storeAlbumData = async (
 };
 
 const storeChartData = async (
+  context: Context,
   event: PageDataParsedEvent,
   data: ChartPage
 ): Promise<void> => {
@@ -44,27 +46,28 @@ const storeChartData = async (
     ...data,
   };
 
-  await rymDataClient.putChart(chart);
+  await context.chartInteractor.putChart(chart);
 
   await Promise.all(
     chart.albums.map(async (album) => {
-      await crawlerClient.schedule({
-        fileName: album.fileName,
-      });
+      await context.crawlerInteractor.schedule(album.fileName);
     })
   );
 };
 
-export const storeParsedPageData = async (event: PageDataParsedEvent) => {
+export const storeParsedPageData = async (
+  context: Context,
+  event: PageDataParsedEvent
+) => {
   logger.info({ event }, "Storing page data");
   const pageData = JSON.parse(event.dataString);
   const pageType = event.pageType;
 
   switch (pageType) {
     case PageType.Album:
-      return storeAlbumData(event, pageData as AlbumPage);
+      return storeAlbumData(context, event, pageData as AlbumPage);
     case PageType.Chart:
-      return storeChartData(event, pageData as ChartPage);
+      return storeChartData(context, event, pageData as ChartPage);
     default:
       return;
   }

@@ -34,6 +34,7 @@ export const config = {
       .asFloatPositive(),
   },
   files: {
+    useSpaces: env.get("USE_SPACES").default("true").asBool(),
     ttlSeconds: env
       .get("FILE_TTL_SECONDS")
       .default(60 * 60 * 24)

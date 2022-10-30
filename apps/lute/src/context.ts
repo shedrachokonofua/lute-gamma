@@ -37,9 +37,10 @@ export const buildContext = async () => {
 
   return {
     buildRedisClient: () => buildRedisClient({ logger, url: config.redis.url }),
+    eventClient,
+    fileStorageClient,
     mongoClient,
     redisClient,
-    fileStorageClient,
     albumInteractor,
     chartInteractor,
     crawlerInteractor,

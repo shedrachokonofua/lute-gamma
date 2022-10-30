@@ -1,6 +1,6 @@
 import { SearchBestMatch, isLuteAlbumFileName } from "@lute/domain";
 import { FileSavedEvent } from "@lute/shared";
-import { logger } from "../../logger";
+import { logger } from "../../../../logger";
 import { xRay } from "./xray";
 
 export const parseSearch = async (

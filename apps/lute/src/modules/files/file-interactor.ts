@@ -52,6 +52,19 @@ export const buildFileInteractor = ({
       await fileStorageClient.saveFile(name, data);
       return interactor.handleFileSave(name, lookupId);
     },
+    async deleteFile(name: string) {
+      await fileStorageClient.deleteFile(name);
+      const id = await fileRepo.getFileId(name);
+      if (!id) {
+        return;
+      }
+      await fileRepo.deleteFile(id);
+    },
+    async getFileContent(name: string): Promise<string | null> {
+      const content = await fileStorageClient.getFile(name);
+      if (!content) return null;
+      return content.toString();
+    },
   };
 
   return interactor;

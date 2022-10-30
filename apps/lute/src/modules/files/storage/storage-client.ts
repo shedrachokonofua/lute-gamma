@@ -5,7 +5,7 @@ import { FileStorageClient } from "./storage";
 import { logger } from "../../../logger";
 
 export const buildFileStorageClient = (): FileStorageClient => {
-  if (config.isProduction) {
+  if (config.isProduction || config.files.useSpaces) {
     logger.info("Using spaces storage");
     return spacesStorage;
   } else {

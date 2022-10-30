@@ -1,5 +1,5 @@
 import { FileSavedEvent } from "@lute/shared";
-import { fileServerClient } from "./utils";
+import { Context } from "../../context";
 
 const removeLineTrailingEquals = (lines: string): string => {
   return lines
@@ -32,16 +32,20 @@ export const extractHtmlFromMHtml = (mhtml: string): string => {
   return html;
 };
 
-export const parseMhtmlToHtml = async (event: FileSavedEvent) => {
-  const fileContent = await fileServerClient.getFileContent(event.fileId);
+export const parseMhtmlToHtml = async (
+  context: Context,
+  event: FileSavedEvent
+) => {
+  const fileContent = await context.fileInteractor.getFileContent(
+    event.fileName
+  );
+  if (!fileContent) throw new Error("Could not find file content");
   const html = extractHtmlFromMHtml(fileContent);
   const newFileName = event.fileName.replace(".mhtml", "");
-  const id = await fileServerClient.uploadFile({
+  const id = await context.fileInteractor.saveFile({
     name: newFileName,
-    file: html,
+    data: html,
   });
-  await fileServerClient.deleteFile(event.fileId);
-  if (!id) {
-    throw new Error("Could not upload file");
-  }
+  await context.fileInteractor.deleteFile(event.fileId);
+  if (!id) throw new Error("Could not upload file");
 };

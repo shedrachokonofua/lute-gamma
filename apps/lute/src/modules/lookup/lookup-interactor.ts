@@ -89,7 +89,6 @@ export const buildLookupInteractor = ({
             status: LookupStatus.Found,
             bestMatch: data,
           };
-
       logger.info({ event, putLookupPayload }, "Put lookup");
 
       await interactor.putLookup(event.lookupId, putLookupPayload);
