@@ -1,11 +1,9 @@
 import { Router } from "express";
+import { Context } from "../../../context";
 import { buildAuthController } from "./auth-controller";
-import { AuthRepo } from "./auth-repo";
 
-export const buildAuthRouter = (authRepo: AuthRepo) => {
-  const controller = buildAuthController({
-    authRepo,
-  });
+export const buildAuthRouter = (context: Context) => {
+  const controller = buildAuthController(context);
 
   return Router()
     .get("/status", controller.getStatus)

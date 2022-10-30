@@ -27,6 +27,10 @@ export const config = {
     username: env.get("PROXY_USERNAME").required().asString(),
     password: env.get("PROXY_PASSWORD").required().asString(),
   },
+  spotify: {
+    clientId: env.get("SPOTIFY_CLIENT_ID").required().asString(),
+    clientSecret: env.get("SPOTIFY_CLIENT_SECRET").required().asString(),
+  },
   crawler: {
     coolDownSeconds: env
       .get("COOL_DOWN_SECONDS")
@@ -43,5 +47,8 @@ export const config = {
       .get("LOCAL_BUCKET_PATH")
       .default("./test-bucket")
       .asString(),
+  },
+  server: {
+    host: env.get("HOST").default("http://localhost:4000").asString(),
   },
 } as const;

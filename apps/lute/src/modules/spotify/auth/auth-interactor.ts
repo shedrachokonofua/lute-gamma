@@ -1,14 +1,17 @@
 import { AuthStatus, SpotifyCredentials } from "@lute/domain";
+import { RedisClient } from "@lute/shared";
 import { add as dateAdd } from "date-fns";
-import { logger } from "../logger";
+import { logger } from "../../../logger";
 import {
   buildAuthorizedSpotifyApi,
   spotifyApi,
   SPOTIFY_SCOPES,
 } from "../spotify";
-import { AuthRepo } from "./auth-repo";
+import { buildAuthRepo } from "./auth-repo";
 
-export const buildAuthInteractor = (authRepo: AuthRepo) => {
+export const buildAuthInteractor = (redisClient: RedisClient) => {
+  const authRepo = buildAuthRepo(redisClient);
+
   return {
     async getAuthUrl() {
       return spotifyApi.createAuthorizeURL(SPOTIFY_SCOPES, "");
@@ -61,6 +64,12 @@ export const buildAuthInteractor = (authRepo: AuthRepo) => {
       logger.info({ newCredentials }, "Storing new spotify credentials");
       await authRepo.setSpotifyCredentials(newCredentials);
       return newCredentials;
+    },
+    async clearSpotifyCredentials() {
+      await authRepo.clearSpotifyCredentials();
+    },
+    async getSpotifyCredentials(): Promise<SpotifyCredentials | null> {
+      return authRepo.getSpotifyCredentials();
     },
   };
 };

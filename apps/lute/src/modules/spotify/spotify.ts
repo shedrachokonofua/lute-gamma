@@ -1,21 +1,21 @@
 import { SpotifyCredentials } from "@lute/domain";
 import SpotifyWebApi from "spotify-web-api-node";
-import { HOST, SPOTIFT_CLIENT_ID, SPOTIFT_CLIENT_SECRET } from "./config";
+import { config } from "../../config";
 
-const AUTH_CALLBACK_URL = `${HOST}/auth/callback`;
+const AUTH_CALLBACK_URL = `${config.server.host}/spotify/auth/callback`;
 
 export const SPOTIFY_SCOPES = ["user-library-read"];
 
 export const spotifyApi = new SpotifyWebApi({
-  clientId: SPOTIFT_CLIENT_ID,
-  clientSecret: SPOTIFT_CLIENT_SECRET,
+  clientId: config.spotify.clientId,
+  clientSecret: config.spotify.clientSecret,
   redirectUri: AUTH_CALLBACK_URL,
 });
 
 export const buildAuthorizedSpotifyApi = (credentials: SpotifyCredentials) => {
   const api = new SpotifyWebApi({
-    clientId: SPOTIFT_CLIENT_ID,
-    clientSecret: SPOTIFT_CLIENT_SECRET,
+    clientId: config.spotify.clientId,
+    clientSecret: config.spotify.clientSecret,
     redirectUri: AUTH_CALLBACK_URL,
   });
   api.setAccessToken(credentials.accessToken);

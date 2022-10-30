@@ -7,6 +7,7 @@ import { buildChartInteractor } from "./modules/charts";
 import { buildCrawlerInteractor } from "./modules/crawler";
 import { buildFileInteractor, buildFileStorageClient } from "./modules/files";
 import { buildLookupInteractor } from "./modules/lookup";
+import { buildSpotifyInteractor } from "./modules/spotify";
 
 export const buildContext = async () => {
   const mongoClient = new MongoClient(config.mongo.url);
@@ -34,6 +35,7 @@ export const buildContext = async () => {
     eventClient,
     redisClient,
   });
+  const spotifyInteractor = buildSpotifyInteractor(redisClient);
 
   return {
     buildRedisClient: () => buildRedisClient({ logger, url: config.redis.url }),
@@ -46,6 +48,7 @@ export const buildContext = async () => {
     crawlerInteractor,
     fileInteractor,
     lookupInteractor,
+    spotifyInteractor,
   };
 };
 

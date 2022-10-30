@@ -1,6 +1,6 @@
 import { PaginatedValue, CatalogTrack, SpotifyCredentials } from "@lute/domain";
 import { buildAuthorizedSpotifyApi, SpotifyTrack } from "../spotify";
-import { logger } from "../logger";
+import { logger } from "../../../logger";
 import { spotifyTrackToCatalogTrack } from "../helpers";
 
 const getNextOffset = (

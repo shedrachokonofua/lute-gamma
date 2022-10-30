@@ -1,8 +1,8 @@
 import { AuthStatus, SpotifyCredentials } from "@lute/domain";
 import { Request, Response, NextFunction } from "express";
-import { buildAuthInteractor } from "./auth-interactor";
-import { AuthRepo } from "./auth-repo";
-import { logger } from "../logger";
+import { logger } from "../../../logger";
+import { Context } from "../../../context";
+import { SpotifyInteractor } from "../spotify-interactor";
 
 const setCredentialsOnRequest = (
   req: Request,
@@ -11,7 +11,10 @@ const setCredentialsOnRequest = (
   (req as any).spotifyCredentials = credentials;
 };
 
-const shouldRefresh = async (authRepo: AuthRepo, status: AuthStatus) => {
+const shouldRefresh = async (
+  spotifyInteractor: SpotifyInteractor,
+  status: AuthStatus
+) => {
   if (
     status === AuthStatus.Unauthorized ||
     status === AuthStatus.InvalidAuthorization
@@ -19,7 +22,7 @@ const shouldRefresh = async (authRepo: AuthRepo, status: AuthStatus) => {
     return false;
   }
   if (status === AuthStatus.Authorized) {
-    const credentials = await authRepo.getSpotifyCredentials();
+    const credentials = await spotifyInteractor.getSpotifyCredentials();
     if (!credentials) {
       return false;
     }
@@ -30,21 +33,20 @@ const shouldRefresh = async (authRepo: AuthRepo, status: AuthStatus) => {
   return status === AuthStatus.Expired;
 };
 
-export const buildAuthGuard = (authRepo: AuthRepo) => {
-  const authInteractor = buildAuthInteractor(authRepo);
-
+export const buildAuthGuard = (context: Context) => {
   return async (req: Request, res: Response, next: NextFunction) => {
-    const status = await authInteractor.getAuthStatus();
+    const status = await context.spotifyInteractor.getAuthStatus();
 
-    if (await shouldRefresh(authRepo, status)) {
+    if (await shouldRefresh(context.spotifyInteractor, status)) {
       logger.info({ status }, "Refreshing credentials");
-      const credentials = await authInteractor.refreshCredentials();
+      const credentials = await context.spotifyInteractor.refreshCredentials();
       setCredentialsOnRequest(req, credentials);
       return next();
     }
 
     if (status === "authorized") {
-      const credentials = await authRepo.getSpotifyCredentials();
+      const credentials =
+        await context.spotifyInteractor.getSpotifyCredentials();
       if (!credentials) {
         throw new Error("No credentials found");
       }
@@ -55,7 +57,7 @@ export const buildAuthGuard = (authRepo: AuthRepo) => {
     return res.status(401).send({
       ok: false,
       error: "Unauthorized",
-      credentials: await authRepo.getSpotifyCredentials(),
+      credentials: await context.spotifyInteractor.getSpotifyCredentials(),
     });
   };
 };
