@@ -1,6 +1,5 @@
 import type { NextPage } from "next";
 import { useAsync } from "../hooks/use-async";
-import { profileClient } from "../clients";
 import { Header, Container, Stack, Grid, Title, Group } from "@mantine/core";
 import {
   Panel,
@@ -11,11 +10,12 @@ import {
 } from "../components";
 import { useCallback, useEffect, useState } from "react";
 import { IconPlayerTrackNext } from "@tabler/icons";
+import { api } from "../api";
 
 const useRecommendations = () => {
   const request = useCallback((settingsForm: RecommendationSettingsForm) => {
     const { profileId, ...settings } = settingsForm;
-    return profileClient.getRecommendations(profileId, settings);
+    return api.getRecommendations(profileId, settings);
   }, []);
 
   return useAsync(request, false);

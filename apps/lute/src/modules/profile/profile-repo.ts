@@ -16,7 +16,7 @@ export interface AddAlbumToProfilePayload {
 
 export const buildProfileRepo = (mongoClient: MongoClient) => {
   const profilesCollection = mongoClient
-    .db("profiles")
+    .db("profile")
     .collection<ProfileDocument>("profiles");
 
   const repo = {

@@ -3,6 +3,7 @@
 ### High Priority
 
 - [ ] Refactor event-bus [Notes](notes/event-bus-refactor.md)
+- [ ] Fully event driven: Remove (almost) all http calls between services
 
 ### Medium Priority
 
@@ -11,11 +12,10 @@
 - [ ] Fix release dates
 - [ ] Crawl release year chart for each genre when album added to profile
 - [ ] Support filtering recommendations by year/decade
-- [ ] Fully event driven: Remove (almost) all http calls between services
 
 ### Low Priority
 
-- [ ] Monolith??? [Notes](notes/monolith.md)
+- [ ] Chrome extension context menu with localhost <-> production toggle
 - [ ] Setup linting
 - [ ] Continuous deployment
 - [ ] Implement lookup retry for failed lookups when queried
