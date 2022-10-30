@@ -42,3 +42,5 @@ export const buildCrawlerInteractor = (redisClient: RedisClient) => {
     },
   };
 };
+
+export type CrawlerInteractor = ReturnType<typeof buildCrawlerInteractor>;

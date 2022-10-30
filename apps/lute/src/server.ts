@@ -5,6 +5,7 @@ import { logger } from "./logger";
 import { buildAlbumRouter } from "./modules/albums";
 import { buildCrawlerRouter } from "./modules/crawler";
 import { buildFileRouter } from "./modules/files";
+import { buildLookupRouter } from "./modules/lookup";
 
 export const startServer = buildServer<Context>({
   name: "lute",
@@ -12,7 +13,8 @@ export const startServer = buildServer<Context>({
     return Router()
       .use("/albums", buildAlbumRouter(context))
       .use("/files", buildFileRouter(context))
-      .use("/crawler", buildCrawlerRouter(context));
+      .use("/crawler", buildCrawlerRouter(context))
+      .use("/lookup", buildLookupRouter(context));
   },
   logger,
 });
