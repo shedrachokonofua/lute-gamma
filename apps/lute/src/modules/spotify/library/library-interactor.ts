@@ -2,6 +2,7 @@ import { PaginatedValue, CatalogTrack, SpotifyCredentials } from "@lute/domain";
 import { buildAuthorizedSpotifyApi, SpotifyTrack } from "../spotify";
 import { logger } from "../../../logger";
 import { spotifyTrackToCatalogTrack } from "../helpers";
+import { AuthInteractor } from "../auth";
 
 const getNextOffset = (
   offset: number | undefined,
@@ -15,18 +16,22 @@ const getNextOffset = (
   return nextOffset < total ? nextOffset : undefined;
 };
 
-export const buildLibraryInteractor = () => {
-  return {
+export const buildLibraryInteractor = (authInteractor: AuthInteractor) => {
+  const interactor = {
+    async getCredentialsOrThrow() {
+      const credentials = await authInteractor.getSpotifyCredentials();
+      if (!credentials) throw new Error("No credentials found");
+      return credentials;
+    },
     async getTracks({
-      spotifyCredentials,
       offset = 0,
       limit = 50,
     }: {
-      spotifyCredentials: SpotifyCredentials;
       offset?: number;
       limit?: number;
     }): Promise<PaginatedValue<CatalogTrack>> {
-      const spotifyApi = buildAuthorizedSpotifyApi(spotifyCredentials);
+      const credentials = await interactor.getCredentialsOrThrow();
+      const spotifyApi = buildAuthorizedSpotifyApi(credentials);
       const {
         body: { items, total },
       } = await spotifyApi.getMySavedTracks({
@@ -43,17 +48,16 @@ export const buildLibraryInteractor = () => {
       };
     },
     async getPlaylistTracks({
-      spotifyCredentials,
       playlistId,
       offset = 0,
       limit = 50,
     }: {
-      spotifyCredentials: SpotifyCredentials;
       playlistId: string;
       offset?: number;
       limit?: number;
     }): Promise<PaginatedValue<CatalogTrack>> {
-      const spotifyApi = buildAuthorizedSpotifyApi(spotifyCredentials);
+      const credentials = await interactor.getCredentialsOrThrow();
+      const spotifyApi = buildAuthorizedSpotifyApi(credentials);
       const {
         body: { items, total },
       } = await spotifyApi.getPlaylistTracks(playlistId, {
@@ -77,4 +81,8 @@ export const buildLibraryInteractor = () => {
       };
     },
   };
+
+  return interactor;
 };
+
+export type LibraryInteractor = ReturnType<typeof buildLibraryInteractor>;

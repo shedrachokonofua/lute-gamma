@@ -7,6 +7,7 @@ import { buildChartRouter } from "./modules/charts";
 import { buildCrawlerRouter } from "./modules/crawler";
 import { buildFileRouter } from "./modules/files";
 import { buildLookupRouter } from "./modules/lookup";
+import { buildProfileRouter } from "./modules/profile";
 import { buildSpotifyRouter } from "./modules/spotify";
 
 export const startServer = buildServer<Context>({
@@ -18,6 +19,7 @@ export const startServer = buildServer<Context>({
       .use("/files", buildFileRouter(context))
       .use("/crawler", buildCrawlerRouter(context))
       .use("/lookup", buildLookupRouter(context))
+      .use("/profile", buildProfileRouter(context))
       .use("/spotify", buildSpotifyRouter(context));
   },
   logger,

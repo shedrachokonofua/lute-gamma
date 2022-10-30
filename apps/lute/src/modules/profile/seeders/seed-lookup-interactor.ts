@@ -1,15 +1,18 @@
 import { SavedLookup } from "@lute/domain";
+import { RedisClient } from "@lute/shared";
 import { logger } from "../logger";
 import { ProfileInteractor } from "../profile-interactor";
-import { SeedLookupRepo } from "./seed-lookup-repo";
+import { buildSeedLookupRepo } from "./seed-lookup-repo";
 
 export const buildSeedLookupInteractor = ({
-  seedLookupRepo,
+  redisClient,
   profileInteractor,
 }: {
-  seedLookupRepo: SeedLookupRepo;
+  redisClient: RedisClient;
   profileInteractor: ProfileInteractor;
 }) => {
+  const seedLookupRepo = buildSeedLookupRepo(redisClient);
+
   return {
     buildTable: async (
       profileId: string,

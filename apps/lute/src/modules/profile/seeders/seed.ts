@@ -6,8 +6,8 @@ import {
   LookupStatus,
   PaginatedValue,
 } from "@lute/domain";
-import { rymLookupClient } from "../utils";
-import { SeedLookupInteractor } from "./seed-lookup-interactor";
+import { Context } from "../../../context";
+import { buildSeedLookupInteractor } from "./seed-lookup-interactor";
 
 interface CatalogTrackWithAlbum extends CatalogTrack {
   album: Exclude<CatalogTrack["album"], undefined>;
@@ -22,15 +22,20 @@ interface SeederState {
   skippedAlbumcatalogIds: Set<string>;
 }
 
-export const seedProfile = async ({
-  profileId,
-  seedLookupInteractor,
-  fetchTracks,
-}: {
-  profileId: string;
-  seedLookupInteractor: SeedLookupInteractor;
-  fetchTracks: (state: SeederState) => Promise<PaginatedValue<CatalogTrack>>;
-}) => {
+export const seedProfile = async (
+  { redisClient, profileInteractor, lookupInteractor }: Context,
+  {
+    profileId,
+    fetchTracks,
+  }: {
+    profileId: string;
+    fetchTracks: (state: SeederState) => Promise<PaginatedValue<CatalogTrack>>;
+  }
+) => {
+  const seedLookupInteractor = buildSeedLookupInteractor({
+    redisClient,
+    profileInteractor,
+  });
   const state = {
     hasNext: true,
     offset: 0,
@@ -82,10 +87,10 @@ export const seedProfile = async ({
 
   await Promise.all(
     Object.values(state.lookupKeyByCatalogAlbumId).map(async (key) => {
-      const lookupResult = await rymLookupClient.getOrCreateLookup(
-        key.artist,
-        key.album
-      );
+      const lookupResult = await lookupInteractor.getOrCreateLookup({
+        artist: key.artist,
+        album: key.album,
+      });
 
       if (!lookupResult) return;
 

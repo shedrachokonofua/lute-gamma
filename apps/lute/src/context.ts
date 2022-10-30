@@ -7,6 +7,7 @@ import { buildChartInteractor } from "./modules/charts";
 import { buildCrawlerInteractor } from "./modules/crawler";
 import { buildFileInteractor, buildFileStorageClient } from "./modules/files";
 import { buildLookupInteractor } from "./modules/lookup";
+import { buildProfileInteractor } from "./modules/profile";
 import { buildSpotifyInteractor } from "./modules/spotify";
 
 export const buildContext = async () => {
@@ -35,6 +36,10 @@ export const buildContext = async () => {
     eventClient,
     redisClient,
   });
+  const profileInteractor = buildProfileInteractor({
+    mongoClient,
+    albumInteractor,
+  });
   const spotifyInteractor = buildSpotifyInteractor(redisClient);
 
   return {
@@ -48,6 +53,7 @@ export const buildContext = async () => {
     crawlerInteractor,
     fileInteractor,
     lookupInteractor,
+    profileInteractor,
     spotifyInteractor,
   };
 };

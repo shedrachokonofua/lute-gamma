@@ -1,38 +1,33 @@
 import {
-  AlbumDocument,
-  AssessableAlbum,
-  Assessment,
   AssessmentSettings,
   ProfileDetails,
   ProfileSummary,
   Recommendation,
   RecommendationSettings,
 } from "@lute/domain";
-import Bottleneck from "bottleneck";
-import { AddAlbumToProfilePayload, ProfileRepo } from "./profile-repo";
-import { rymDataClient } from "./utils";
+import { AddAlbumToProfilePayload, buildProfileRepo } from "./profile-repo";
 import { startOfDecade } from "date-fns";
 import { logger } from "./logger";
-import {
-  AssessmentContext,
-  buildAssessment,
-  buildAssessmentContext,
-} from "./assessment";
-
-const limiter = new Bottleneck({ maxConcurrent: 5000 });
+import { buildAssessment, buildAssessmentContext } from "./assessment";
+import { MongoClient } from "mongodb";
+import { AlbumInteractor } from "../albums";
 
 export const buildProfileInteractor = ({
-  profileRepo,
+  mongoClient,
+  albumInteractor,
 }: {
-  profileRepo: ProfileRepo;
+  mongoClient: MongoClient;
+  albumInteractor: AlbumInteractor;
 }) => {
+  const profileRepo = buildProfileRepo(mongoClient);
+
   const interactor = {
     async getProfile(id: string) {
       const profileDocument = await profileRepo.getProfile(id);
       if (!profileDocument) {
         return null;
       }
-      const albumDocuments = await rymDataClient.queryAlbums({
+      const albumDocuments = await albumInteractor.findAlbums({
         keys: profileDocument.albums.map((album) => album.item),
       });
       const trackCountByAlbumFileName = profileDocument.albums.reduce<
@@ -180,7 +175,9 @@ export const buildProfileInteractor = ({
       };
     },
     async putAlbumOnProfile(payload: AddAlbumToProfilePayload) {
-      const albumDocument = await rymDataClient.getAlbum(payload.albumFileName);
+      const albumDocument = await albumInteractor.getAlbum(
+        payload.albumFileName
+      );
       if (!albumDocument) {
         throw new Error("Unknown album");
       }
@@ -204,12 +201,13 @@ export const buildProfileInteractor = ({
       if (!profile) {
         throw new Error("Unknown profile");
       }
-      const album = await rymDataClient.getAlbum(albumFileId);
+      const album = await albumInteractor.getAlbum(albumFileId);
       if (!album) {
         throw new Error("Unknown album");
       }
       return buildAssessment(
         await buildAssessmentContext({
+          albumInteractor,
           profile,
           settings,
         }),
@@ -228,12 +226,13 @@ export const buildProfileInteractor = ({
         throw new Error("Unknown profile");
       }
       const assessmentContext = await buildAssessmentContext({
+        albumInteractor,
         profile,
         settings: settings.assessmentSettings,
       });
       logger.info({ assessmentContext }, "Built assessment context");
 
-      const albums = await rymDataClient.queryAlbums({
+      const albums = await albumInteractor.findAlbums({
         primaryGenres: [...settings.filter.primaryGenres],
         excludeArtists: [...settings.filter.excludeArtists],
         excludePrimaryGenres: [...settings.filter.excludePrimaryGenres],

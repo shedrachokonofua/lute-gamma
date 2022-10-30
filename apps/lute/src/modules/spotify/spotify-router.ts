@@ -8,5 +8,5 @@ export const buildSpotifyRouter = (context: Context) => {
 
   return Router()
     .use("/auth", buildAuthRouter(context))
-    .use("/library", authGuard, buildLibraryRouter());
+    .use("/library", authGuard, buildLibraryRouter(context));
 };

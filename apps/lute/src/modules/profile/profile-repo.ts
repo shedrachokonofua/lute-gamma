@@ -1,5 +1,5 @@
 import { ItemAndCount } from "@lute/domain";
-import { Db, ObjectId, WithId } from "mongodb";
+import { MongoClient } from "mongodb";
 
 export interface ProfileDocument {
   id: string;
@@ -14,9 +14,10 @@ export interface AddAlbumToProfilePayload {
   count?: number;
 }
 
-export const buildProfileRepo = ({ mongoDatabase }: { mongoDatabase: Db }) => {
-  const profilesCollection =
-    mongoDatabase.collection<ProfileDocument>("profiles");
+export const buildProfileRepo = (mongoClient: MongoClient) => {
+  const profilesCollection = mongoClient
+    .db("profiles")
+    .collection<ProfileDocument>("profiles");
 
   const repo = {
     async getProfile(id: string): Promise<ProfileDocument | null> {
@@ -32,9 +33,7 @@ export const buildProfileRepo = ({ mongoDatabase }: { mongoDatabase: Db }) => {
         albums: [],
       };
 
-      await mongoDatabase
-        .collection<ProfileDocument>("profiles")
-        .insertOne(document);
+      await profilesCollection.insertOne(document);
 
       return document;
     },

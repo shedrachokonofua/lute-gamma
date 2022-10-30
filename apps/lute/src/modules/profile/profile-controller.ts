@@ -4,10 +4,12 @@ import {
   assessmentSettingsSchema,
 } from "@lute/domain";
 import { seedDefaultProfile, seedProfileWithPlaylist } from "./seeders";
-import { ServerContext } from "./server-context";
+import { Context } from "../../context";
 
-export const buildProfileController = buildControllerFactory<ServerContext>(
-  ({ profileInteractor, seedLookupInteractor }) => {
+export const buildProfileController = buildControllerFactory<Context>(
+  (context) => {
+    const { profileInteractor } = context;
+
     return {
       async getProfile(req, res) {
         const profile = await profileInteractor.getProfile(
@@ -48,7 +50,7 @@ export const buildProfileController = buildControllerFactory<ServerContext>(
         return res.json({ ok: true, data: profile });
       },
       async seedDefaultProfile(req, res) {
-        seedDefaultProfile({ seedLookupInteractor });
+        seedDefaultProfile(context);
         return res.json({ ok: true });
       },
       async seedProfileWithPlaylist(req, res) {
@@ -62,10 +64,9 @@ export const buildProfileController = buildControllerFactory<ServerContext>(
             .json({ ok: false, error: "Profile not found" });
         }
 
-        seedProfileWithPlaylist({
+        seedProfileWithPlaylist(context, {
           profileId: id,
           playlistId,
-          seedLookupInteractor,
         });
         return res.json({ ok: true });
       },

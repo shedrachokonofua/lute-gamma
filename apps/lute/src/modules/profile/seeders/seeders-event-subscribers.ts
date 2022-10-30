@@ -1,25 +1,28 @@
 import {
   buildLuteEventSubscriber,
-  buildRedisClient,
   LookupNotFoundEvent,
   LookupSavedEvent,
   LuteEvent,
 } from "@lute/shared";
 import { logger } from "../logger";
-import { REDIS_URL } from "../config";
-import { SeedLookupInteractor } from "./seed-lookup-interactor";
-import { rymLookupClient } from "../utils";
+import {
+  buildSeedLookupInteractor,
+  SeedLookupInteractor,
+} from "./seed-lookup-interactor";
 import { isSavedLookup } from "@lute/domain";
+import { Context } from "../../../context";
 
 const handleLookupSaved = async ({
-  event,
+  context,
   seedLookupInteractor,
+  event,
 }: {
-  event: LookupSavedEvent;
+  context: Context;
   seedLookupInteractor: SeedLookupInteractor;
+  event: LookupSavedEvent;
 }) => {
   const { lookupId } = event;
-  const lookup = await rymLookupClient.getLookupByHash(lookupId);
+  const lookup = await context.lookupInteractor.getLookupByHash(lookupId);
   if (!lookup) {
     logger.warn({ event }, "Lookup not found");
     return;
@@ -36,32 +39,38 @@ const handleLookupSaved = async ({
 };
 
 const handleLookupNotFound = async ({
-  event,
   seedLookupInteractor,
+  event,
 }: {
-  event: LookupNotFoundEvent;
+  context: Context;
   seedLookupInteractor: SeedLookupInteractor;
+  event: LookupNotFoundEvent;
 }) => {
   const { lookupId } = event;
   await seedLookupInteractor.handleLookupNotFound(lookupId);
 };
 
-export const buildSeedersEventSubscribers = async (
-  seedLookupInteractor: SeedLookupInteractor
-) => {
+export const buildSeedersEventSubscribers = async (context: Context) => {
+  const seedLookupInteractor = buildSeedLookupInteractor({
+    redisClient: context.redisClient,
+    profileInteractor: context.profileInteractor,
+  });
+
   buildLuteEventSubscriber<LookupSavedEvent>({
     name: "seeders-lookup-saved-handler",
     event: LuteEvent.LookupSaved,
-    handler: (event) => handleLookupSaved({ event, seedLookupInteractor }),
-    redisClient: await buildRedisClient({ logger, url: REDIS_URL }),
+    handler: (event) =>
+      handleLookupSaved({ context, event, seedLookupInteractor }),
+    redisClient: await context.buildRedisClient(),
     logger,
   });
 
   buildLuteEventSubscriber<LookupNotFoundEvent>({
     name: "seeders-lookup-not-found-handler",
     event: LuteEvent.LookupNotFound,
-    handler: (event) => handleLookupNotFound({ event, seedLookupInteractor }),
-    redisClient: await buildRedisClient({ logger, url: REDIS_URL }),
+    handler: (event) =>
+      handleLookupNotFound({ context, event, seedLookupInteractor }),
+    redisClient: await context.buildRedisClient(),
     logger,
   });
 };

@@ -6,7 +6,7 @@ import {
   AssessmentSettings,
   Profile,
 } from "@lute/domain";
-import { rymDataClient } from "../utils";
+import { AlbumInteractor } from "../../albums";
 
 export interface AssessmentContext {
   profileDetails: AssessableProfileDetails;
@@ -15,15 +15,17 @@ export interface AssessmentContext {
 }
 
 export const buildAssessmentContext = async ({
+  albumInteractor,
   profile: inputProfile,
   settings,
 }: {
+  albumInteractor: AlbumInteractor;
   profile: Profile;
   settings: AssessmentSettings;
 }): Promise<AssessmentContext> => {
   const profile = assessableProfileSchema.parse(inputProfile);
 
-  const rawProfileAlbums = await rymDataClient.queryAlbums({
+  const rawProfileAlbums = await albumInteractor.findAlbums({
     keys: profile.albums.map((album) => album.item),
   });
   const profileAlbums = rawProfileAlbums.filter(

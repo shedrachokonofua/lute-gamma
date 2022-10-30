@@ -1,8 +1,9 @@
 import { Router } from "express";
+import { Context } from "../../../context";
 import { buildLibraryController } from "./library-controller";
 
-export const buildLibraryRouter = () => {
-  const libraryController = buildLibraryController({});
+export const buildLibraryRouter = (context: Context) => {
+  const libraryController = buildLibraryController(context);
 
   return Router()
     .get("/tracks", libraryController.getSavedTracks)
