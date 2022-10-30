@@ -1,17 +1,16 @@
-import "newrelic";
 import Graceful from "@ladjs/graceful";
 import Bree from "bree";
 import breeTsWorker from "@breejs/ts-worker";
 import * as path from "node:path";
 import { logger } from "./logger";
-import { IS_TS_NODE } from "./config";
+import { config } from "./config";
 
 Bree.extend(breeTsWorker);
 
 const bree = new Bree({
   logger,
   root: path.join(__dirname, "jobs"),
-  defaultExtension: IS_TS_NODE ? "ts" : "js",
+  defaultExtension: config.cron.isTsNode ? "ts" : "js",
   jobs: [
     {
       name: "seed-default-profile",
@@ -31,6 +30,6 @@ const bree = new Bree({
 
 new Graceful({ brees: [bree] }).listen();
 
-(async () => {
+export const startCrons = async () => {
   await bree.start();
-})();
+};

@@ -51,4 +51,7 @@ export const config = {
   server: {
     host: env.get("HOST").default("http://localhost:4000").asString(),
   },
+  cron: {
+    isTsNode: env.get("TS_NODE").default("false").asBool(),
+  },
 } as const;

@@ -4,16 +4,19 @@
   "description": "Lute monolith",
   "scripts": {
     "start": "node build/index.js",
-    "dev": "nodemon src/index.ts",
+    "dev": "TS_NODE=true nodemon src/index.ts",
     "build": "tsc"
   },
   "author": "Shedrach Okonofua",
   "license": "ISC",
   "dependencies": {
     "@aws-sdk/client-s3": "^3.180.0",
+    "@breejs/ts-worker": "^2.0.0",
+    "@ladjs/graceful": "^3.0.2",
     "@lute/domain": "*",
     "@lute/shared": "*",
     "axios": "^0.27.2",
+    "bree": "^9.1.2",
     "cls-rtracer": "^2.6.2",
     "cors": "^2.8.5",
     "date-fns": "^2.29.3",
