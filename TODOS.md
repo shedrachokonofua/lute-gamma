@@ -2,6 +2,7 @@
 
 ### High Priority
 
+- [ ] Move packages not used on dashboard to monolith
 - [ ] Refactor event-bus [Notes](notes/event-bus-refactor.md)
 - [ ] Fully event driven: Remove (almost) all http calls between services
 
