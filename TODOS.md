@@ -4,7 +4,7 @@
 
 - [ ] Move packages not used on dashboard to monolith
 - [ ] Refactor event-bus [Notes](notes/event-bus-refactor.md)
-- [ ] Fully event driven: Remove (almost) all http calls between services
+- [ ] Fully event driven: as much as possible, interactors shouldn't reference other interactors
 
 ### Medium Priority
 
