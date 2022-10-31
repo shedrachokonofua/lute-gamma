@@ -1,8 +1,15 @@
 import { ChartDocument, PutChartPayload } from "@lute/domain";
 import { MongoClient } from "mongodb";
+import { EventBus, EventType } from "../../lib";
 import { buildChartRepo } from "./chart-repo";
 
-export const buildChartInteractor = (mongoClient: MongoClient) => {
+export const buildChartInteractor = ({
+  mongoClient,
+  eventBus,
+}: {
+  eventBus: EventBus;
+  mongoClient: MongoClient;
+}) => {
   const chartRepo = buildChartRepo(mongoClient);
 
   return {
@@ -15,6 +22,12 @@ export const buildChartInteractor = (mongoClient: MongoClient) => {
         })),
       };
       const data = await chartRepo.putChart(chartDocument);
+      await eventBus.publish({
+        type: EventType.ChartSaved,
+        data: {
+          chart: data,
+        },
+      });
       return data;
     },
   };

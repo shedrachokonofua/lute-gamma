@@ -2,6 +2,7 @@
 
 ### High Priority
 
+- [ ] Genre auto-complete
 - [ ] Artist entity support [Notes](notes/artists.md)
 
 ### Medium Priority

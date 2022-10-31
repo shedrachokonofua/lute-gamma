@@ -3,9 +3,9 @@ import { AlbumDocument, ChartDocument, PageType } from "@lute/domain";
 export enum EventType {
   FileSaved = "file.saved",
   ParserPageParsed = "parser.pageParsed",
-  ParserFailed = "parser.failed",
   LookupSaved = "lookup.saved",
   LookupNotFound = "lookup.notFound",
+  ParserFailed = "parser.failed",
   AlbumSaved = "album.saved",
   ChartSaved = "chart.saved",
 }
