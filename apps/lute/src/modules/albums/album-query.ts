@@ -48,11 +48,11 @@ export const buildDbAlbumQuery = (
   }
 
   if (inNonEmptyArray(albumQuery.artists)) {
-    query["artists"] = { $in: albumQuery.artists };
+    query["artists"] = { name: { $in: albumQuery.artists } };
   }
 
   if (inNonEmptyArray(albumQuery.excludeArtists)) {
-    query["artists"] = { $nin: albumQuery.excludeArtists };
+    query["artists"] = { name: { $nin: albumQuery.excludeArtists } };
   }
 
   if (inNonEmptyArray(albumQuery.primaryGenres)) {

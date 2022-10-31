@@ -119,7 +119,7 @@ export const Recommendations = ({ recommendations }: RecommendationsProps) => (
           </Group>
           <div>
             <Text size="lg" weight="bold">
-              {recommendation.album.artists.join(", ")}
+              {recommendation.album.artists.map((a) => a.name).join(", ")}
             </Text>
           </div>
           <div>

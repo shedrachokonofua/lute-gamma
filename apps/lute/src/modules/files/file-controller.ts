@@ -26,22 +26,10 @@ export const buildFileController = buildControllerFactory(
           return res.status(400).json({ ok: false, error: "Invalid request" });
         }
 
-        const alternativeFileName = extIsMhtml(name)
-          ? name.replace(".mhtml", "")
-          : null;
-
-        logger.info({ name, alternativeFileName }, "Checking if file exists");
-
-        const fileId = await fileInteractor.getFileId(name);
-        const alternativeFileId =
-          alternativeFileName &&
-          (await fileInteractor.getFileId(alternativeFileName));
-
-        logger.info({ fileId, alternativeFileId }, "Got file ids");
-
-        const exists = fileId !== null || alternativeFileId !== null;
-
-        res.send({ ok: true, data: { exists } });
+        res.send({
+          ok: true,
+          data: { exists: await fileInteractor.getDoesFileExist(name) },
+        });
       },
       async getFile(req, res) {
         const fileId = req.params.id;

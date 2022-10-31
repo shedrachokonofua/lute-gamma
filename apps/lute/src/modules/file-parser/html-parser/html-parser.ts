@@ -1,4 +1,4 @@
-import { LookupStatus, PageType, isLuteAlbumFileName } from "@lute/domain";
+import { PageType } from "@lute/domain";
 import {
   EventType,
   ParserFailedEventPayload,
@@ -10,19 +10,7 @@ import { parseAlbum } from "./page-parsers/album";
 import { parseChart } from "./page-parsers/chart";
 import { parseSearch } from "./page-parsers/search";
 import { EventEntity } from "../../../lib/events/event-entity";
-
-const getPageTypeFromFileName = (fileName: string): PageType | undefined => {
-  if (isLuteAlbumFileName(fileName)) {
-    return PageType.Album;
-  }
-  if (fileName.startsWith("charts/")) {
-    return PageType.Chart;
-  }
-  if (fileName.startsWith("search")) {
-    return PageType.Search;
-  }
-  return undefined;
-};
+import { getPageTypeFromFileName } from "../../../lib";
 
 const parsePage = (
   event: EventEntity<ParserPageParsedEventPayload>,

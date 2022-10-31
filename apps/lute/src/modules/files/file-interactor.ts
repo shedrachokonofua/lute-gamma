@@ -3,7 +3,9 @@ import {
   EventBus,
   FileSavedEventPayload,
   EventType,
+  extIsMhtml,
 } from "../../lib";
+import { logger } from "../../logger";
 import { buildFileRepo } from "./file-repo";
 import { FileStorageClient } from "./storage";
 
@@ -77,6 +79,23 @@ export const buildFileInteractor = ({
       const content = await fileStorageClient.getFile(name);
       if (!content) return null;
       return content.toString();
+    },
+    async getDoesFileExist(name: string): Promise<boolean> {
+      const alternativeFileName = extIsMhtml(name)
+        ? name.replace(".mhtml", "")
+        : null;
+
+      logger.info({ name, alternativeFileName }, "Checking if file exists");
+
+      const fileId = await interactor.getFileId(name);
+      const alternativeFileId =
+        alternativeFileName &&
+        (await interactor.getFileId(alternativeFileName));
+
+      logger.info({ fileId, alternativeFileId }, "Got file ids");
+
+      const exists = fileId !== null || alternativeFileId !== null;
+      return exists;
     },
   };
 

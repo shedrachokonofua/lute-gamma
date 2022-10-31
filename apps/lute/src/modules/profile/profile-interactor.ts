@@ -62,10 +62,10 @@ export const buildProfileInteractor = ({
         fileName,
       } of albumDocuments) {
         artists?.forEach((artist) => {
-          profileDetailsMaps.artists[artist] =
-            (profileDetailsMaps.artists[artist] || 0) + 1;
-          weightedDetailsMaps.artists[artist] =
-            (weightedDetailsMaps.artists[artist] || 0) +
+          profileDetailsMaps.artists[artist.fileName] =
+            (profileDetailsMaps.artists[artist.fileName] || 0) + 1;
+          weightedDetailsMaps.artists[artist.fileName] =
+            (weightedDetailsMaps.artists[artist.fileName] || 0) +
             trackCountByAlbumFileName[fileName];
         });
 
@@ -199,10 +199,12 @@ export const buildProfileInteractor = ({
     }) {
       const profile = await interactor.getProfile(profileId);
       if (!profile) {
+        logger.error({ profileId }, "Unknown profile");
         throw new Error("Unknown profile");
       }
       const album = await albumInteractor.getAlbum(albumFileId);
       if (!album) {
+        logger.error({ albumFileId }, "Unknown album");
         throw new Error("Unknown album");
       }
       return buildAssessment(

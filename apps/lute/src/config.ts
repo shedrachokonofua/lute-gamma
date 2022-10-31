@@ -47,6 +47,11 @@ export const config = {
       .get("LOCAL_BUCKET_PATH")
       .default("./test-bucket")
       .asString(),
+    ttlDays: {
+      album: env.get("FILE_ALBUM_TTL_DAYS").default(7).asIntPositive(),
+      chart: env.get("FILE_CHARTS_TTL_DAYS").default(7).asIntPositive(),
+      search: env.get("FILE_SEARCH_TTL_DAYS").default(1).asIntPositive(),
+    },
   },
   server: {
     host: env.get("HOST").default("http://localhost:4000").asString(),

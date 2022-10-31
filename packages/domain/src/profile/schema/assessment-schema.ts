@@ -3,7 +3,14 @@ import { z } from "zod";
 export const assessableAlbumSchema = z
   .object({
     name: z.string(),
-    artists: z.array(z.string()).nonempty(),
+    artists: z
+      .array(
+        z.object({
+          name: z.string(),
+          fileName: z.string(),
+        })
+      )
+      .nonempty(),
     fileName: z.string(),
     rating: z.number(),
     ratingCount: z.number(),

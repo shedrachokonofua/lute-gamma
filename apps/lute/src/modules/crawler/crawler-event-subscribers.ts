@@ -6,10 +6,16 @@ export const registerCrawlerEventSubscribers = async (context: Context) => {
     [EventType.ChartSaved],
     {
       name: "crawler.crawlChartAlbums",
-      async consumeEvent(context, { data: { chart } }) {
+      async consumeEvent(context, { data: { chart }, metadata }) {
+        if (metadata?.crawlerIgnores) return;
+
         await Promise.all(
           chart.albums.map(async (album) => {
-            await context.crawlerInteractor.schedule(album.fileName);
+            if (
+              !(await context.fileInteractor.getDoesFileExist(album.fileName))
+            ) {
+              await context.crawlerInteractor.schedule(album.fileName);
+            }
           })
         );
       },

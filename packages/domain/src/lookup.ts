@@ -17,7 +17,10 @@ export interface LookupKey {
 export interface LookupBestMatch {
   name: string;
   fileName: string;
-  artists: string[];
+  artists: {
+    name: string;
+    fileName: string;
+  }[];
   albumData?: AlbumDocument;
 }
 

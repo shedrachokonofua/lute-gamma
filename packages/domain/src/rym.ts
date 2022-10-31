@@ -15,7 +15,10 @@ export interface Track {
 
 export interface AlbumPage {
   name: string;
-  artists: string[];
+  artists: {
+    name: string;
+    fileName: string;
+  }[];
   rating: number;
   ratingCount: number;
   primaryGenres: string[];
@@ -53,7 +56,10 @@ export const parseReleaseDateString = (value: string) =>
 
 export interface SearchBestMatch {
   name: string;
-  artists: string[];
+  artists: {
+    name: string;
+    fileName: string;
+  }[];
   fileName: string;
 }
 

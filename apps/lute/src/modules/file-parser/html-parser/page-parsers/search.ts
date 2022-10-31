@@ -11,7 +11,12 @@ export const parseSearch = async (
     {
       name: "a.searchpage",
       fileName: "a.searchpage@href | linkToFileName",
-      artists: ["a.artist@text | trim"],
+      artists: xRay("a.artist", [
+        {
+          name: "@text | trim",
+          fileName: "@href | linkToFileName",
+        },
+      ]),
     },
   ])) as SearchBestMatch[];
 

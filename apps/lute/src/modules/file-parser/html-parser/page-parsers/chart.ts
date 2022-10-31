@@ -167,8 +167,13 @@ export const parseChart = async (
       {
         name: ".page_charts_section_charts_item_title | trim",
         artists: xRay(
-          ".page_charts_section_charts_item_credited_links_primary",
-          ["a | trim"]
+          ".page_charts_section_charts_item_credited_links_primary a",
+          [
+            {
+              name: "@text | trim",
+              fileName: "@href | linkToFileName",
+            },
+          ]
         ),
         rating:
           ".page_charts_section_charts_item_details_average_num | toNumber",
