@@ -46,5 +46,9 @@ export const buildCrawlerController = buildControllerFactory<Context>(
       await crawlerInteractor.emptyQueue();
       return res.json({ ok: true });
     },
+    async resetQuota(_, res) {
+      await crawlerInteractor.resetQuota();
+      return res.json({ ok: true });
+    },
   })
 );

@@ -13,5 +13,6 @@ export const buildCrawlerRouter = (context: Context) => {
     .post("/schedule", controller.schedule)
     .delete("/error", controller.clearError)
     .get("/error", controller.getError)
-    .post("/empty", controller.empty);
+    .post("/empty", controller.empty)
+    .post("/reset-quota", controller.resetQuota);
 };

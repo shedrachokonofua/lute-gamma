@@ -2,7 +2,6 @@ import https from "https";
 import { buildQueue, retry, delay, runWithTraceId } from "../../lib";
 import { CrawlerStatus } from "@lute/domain";
 import axios from "axios";
-import { buildCrawlerRepo } from "./crawler-repo";
 import { logger } from "../../logger";
 import { Context } from "../../context";
 import { config } from "../../config";
@@ -23,7 +22,6 @@ export const startCrawler = async (context: Context) => {
       },
     },
   });
-  const crawlerRepo = buildCrawlerRepo(redisClient);
   const queue = buildQueue<string>({
     redisClient,
     name: "crawler",
@@ -31,7 +29,8 @@ export const startCrawler = async (context: Context) => {
   const wait = () => delay(config.crawler.coolDownSeconds);
 
   while (true) {
-    const status = await crawlerRepo.getStatus();
+    await context.crawlerInteractor.enforceQuota();
+    const status = await context.crawlerInteractor.getStatus();
     if (status === CrawlerStatus.Stopped || status === CrawlerStatus.Error) {
       await wait();
       continue;
@@ -39,7 +38,7 @@ export const startCrawler = async (context: Context) => {
 
     await retry(
       async () => {
-        const queueItem = await crawlerRepo.peek();
+        const queueItem = await context.crawlerInteractor.peek();
         if (!queueItem) {
           await wait();
           return;
@@ -51,6 +50,7 @@ export const startCrawler = async (context: Context) => {
         } = queueItem;
         const response = await network.get(encodeURI(fileName));
         logger.info({ fileName, eventCorrelationId, traceId }, "Page fetched");
+        await context.crawlerInteractor.incrementQuotaWindowHits();
         const html = response.data;
         await runWithTraceId(async () => {
           await context.fileInteractor.saveFile({
@@ -60,14 +60,14 @@ export const startCrawler = async (context: Context) => {
           });
           await logger.info({ fileName, eventCorrelationId }, "Page uploaded");
         }, traceId);
-        await crawlerRepo.clearError();
+        await context.crawlerInteractor.clearError();
         await queue.pop();
         await wait();
       },
       async (error) => {
         logger.error({ error }, "Crawler error");
-        await crawlerRepo.setStatus(CrawlerStatus.Error);
-        await crawlerRepo.setError(error.message);
+        await context.crawlerInteractor.setStatus(CrawlerStatus.Error);
+        await context.crawlerInteractor.setError(error.message);
       }
     );
   }

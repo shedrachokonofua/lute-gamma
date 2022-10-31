@@ -36,6 +36,10 @@ export const config = {
       .get("COOL_DOWN_SECONDS")
       .default(0.25)
       .asFloatPositive(),
+    quota: {
+      windowDays: env.get("QUOTA_WINDOW_DAYS").default(1).asIntPositive(),
+      maxRequests: env.get("QUOTA_MAX_REQUESTS").default(500).asIntPositive(),
+    },
   },
   files: {
     useSpaces: env.get("USE_SPACES").default("true").asBool(),

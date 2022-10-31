@@ -16,6 +16,10 @@ const bree = new Bree({
       name: "seed-default-profile",
       interval: "every 6 hours",
     },
+    {
+      name: "reset-crawler-quota",
+      interval: `every ${config.crawler.quota.windowDays} days`,
+    },
   ],
   errorHandler(error, workerMetadata) {
     logger.error(
