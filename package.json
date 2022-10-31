@@ -19,6 +19,7 @@
     "script": "ts-node --cwd=./scripts --"
   },
   "devDependencies": {
+    "@types/node": "18.8.2",
     "rimraf": "^3.0.2",
     "turbo": "^1.5.3"
   },
@@ -28,6 +29,7 @@
     }
   },
   "dependencies": {
+    "mongodb": "^4.10.0",
     "ts-node": "^10.9.1"
   }
 }

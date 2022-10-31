@@ -7,12 +7,16 @@ importers:
 
   .:
     specifiers:
+      '@types/node': 18.8.2
+      mongodb: ^4.10.0
       rimraf: ^3.0.2
       ts-node: ^10.9.1
       turbo: ^1.5.3
     dependencies:
+      mongodb: 4.10.0
       ts-node: 10.9.1_p2zphemn5bk5inasc666rmprwi
     devDependencies:
+      '@types/node': 18.8.2
       rimraf: 3.0.2
       turbo: 1.5.3
 
@@ -2180,6 +2184,7 @@ packages:
 
   /@types/node/18.7.23:
     resolution: {integrity: sha512-DWNcCHolDq0ZKGizjx2DZjR/PqsYwAcYUJmfMWqtVU2MBMG5Mo+xFZrhGId5r/O5HOuMPyQEcM6KUBp5lBZZBg==}
+    dev: true
 
   /@types/node/18.8.2:
     resolution: {integrity: sha512-cRMwIgdDN43GO4xMWAfJAecYn8wV4JbsOGHNfNUIDiuYkUYAR5ec4Rj7IO2SAhFPEfpPtLtUTbbny/TCT7aDwA==}
@@ -2243,7 +2248,7 @@ packages:
   /@types/whatwg-url/8.2.2:
     resolution: {integrity: sha512-FtQu10RWgn3D9U4aazdwIE2yzphmTJREDqNdODHrbrZmmMqI0vMheC/6NE/J1Yveaj8H+ela+YwWTjq5PGmuhA==}
     dependencies:
-      '@types/node': 18.7.23
+      '@types/node': 18.8.2
       '@types/webidl-conversions': 7.0.0
     dev: false
 

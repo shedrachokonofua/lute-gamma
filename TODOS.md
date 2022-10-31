@@ -3,6 +3,9 @@
 ### High Priority
 
 - [ ] Artist entity support [Notes](notes/artists.md)
+- [ ] Extract recommendation module
+- [ ] Artist recommendations
+- [ ] Auto refresh spotify credentials at interactor call level
 
 ### Medium Priority
 

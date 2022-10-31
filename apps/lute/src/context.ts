@@ -3,6 +3,7 @@ import { config } from "./config";
 import { buildRedisClient, EventBus } from "./lib";
 import { logger } from "./logger";
 import { buildAlbumInteractor } from "./modules/albums";
+import { buildArtistInteractor } from "./modules/artists";
 import { buildChartInteractor } from "./modules/charts";
 import { buildCrawlerInteractor } from "./modules/crawler";
 import { buildFileInteractor, buildFileStorageClient } from "./modules/files";
@@ -25,6 +26,7 @@ export const buildContext = async () => {
     redisClient: await spawnRedisClient(),
   });
 
+  const artistInteractor = buildArtistInteractor(mongoClient);
   const albumInteractor = buildAlbumInteractor({ eventBus, mongoClient });
   const chartInteractor = buildChartInteractor({ eventBus, mongoClient });
   const crawlerInteractor = buildCrawlerInteractor(redisClient);
@@ -51,6 +53,7 @@ export const buildContext = async () => {
     mongoClient,
     redisClient,
     eventBus,
+    artistInteractor,
     albumInteractor,
     chartInteractor,
     crawlerInteractor,

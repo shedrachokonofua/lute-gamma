@@ -63,6 +63,7 @@ export const buildServer = <Context extends {}>({
 interface LuteExpressResponse extends Response {
   success: (data?: any) => void;
   badRequest: (error: string) => void;
+  notFound: () => void;
 }
 
 const errorResponse = (res: Response, code: number, error: string) => {
@@ -82,6 +83,8 @@ const buildLuteExpressResponse = (res: Response): LuteExpressResponse => {
     });
 
   luteExpressResponse.badRequest = (error) => errorResponse(res, 400, error);
+
+  luteExpressResponse.notFound = () => errorResponse(res, 404, "Not found");
 
   return luteExpressResponse;
 };
