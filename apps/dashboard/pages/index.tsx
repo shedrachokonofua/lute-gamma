@@ -1,60 +1,23 @@
 import type { NextPage } from "next";
-import { useAsync } from "../hooks/use-async";
-import { Header, Container, Stack, Grid, Title, Group } from "@mantine/core";
+import { Container, Stack, Grid, Title } from "@mantine/core";
 import {
+  PageHeader,
   Panel,
   Recommendations,
   RecommendationSettingsForm,
   RecommendationSettingsPanel,
   Spinner,
 } from "../components";
-import { useCallback, useEffect, useState } from "react";
-import { IconPlayerTrackNext } from "@tabler/icons";
+import { useEffect, useState } from "react";
+import { useInitialSettings } from "../hooks/use-initial-settings";
+import { useRecommendations } from "../hooks/use-recommendations";
 import { api } from "../api";
 
-const useRecommendations = () => {
-  const request = useCallback((settingsForm: RecommendationSettingsForm) => {
-    const { profileId, ...settings } = settingsForm;
-    return api.getRecommendations(profileId, settings);
-  }, []);
+export interface HomeProps {
+  genreOptions: string[];
+}
 
-  return useAsync(request, false);
-};
-
-const defaultRecommendationSettings = {
-  profileId: "default",
-  count: 10,
-  assessmentSettings: {
-    noveltyFactor: 0.5,
-    useAlbumWeight: true,
-    parameterWeights: {
-      primaryGenres: 5,
-      secondaryGenres: 3,
-      primaryCrossGenres: 2,
-      secondaryCrossGenres: 1,
-      descriptors: 10,
-      rating: 2,
-      ratingCount: 1,
-    },
-  },
-  filter: {
-    excludeAlbums: [],
-    excludeArtists: [],
-    primaryGenres: [],
-    excludePrimaryGenres: [],
-    secondaryGenres: [],
-    excludeSecondaryGenres: [],
-  },
-} as RecommendationSettingsForm;
-
-const getInitialRecommendationSettings = async () => {
-  const settings = localStorage.getItem("settings");
-  return settings ? JSON.parse(settings) : defaultRecommendationSettings;
-};
-
-const useInitialSettings = () => useAsync(getInitialRecommendationSettings);
-
-const Home: NextPage = () => {
+const Home: NextPage<HomeProps> = ({ genreOptions }) => {
   const { status: initialSettingsStatus, value: initialSettings } =
     useInitialSettings();
   const [settingsFormValue, setSettingsFormValue] = useState<
@@ -82,21 +45,7 @@ const Home: NextPage = () => {
 
   return (
     <main>
-      <Header
-        height={60}
-        sx={(theme) => ({
-          boxShadow: theme.shadows.xs,
-        })}
-      >
-        <Container size="xl" sx={{ height: "100%" }}>
-          <Group align="center" spacing="xs" sx={{ height: "100%" }}>
-            <IconPlayerTrackNext />
-            <Title order={1} size="h3" weight="normal">
-              Lute
-            </Title>
-          </Group>
-        </Container>
-      </Header>
+      <PageHeader />
       <Container size="xl" py="lg">
         {initialSettingsStatus === "pending" && <Spinner />}
         {initialSettingsStatus === "success" && initialSettings && (
@@ -104,6 +53,7 @@ const Home: NextPage = () => {
             <Grid.Col md={3}>
               <RecommendationSettingsPanel
                 defaultSettings={initialSettings}
+                genreOptions={genreOptions}
                 onSubmit={setSettingsFormValue}
               />
             </Grid.Col>
@@ -128,5 +78,9 @@ const Home: NextPage = () => {
     </main>
   );
 };
+
+Home.getInitialProps = async () => ({
+  genreOptions: await api.getGenres(),
+});
 
 export default Home;

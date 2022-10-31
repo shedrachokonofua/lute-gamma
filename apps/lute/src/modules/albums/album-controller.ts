@@ -21,6 +21,10 @@ export const buildAlbumController = buildControllerFactory(
         const albums = await albumInteractor.findAlbums(query);
         return res.success(albums);
       },
+      async getGenres(req, res) {
+        const genres = await albumInteractor.getGenres();
+        return res.success(genres);
+      },
     };
   }
 );

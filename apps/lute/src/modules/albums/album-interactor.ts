@@ -39,6 +39,9 @@ export const buildAlbumInteractor = ({
     async createAlbumIfNotExists(album: PutAlbumPayload): Promise<void> {
       return albumRepo.createAlbumIfNotExists(album);
     },
+    async getGenres(): Promise<string[]> {
+      return albumRepo.getGenres();
+    },
   };
 };
 

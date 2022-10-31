@@ -7,6 +7,7 @@ export const buildAlbumRouter = (context: Context) => {
 
   return Router()
     .put("/", albumController.putAlbum)
+    .get("/genres", albumController.getGenres)
     .get("/*", albumController.getAlbum)
     .post("/query", albumController.query);
 };

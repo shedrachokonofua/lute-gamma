@@ -25,11 +25,13 @@ export const registerAlbumEventSubscribers = async (context: Context) => {
             metadata?.correlationId
           );
         } else if (pageType === PageType.Chart) {
-          await Promise.all(
-            (data as PutChartPayload).albums.map(async (album) => {
-              await context.albumInteractor.createAlbumIfNotExists(album);
-            })
-          );
+          for (const { albumData: album, fileName } of (data as PutChartPayload)
+            .albums) {
+            await context.albumInteractor.createAlbumIfNotExists({
+              ...album,
+              fileName,
+            });
+          }
         }
       },
     }

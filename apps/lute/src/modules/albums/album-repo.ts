@@ -72,6 +72,34 @@ export const buildAlbumRepo = (mongoClient: MongoClient) => {
 
       await collection.insertOne(albumToSave as any);
     },
+    async getGenres(): Promise<string[]> {
+      const docs = await collection.aggregate([
+        {
+          $project: {
+            genres: {
+              $concatArrays: ["$primaryGenres", "$secondaryGenres"],
+            },
+          },
+        },
+        {
+          $unwind: {
+            path: "$genres",
+            preserveNullAndEmptyArrays: false,
+          },
+        },
+        {
+          $group: {
+            _id: "$genres",
+          },
+        },
+        {
+          $sort: {
+            _id: 1,
+          },
+        },
+      ]);
+      return (await docs.toArray()).map((doc) => doc._id);
+    },
   };
 };
 

@@ -10,13 +10,17 @@ const host = isBrowser
 const http = axios.create({ baseURL: host });
 
 export const api = {
-  getRecommendations: async (
+  async getRecommendations(
     profileId: string,
     settings: RecommendationSettings
-  ): Promise<Recommendation[]> => {
+  ): Promise<Recommendation[]> {
     const response = await http.get(
       `/profile/${profileId}/recommendations?${qs.stringify(settings)}`
     );
+    return response.data?.data || [];
+  },
+  async getGenres() {
+    const response = await http.get("/albums/genres");
     return response.data?.data || [];
   },
 };

@@ -2,13 +2,12 @@
 
 ### High Priority
 
-- [ ] Genre auto-complete
 - [ ] Artist entity support [Notes](notes/artists.md)
 
 ### Medium Priority
 
 - [ ] Recommendation list item action menu
-- [ ] Fix release dates
+- [ ] Fix release date parsing
 - [ ] Crawl release year chart for each genre when album added to profile
 - [ ] Support filtering recommendations by year/decade
 

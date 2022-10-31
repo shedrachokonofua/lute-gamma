@@ -2,6 +2,7 @@ import styled from "@emotion/styled";
 import { RecommendationSettings } from "@lute/domain";
 import {
   ActionIcon,
+  Autocomplete,
   Button,
   Grid,
   Group,
@@ -26,6 +27,7 @@ export type RecommendationSettingsForm = RecommendationSettings & {
 interface RecommendationSettingsPaneProps {
   defaultSettings: RecommendationSettingsForm;
   onSubmit: (settings: RecommendationSettingsForm) => void;
+  genreOptions?: string[];
 }
 
 const AlignRight = styled.div`
@@ -37,27 +39,37 @@ const FilterInputs = ({
   value,
   getProps,
   onRemove,
+  options,
 }: {
   value: string[];
   getProps: (index: number) => any;
   onRemove: (index: number) => void;
+  options?: string[];
 }) => (
   <>
-    {value.map((filter, index) => (
-      <Group key={index}>
-        <TextInput
-          value={filter}
-          {...getProps(index)}
-          variant="filled"
-          sx={{
-            width: "160px",
-          }}
-        />
-        <ActionIcon onClick={() => onRemove(index)} color="red">
-          <IconCircleMinus size={16} />
-        </ActionIcon>
-      </Group>
-    ))}
+    {value.map((filter, index) => {
+      const inputProps = {
+        ...getProps(index),
+        value: filter,
+        variant: "filled",
+        sx: {
+          width: "160px",
+        },
+      };
+
+      return (
+        <Group key={index}>
+          {options?.length ? (
+            <Autocomplete {...inputProps} data={options} limit={10} />
+          ) : (
+            <TextInput {...inputProps} />
+          )}
+          <ActionIcon onClick={() => onRemove(index)} color="red">
+            <IconCircleMinus size={16} />
+          </ActionIcon>
+        </Group>
+      );
+    })}
   </>
 );
 
@@ -65,14 +77,17 @@ const FilterSection = ({
   form,
   path,
   title,
+  options,
 }: {
   form: ReturnType<typeof useForm<RecommendationSettingsForm>>;
   path: string;
   title: string;
+  options?: string[];
 }) => (
   <CollapsibleSection title={title}>
     <Stack>
       <FilterInputs
+        options={options}
         value={getValueByPath(form.values, path)}
         getProps={(index) => form.getInputProps(`${path}.${index}`)}
         onRemove={(index) => form.removeListItem(path, index)}
@@ -85,6 +100,7 @@ const FilterSection = ({
 export const RecommendationSettingsPanel = ({
   defaultSettings,
   onSubmit,
+  genreOptions,
 }: RecommendationSettingsPaneProps) => {
   const form = useForm<RecommendationSettingsForm>({
     initialValues: defaultSettings,
@@ -247,6 +263,7 @@ export const RecommendationSettingsPanel = ({
                     form={form}
                     path="filter.primaryGenres"
                     title="Included Primary Genres"
+                    options={genreOptions}
                   />
                   <FilterSection
                     form={form}
@@ -262,11 +279,13 @@ export const RecommendationSettingsPanel = ({
                     form={form}
                     path="filter.excludePrimaryGenres"
                     title="Exclude Primary Genres"
+                    options={genreOptions}
                   />
                   <FilterSection
                     form={form}
                     path="filter.excludeSecondaryGenres"
                     title="Exclude Secondary Genres"
+                    options={genreOptions}
                   />
                 </Stack>
               </CollapsibleSection>
