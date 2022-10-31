@@ -1,3 +1,4 @@
+import { logger } from "../../logger";
 import { Context } from "../../context";
 import { RedisClient } from "../db";
 import { retry } from "../utils";
@@ -74,34 +75,13 @@ export class EventBus {
     lastEvent: EventEntity<any>
   ): Promise<void> {
     const cursorKey = getEventStreamCursorKey(subscriberName, lastEvent.type);
-    console.log("Updating cursor", cursorKey, lastEvent.id);
+    logger.debug({ subscriberName, lastEvent }, "Updating cursor");
     await this.redisClient.set(cursorKey, lastEvent.id);
   }
 
   private async getCursor(cursorKey: string): Promise<string> {
     const cursor = await this.redisClient.get(cursorKey);
     return cursor || "0";
-  }
-
-  private async getReadConfig() {
-    let subscriberNames = [];
-    let streamParams = [];
-
-    for (const [
-      subscriberName,
-      { eventStreamKey, cursorKey },
-    ] of this.subscriberKeysByName.entries()) {
-      subscriberNames.push(subscriberName);
-      streamParams.push({
-        key: eventStreamKey,
-        id: await this.getCursor(cursorKey),
-      });
-    }
-
-    return {
-      subscriberNames,
-      streamParams,
-    };
   }
 
   async subscriberListen(
@@ -151,7 +131,7 @@ export class EventBus {
               await retry(
                 async () => subscriber.consumeEvent(context, event),
                 async (error) => {
-                  console.log("Failed to handle event", event, error);
+                  logger.debug({ error }, "Error consuming event");
                 },
                 this.retryCount
               );
