@@ -15,8 +15,8 @@ export const buildCrawlerInteractor = (redisClient: RedisClient) => {
     async peek() {
       return crawlerRepo.peek();
     },
-    async schedule(fileName: string, lookupId?: string) {
-      await crawlerRepo.schedule({ fileName, lookupId });
+    async schedule(fileName: string, eventCorrelationId?: string) {
+      await crawlerRepo.schedule({ fileName, eventCorrelationId });
     },
     async clearError() {
       await crawlerRepo.clearError();

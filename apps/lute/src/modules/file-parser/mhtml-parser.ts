@@ -1,4 +1,4 @@
-import { FileSavedEvent } from "../../lib";
+import { FileSavedEventPayload } from "../../lib";
 import { Context } from "../../context";
 
 const removeLineTrailingEquals = (lines: string): string => {
@@ -34,18 +34,16 @@ export const extractHtmlFromMHtml = (mhtml: string): string => {
 
 export const parseMhtmlToHtml = async (
   context: Context,
-  event: FileSavedEvent
+  { fileId, fileName }: FileSavedEventPayload
 ) => {
-  const fileContent = await context.fileInteractor.getFileContent(
-    event.fileName
-  );
+  const fileContent = await context.fileInteractor.getFileContent(fileName);
   if (!fileContent) throw new Error("Could not find file content");
   const html = extractHtmlFromMHtml(fileContent);
-  const newFileName = event.fileName.replace(".mhtml", "");
+  const newFileName = fileName.replace(".mhtml", "");
   const id = await context.fileInteractor.saveFile({
     name: newFileName,
     data: html,
   });
-  await context.fileInteractor.deleteFile(event.fileId);
+  await context.fileInteractor.deleteFile(fileId);
   if (!id) throw new Error("Could not upload file");
 };

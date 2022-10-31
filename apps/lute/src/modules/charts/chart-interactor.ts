@@ -1,15 +1,8 @@
 import { ChartDocument, PutChartPayload } from "@lute/domain";
 import { MongoClient } from "mongodb";
-import { AlbumInteractor } from "../albums";
 import { buildChartRepo } from "./chart-repo";
 
-export const buildChartInteractor = ({
-  albumInteractor,
-  mongoClient,
-}: {
-  albumInteractor: AlbumInteractor;
-  mongoClient: MongoClient;
-}) => {
+export const buildChartInteractor = (mongoClient: MongoClient) => {
   const chartRepo = buildChartRepo(mongoClient);
 
   return {
@@ -21,14 +14,8 @@ export const buildChartInteractor = ({
           fileName: album.fileName,
         })),
       };
-      await chartRepo.putChart(chartDocument);
-      await Promise.all(
-        chart.albums.map((album) =>
-          albumInteractor.createAlbumIfNotExists(album.albumData)
-        )
-      );
-
-      return chartDocument;
+      const data = await chartRepo.putChart(chartDocument);
+      return data;
     },
   };
 };

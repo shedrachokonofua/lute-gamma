@@ -1,10 +1,15 @@
 import { LookupStatus, PageType, isLuteAlbumFileName } from "@lute/domain";
-import { FileSavedEvent, LuteEvent } from "../../../lib";
+import {
+  EventType,
+  ParserFailedEventPayload,
+  ParserPageParsedEventPayload,
+} from "../../../lib";
 import { Context } from "../../../context";
 import { logger } from "../../../logger";
 import { parseAlbum } from "./page-parsers/album";
 import { parseChart } from "./page-parsers/chart";
 import { parseSearch } from "./page-parsers/search";
+import { EventEntity } from "../../../lib/events/event-entity";
 
 const getPageTypeFromFileName = (fileName: string): PageType | undefined => {
   if (isLuteAlbumFileName(fileName)) {
@@ -19,8 +24,11 @@ const getPageTypeFromFileName = (fileName: string): PageType | undefined => {
   return undefined;
 };
 
-const parsePage = (event: FileSavedEvent, html: string) => {
-  const pageType = getPageTypeFromFileName(event.fileName);
+const parsePage = (
+  event: EventEntity<ParserPageParsedEventPayload>,
+  html: string
+) => {
+  const pageType = getPageTypeFromFileName(event.data.fileName);
 
   switch (pageType) {
     case PageType.Album:
@@ -36,44 +44,53 @@ const parsePage = (event: FileSavedEvent, html: string) => {
 
 export const parseHtmlToPageData = async (
   context: Context,
-  event: FileSavedEvent
+  event: EventEntity<ParserPageParsedEventPayload>
 ) => {
+  const {
+    data: { fileId, fileName },
+    metadata: { correlationId } = {},
+  } = event;
   try {
-    const html = await context.fileInteractor.getFileContent(event.fileName);
+    const html = await context.fileInteractor.getFileContent(fileName);
     if (!html) {
       logger.error("Could not find file content", {
-        fileId: event.fileId,
-        fileName: event.fileName,
+        fileId,
+        fileName,
       });
       return;
     }
     const pageData = await parsePage(event, html);
-    const pageType = getPageTypeFromFileName(event.fileName);
+    const pageType = getPageTypeFromFileName(fileName);
 
     if (!pageData || !pageType) {
       logger.error({ event }, "Unable to parse page");
-      if (event.lookupId) {
-        await context.lookupInteractor.putLookup(event.lookupId, {
-          status: LookupStatus.NotFound,
-        });
-      }
-      return;
+      throw new Error("Unable to parse page");
     }
 
-    await context.eventClient.publish(LuteEvent.PageDataParsed, {
-      fileId: event.fileId,
-      fileName: event.fileName,
-      pageType,
-      dataString: JSON.stringify(pageData),
-      lookupId: event.lookupId,
+    await context.eventBus.publish<ParserPageParsedEventPayload>({
+      type: EventType.ParserPageParsed,
+      data: {
+        fileId,
+        fileName,
+        pageType,
+        data: pageData,
+      },
+      metadata: {
+        correlationId,
+      },
     });
   } catch (error) {
     logger.error({ event, error }, "Failed to parse page");
-    if (event.lookupId) {
-      await context.lookupInteractor.putLookup(event.lookupId, {
-        status: LookupStatus.Error,
-        error: (error as Error).message,
-      });
-    }
+    await context.eventBus.publish<ParserFailedEventPayload>({
+      type: EventType.ParserFailed,
+      data: {
+        fileId,
+        fileName,
+        error: (error as Error)?.message || "Unknown error",
+      },
+      metadata: {
+        correlationId,
+      },
+    });
   }
 };

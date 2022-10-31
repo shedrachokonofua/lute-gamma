@@ -7,11 +7,14 @@ import {
   SearchBestMatch,
 } from "@lute/domain";
 import {
-  LuteEvent,
-  LuteEventClient,
-  PageDataParsedEvent,
+  EventBus,
+  EventType,
+  LookupNotFoundEventPayload,
+  LookupSavedEventPayload,
+  ParserPageParsedEventPayload,
   RedisClient,
 } from "../../lib";
+import { EventEntity } from "../../lib/events/event-entity";
 import { logger } from "../../logger";
 import { AlbumInteractor } from "../albums";
 import { CrawlerInteractor } from "../crawler";
@@ -25,12 +28,12 @@ const getSearchFileName = (artist: string, album: string) =>
 
 export const buildLookupInteractor = ({
   redisClient,
-  eventClient,
+  eventBus,
   albumInteractor,
   crawlerInteractor,
 }: {
   redisClient: RedisClient;
-  eventClient: LuteEventClient;
+  eventBus: EventBus;
   albumInteractor: AlbumInteractor;
   crawlerInteractor: CrawlerInteractor;
 }) => {
@@ -44,12 +47,18 @@ export const buildLookupInteractor = ({
       const lookup = await lookupRepo.putLookup(hash, payload);
 
       if (isSavedLookup(lookup)) {
-        await eventClient.publish(LuteEvent.LookupSaved, {
-          lookupId: hash,
+        await eventBus.publish<LookupSavedEventPayload>({
+          type: EventType.LookupSaved,
+          data: {
+            lookupHash: hash,
+          },
         });
       } else if (lookup.status === LookupStatus.NotFound) {
-        await eventClient.publish(LuteEvent.LookupNotFound, {
-          lookupId: hash,
+        await eventBus.publish<LookupNotFoundEventPayload>({
+          type: EventType.LookupNotFound,
+          data: {
+            lookupHash: hash,
+          },
         });
       }
 
@@ -70,32 +79,36 @@ export const buildLookupInteractor = ({
     async deleteLookup(hash: string) {
       await lookupRepo.deleteLookup(hash);
     },
-    async handleSearchPageParsed(event: PageDataParsedEvent) {
-      if (event.pageType !== PageType.Search || !event.lookupId) {
+    async handleSearchPageParsed(
+      event: EventEntity<ParserPageParsedEventPayload>
+    ) {
+      const { data, metadata } = event;
+      const lookupHash = metadata?.correlationId;
+      if (data.pageType !== PageType.Search || !lookupHash) {
         return;
       }
       logger.info({ event }, "Lookup search found");
-      const data = JSON.parse(event.dataString) as SearchBestMatch;
+      const bestMatch = data.data as SearchBestMatch;
       const albumData = await albumInteractor.getAlbum(data.fileName);
       const putLookupPayload = albumData
         ? {
             status: LookupStatus.Saved,
             bestMatch: {
               albumData,
-              ...data,
+              ...bestMatch,
             },
           }
         : {
             status: LookupStatus.Found,
-            bestMatch: data,
+            bestMatch,
           };
       logger.info({ event, putLookupPayload }, "Put lookup");
 
-      await interactor.putLookup(event.lookupId, putLookupPayload);
+      await interactor.putLookup(lookupHash, putLookupPayload);
 
       if (!albumData) {
         logger.info({ event, albumData }, "Scheduling album for crawling");
-        await crawlerInteractor.schedule(data.fileName, event.lookupId);
+        await crawlerInteractor.schedule(data.data.fileName, lookupHash);
       }
     },
   };

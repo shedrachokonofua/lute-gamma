@@ -21,11 +21,11 @@ export const buildCrawlerController = buildControllerFactory<Context>(
       return res.json({ ok: true, data: { current } });
     },
     async schedule(req, res) {
-      const { fileName, lookupId } = req.body;
+      const { fileName, eventCorrelationId } = req.body;
       if (!fileName) {
         return res.status(400).json({ ok: false, error: "Invalid fileName" });
       }
-      await crawlerInteractor.schedule(fileName, lookupId);
+      await crawlerInteractor.schedule(fileName, eventCorrelationId);
       return res.json({ ok: true });
     },
     async clearError(_, res) {

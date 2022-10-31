@@ -46,19 +46,19 @@ export const startCrawler = async (context: Context) => {
         }
         logger.info({ queueItem }, "Crawling");
         const {
-          data: { fileName, lookupId },
+          data: { fileName, eventCorrelationId },
           traceId,
         } = queueItem;
         const response = await network.get(encodeURI(fileName));
-        logger.info({ fileName, lookupId, traceId }, "Page fetched");
+        logger.info({ fileName, eventCorrelationId, traceId }, "Page fetched");
         const html = response.data;
         await runWithTraceId(async () => {
           await context.fileInteractor.saveFile({
             name: fileName,
             data: html,
-            lookupId,
+            eventCorrelationId,
           });
-          await logger.info({ fileName, lookupId }, "Page uploaded");
+          await logger.info({ fileName, eventCorrelationId }, "Page uploaded");
         }, traceId);
         await crawlerRepo.clearError();
         await queue.pop();

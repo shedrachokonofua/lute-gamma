@@ -1,17 +1,41 @@
-import {
-  buildLuteEventSubscriber,
-  LuteEvent,
-  PageDataParsedEvent,
-} from "../../lib";
+import { AlbumSavedEventPayload, EventType } from "../../lib";
 import { Context } from "../../context";
-import { logger } from "../../logger";
+import { LookupStatus } from "@lute/domain";
 
-export const buildLookupEventSubscribers = async (context: Context) => {
-  buildLuteEventSubscriber<PageDataParsedEvent>({
-    name: "lookup-search-handler",
-    event: LuteEvent.PageDataParsed,
-    handler: (event) => context.lookupInteractor.handleSearchPageParsed(event),
-    redisClient: await context.buildRedisClient(),
-    logger,
+export const registerLookupEventSubscribers = async (context: Context) => {
+  await context.eventBus.subscribe([EventType.ParserPageParsed], {
+    name: "lookup.handleSearchPageParsed",
+    async consumeEvent(context, event) {
+      await context.lookupInteractor.handleSearchPageParsed(event);
+    },
   });
+
+  await context.eventBus.subscribe([EventType.ParserFailed], {
+    name: "lookup.handleSearchPageFailed",
+    async consumeEvent(context, event) {
+      const lookupHash = event.metadata?.correlationId;
+      if (!lookupHash) return;
+      await context.lookupInteractor.putLookup(lookupHash, {
+        status: LookupStatus.Error,
+        error: event.data.error,
+      });
+    },
+  });
+
+  await context.eventBus.subscribe<AlbumSavedEventPayload>(
+    [EventType.AlbumSaved],
+    {
+      name: "lookup.handleAlbumSaved",
+      async consumeEvent(context, { data, metadata }) {
+        const lookupHash = metadata?.correlationId;
+        if (!lookupHash) return;
+        await context.lookupInteractor.putLookup(lookupHash, {
+          status: LookupStatus.Saved,
+          bestMatch: {
+            albumData: data.album,
+          },
+        });
+      },
+    }
+  );
 };

@@ -1,6 +1,6 @@
 export interface CrawlerItem {
   fileName: string;
-  lookupId?: string;
+  eventCorrelationId?: string;
 }
 
 export enum CrawlerStatus {

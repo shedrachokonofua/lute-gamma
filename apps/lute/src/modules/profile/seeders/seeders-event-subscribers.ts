@@ -1,8 +1,7 @@
 import {
-  buildLuteEventSubscriber,
-  LookupNotFoundEvent,
-  LookupSavedEvent,
-  LuteEvent,
+  EventType,
+  LookupNotFoundEventPayload,
+  LookupSavedEventPayload,
 } from "../../../lib";
 import { logger } from "../logger";
 import {
@@ -11,6 +10,7 @@ import {
 } from "./seed-lookup-interactor";
 import { isSavedLookup } from "@lute/domain";
 import { Context } from "../../../context";
+import { EventEntity } from "../../../lib/events/event-entity";
 
 const handleLookupSaved = async ({
   context,
@@ -19,10 +19,12 @@ const handleLookupSaved = async ({
 }: {
   context: Context;
   seedLookupInteractor: SeedLookupInteractor;
-  event: LookupSavedEvent;
+  event: EventEntity<LookupSavedEventPayload>;
 }) => {
-  const { lookupId } = event;
-  const lookup = await context.lookupInteractor.getLookupByHash(lookupId);
+  const {
+    data: { lookupHash },
+  } = event;
+  const lookup = await context.lookupInteractor.getLookupByHash(lookupHash);
   if (!lookup) {
     logger.warn({ event }, "Lookup not found");
     return;
@@ -40,37 +42,38 @@ const handleLookupSaved = async ({
 
 const handleLookupNotFound = async ({
   seedLookupInteractor,
-  event,
+  event: {
+    data: { lookupHash },
+  },
 }: {
   context: Context;
   seedLookupInteractor: SeedLookupInteractor;
-  event: LookupNotFoundEvent;
+  event: EventEntity<LookupNotFoundEventPayload>;
 }) => {
-  const { lookupId } = event;
-  await seedLookupInteractor.handleLookupNotFound(lookupId);
+  await seedLookupInteractor.handleLookupNotFound(lookupHash);
 };
 
-export const buildSeedersEventSubscribers = async (context: Context) => {
+export const registerSeedersEventSubscribers = async (context: Context) => {
   const seedLookupInteractor = buildSeedLookupInteractor({
     redisClient: context.redisClient,
     profileInteractor: context.profileInteractor,
   });
 
-  buildLuteEventSubscriber<LookupSavedEvent>({
-    name: "seeders-lookup-saved-handler",
-    event: LuteEvent.LookupSaved,
-    handler: (event) =>
-      handleLookupSaved({ context, event, seedLookupInteractor }),
-    redisClient: await context.buildRedisClient(),
-    logger,
-  });
+  await context.eventBus.subscribe<LookupSavedEventPayload>(
+    [EventType.LookupSaved],
+    {
+      name: "profile.seeders.handleLookupSaved",
+      consumeEvent: (context, event) =>
+        handleLookupSaved({ context, event, seedLookupInteractor }),
+    }
+  );
 
-  buildLuteEventSubscriber<LookupNotFoundEvent>({
-    name: "seeders-lookup-not-found-handler",
-    event: LuteEvent.LookupNotFound,
-    handler: (event) =>
-      handleLookupNotFound({ context, event, seedLookupInteractor }),
-    redisClient: await context.buildRedisClient(),
-    logger,
-  });
+  await context.eventBus.subscribe<LookupNotFoundEventPayload>(
+    [EventType.LookupNotFound],
+    {
+      name: "profile.seeders.handleLookupNotFound",
+      consumeEvent: (context, event) =>
+        handleLookupNotFound({ context, event, seedLookupInteractor }),
+    }
+  );
 };

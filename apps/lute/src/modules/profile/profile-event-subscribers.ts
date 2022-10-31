@@ -1,6 +1,6 @@
 import { Context } from "../../context";
-import { buildSeedersEventSubscribers } from "./seeders";
+import { registerSeedersEventSubscribers } from "./seeders";
 
-export const buildProfileEventSubscribers = (context: Context) => {
-  buildSeedersEventSubscribers(context);
+export const registerProfileEventSubscribers = async (context: Context) => {
+  await registerSeedersEventSubscribers(context);
 };

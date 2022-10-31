@@ -9,10 +9,13 @@ export const buildFileController = buildControllerFactory(
         if (!req.file || !req.body.name) {
           return res.status(400).json({ ok: false, error: "Invalid body" });
         }
-        const { name, lookupId } = req.body;
+        const { name, eventCorrelationId } = req.body;
         logger.info({ name }, "File saved to storage");
 
-        const id = await fileInteractor.handleFileSave(name, lookupId);
+        const id = await fileInteractor.handleFileSave(
+          name,
+          eventCorrelationId
+        );
 
         res.send({ ok: true, data: { id } });
       },

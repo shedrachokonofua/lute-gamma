@@ -1,10 +1,14 @@
 import { Context } from "./context";
-import { buildFileParserEventSubscribers } from "./modules/file-parser";
-import { buildLookupEventSubscribers } from "./modules/lookup";
-import { buildProfileEventSubscribers } from "./modules/profile/profile-event-subscribers";
+import { registerAlbumEventSubscribers } from "./modules/albums";
+import { registerChartEventSubscribers } from "./modules/charts";
+import { registerFileParserEventSubscribers } from "./modules/file-parser";
+import { registerLookupEventSubscribers } from "./modules/lookup";
+import { registerProfileEventSubscribers } from "./modules/profile/profile-event-subscribers";
 
-export const buildEventSubscribers = (context: Context) => {
-  buildFileParserEventSubscribers(context);
-  buildLookupEventSubscribers(context);
-  buildProfileEventSubscribers(context);
+export const registerEventSubscribers = async (context: Context) => {
+  await registerAlbumEventSubscribers(context);
+  await registerChartEventSubscribers(context);
+  await registerFileParserEventSubscribers(context);
+  await registerLookupEventSubscribers(context);
+  await registerProfileEventSubscribers(context);
 };

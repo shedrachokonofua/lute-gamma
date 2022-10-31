@@ -1,25 +1,38 @@
-import { LuteEventClient, LuteEvent, RedisClient } from "../../lib";
+import {
+  RedisClient,
+  EventBus,
+  FileSavedEventPayload,
+  EventType,
+} from "../../lib";
 import { buildFileRepo } from "./file-repo";
 import { FileStorageClient } from "./storage";
 
 export const buildFileInteractor = ({
   redisClient,
-  eventClient,
+  eventBus,
   fileStorageClient,
 }: {
   redisClient: RedisClient;
-  eventClient: LuteEventClient;
+  eventBus: EventBus;
   fileStorageClient: FileStorageClient;
 }) => {
   const fileRepo = buildFileRepo(redisClient);
 
   const interactor = {
-    async handleFileSave(name: string, lookupId?: string): Promise<string> {
+    async handleFileSave(
+      name: string,
+      eventCorrelationId?: string
+    ): Promise<string> {
       const id = await fileRepo.saveFileName(name);
-      eventClient.publish(LuteEvent.FileSaved, {
-        fileId: id,
-        fileName: name,
-        lookupId,
+      await eventBus.publish<FileSavedEventPayload>({
+        type: EventType.FileSaved,
+        data: {
+          fileId: id,
+          fileName: name,
+        },
+        metadata: {
+          correlationId: eventCorrelationId,
+        },
       });
       return id;
     },
@@ -43,14 +56,14 @@ export const buildFileInteractor = ({
     async saveFile({
       name,
       data,
-      lookupId,
+      eventCorrelationId,
     }: {
       name: string;
       data: string;
-      lookupId?: string;
+      eventCorrelationId?: string;
     }) {
       await fileStorageClient.saveFile(name, data);
-      return interactor.handleFileSave(name, lookupId);
+      return interactor.handleFileSave(name, eventCorrelationId);
     },
     async deleteFile(name: string) {
       await fileStorageClient.deleteFile(name);
