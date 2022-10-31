@@ -1,6 +1,7 @@
 import { Context } from "./context";
 import { registerAlbumEventSubscribers } from "./modules/albums";
 import { registerChartEventSubscribers } from "./modules/charts";
+import { registerCrawlerEventSubscribers } from "./modules/crawler";
 import { registerFileParserEventSubscribers } from "./modules/file-parser";
 import { registerLookupEventSubscribers } from "./modules/lookup";
 import { registerProfileEventSubscribers } from "./modules/profile/profile-event-subscribers";
@@ -8,6 +9,7 @@ import { registerProfileEventSubscribers } from "./modules/profile/profile-event
 export const registerEventSubscribers = async (context: Context) => {
   await registerAlbumEventSubscribers(context);
   await registerChartEventSubscribers(context);
+  await registerCrawlerEventSubscribers(context);
   await registerFileParserEventSubscribers(context);
   await registerLookupEventSubscribers(context);
   await registerProfileEventSubscribers(context);
