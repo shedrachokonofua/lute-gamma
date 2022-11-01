@@ -12,6 +12,7 @@ const shouldSave = (urlStr) => {
     (isSubPath(url, "/release/album/") ||
       isSubPath(url, "/release/mixtape/") ||
       isSubPath(url, "/release/ep/") ||
+      isSubPath(url, "/artist/") ||
       isSubPath(url, "/charts/")) &&
     !url.pathname.endsWith("/buy/")
   );

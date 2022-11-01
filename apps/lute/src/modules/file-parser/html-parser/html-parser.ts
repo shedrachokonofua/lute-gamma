@@ -6,9 +6,12 @@ import {
 } from "../../../lib";
 import { Context } from "../../../context";
 import { logger } from "../../../logger";
-import { parseAlbum } from "./page-parsers/album";
-import { parseChart } from "./page-parsers/chart";
-import { parseSearch } from "./page-parsers/search";
+import {
+  parseArtist,
+  parseAlbum,
+  parseChart,
+  parseSearch,
+} from "./page-parsers";
 import { EventEntity } from "../../../lib/events/event-entity";
 import { getPageTypeFromFileName } from "../../../lib";
 
@@ -19,6 +22,8 @@ const parsePage = (
   const pageType = getPageTypeFromFileName(event.data.fileName);
 
   switch (pageType) {
+    case PageType.Artist:
+      return parseArtist(event, html);
     case PageType.Album:
       return parseAlbum(event, html);
     case PageType.Chart:

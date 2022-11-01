@@ -8,6 +8,8 @@ const daysToSeconds = (days: number): number => days * 24 * 60 * 60;
 
 const getFileTTLDays = (fileName: string): number => {
   switch (getPageTypeFromFileName(fileName)) {
+    case PageType.Artist:
+      return config.files.ttlDays.artist;
     case PageType.Album:
       return config.files.ttlDays.album;
     case PageType.Chart:

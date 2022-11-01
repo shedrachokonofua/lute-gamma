@@ -12,5 +12,8 @@ export const getPageTypeFromFileName = (
   if (fileName.startsWith("search")) {
     return PageType.Search;
   }
+  if (fileName.startsWith("artist")) {
+    return PageType.Artist;
+  }
   return undefined;
 };

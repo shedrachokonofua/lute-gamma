@@ -52,6 +52,7 @@ export const config = {
       .default("./test-bucket")
       .asString(),
     ttlDays: {
+      artist: env.get("ARTIST_TTL_DAYS").default(14).asIntPositive(),
       album: env.get("FILE_ALBUM_TTL_DAYS").default(7).asIntPositive(),
       chart: env.get("FILE_CHARTS_TTL_DAYS").default(7).asIntPositive(),
       search: env.get("FILE_SEARCH_TTL_DAYS").default(1).asIntPositive(),
