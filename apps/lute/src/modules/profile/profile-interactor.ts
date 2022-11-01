@@ -7,17 +7,20 @@ import {
 } from "@lute/domain";
 import { AddAlbumToProfilePayload, buildProfileRepo } from "./profile-repo";
 import { startOfDecade } from "date-fns";
-import { logger } from "./logger";
+import { logger } from "../../logger";
 import { buildAssessment, buildAssessmentContext } from "./assessment";
 import { MongoClient } from "mongodb";
 import { AlbumInteractor } from "../albums";
+import { EventBus, EventType, ProfileAlbumAddedEventPayload } from "../../lib";
 
 export const buildProfileInteractor = ({
   mongoClient,
   albumInteractor,
+  eventBus,
 }: {
   mongoClient: MongoClient;
   albumInteractor: AlbumInteractor;
+  eventBus: EventBus;
 }) => {
   const profileRepo = buildProfileRepo(mongoClient);
 
@@ -183,7 +186,23 @@ export const buildProfileInteractor = ({
       }
       logger.info({ payload }, "Adding album to profile");
 
-      return profileRepo.putAlbumOnProfile(payload);
+      const isAlbumOnProfile = await profileRepo.isAlbumOnProfile(
+        payload.profileId,
+        payload.albumFileName
+      );
+      const profile = await profileRepo.putAlbumOnProfile(payload);
+
+      if (!isAlbumOnProfile) {
+        await eventBus.publish<ProfileAlbumAddedEventPayload>({
+          type: EventType.ProfileAlbumAdded,
+          data: {
+            profileId: payload.profileId,
+            albumFileName: payload.albumFileName,
+          },
+        });
+      }
+
+      return profile;
     },
     createProfile(id: string, title: string) {
       return profileRepo.createProfile(id, title);

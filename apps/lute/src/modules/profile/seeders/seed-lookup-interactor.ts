@@ -1,6 +1,6 @@
 import { SavedLookup } from "@lute/domain";
 import { RedisClient } from "../../../lib";
-import { logger } from "../logger";
+import { logger } from "../../../logger";
 import { ProfileInteractor } from "../profile-interactor";
 import { buildSeedLookupRepo } from "./seed-lookup-repo";
 
@@ -36,7 +36,9 @@ export const buildSeedLookupInteractor = ({
               albumFileName,
               count: trackCount,
             });
+            console.log("Successfully put album on profile");
           } catch (error) {
+            console.log("Error putting album on profile", error);
             logger.error(
               { error, lookup, albumFileName, trackCount },
               "Failed to put album on profile"

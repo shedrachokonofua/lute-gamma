@@ -8,6 +8,7 @@ export enum EventType {
   ParserFailed = "parser.failed",
   AlbumSaved = "album.saved",
   ChartSaved = "chart.saved",
+  ProfileAlbumAdded = "profile.albumAdded",
 }
 
 export interface FileSavedEventPayload {
@@ -42,4 +43,9 @@ export interface AlbumSavedEventPayload {
 
 export interface ChartSavedEventPayload {
   chart: ChartDocument;
+}
+
+export interface ProfileAlbumAddedEventPayload {
+  profileId: string;
+  albumFileName: string;
 }

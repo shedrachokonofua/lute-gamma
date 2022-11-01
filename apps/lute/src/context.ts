@@ -44,6 +44,7 @@ export const buildContext = async () => {
   const profileInteractor = buildProfileInteractor({
     mongoClient,
     albumInteractor,
+    eventBus,
   });
   const spotifyInteractor = buildSpotifyInteractor(redisClient);
 

@@ -3,7 +3,7 @@ import {
   LookupNotFoundEventPayload,
   LookupSavedEventPayload,
 } from "../../../lib";
-import { logger } from "../logger";
+import { logger } from "../../../logger";
 import {
   buildSeedLookupInteractor,
   SeedLookupInteractor,

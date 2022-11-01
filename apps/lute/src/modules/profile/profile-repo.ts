@@ -81,7 +81,20 @@ export const buildProfileRepo = (mongoClient: MongoClient) => {
       if (!result.value) {
         throw new Error("Profile not found");
       }
+
       return result.value;
+    },
+    isAlbumOnProfile: async (id: string, albumFileName: string) => {
+      const result = await profilesCollection.findOne({
+        id,
+        albums: {
+          $elemMatch: {
+            item: albumFileName,
+          },
+        },
+      });
+
+      return !!result;
     },
   };
 
