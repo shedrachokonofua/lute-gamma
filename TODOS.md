@@ -3,6 +3,7 @@
 ### High Priority
 
 - [ ] Artist entity support [Notes](notes/artists.md)
+- [ ] Crawler improvements [Notes](notes/crawler.md)
 - [ ] Extract recommendation module
 - [ ] Artist recommendations
 - [ ] Auto refresh spotify credentials at interactor call level
