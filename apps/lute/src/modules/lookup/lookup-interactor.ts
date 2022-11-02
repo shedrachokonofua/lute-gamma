@@ -17,7 +17,7 @@ import {
 import { EventEntity } from "../../lib/events/event-entity";
 import { logger } from "../../logger";
 import { AlbumInteractor } from "../albums";
-import { CrawlerInteractor } from "../crawler";
+import { CrawlerInteractor, Priority } from "../crawler";
 import { buildLookupRepo } from "./lookup-repo";
 
 const getSearchFileName = (artist: string, album: string) =>
@@ -70,10 +70,14 @@ export const buildLookupInteractor = ({
         return lookup;
       }
       const newLookup = await lookupRepo.createLookup(key);
-      await crawlerInteractor.schedule(
-        getSearchFileName(key.artist, key.album),
-        newLookup.keyHash
-      );
+      await crawlerInteractor.schedule({
+        dedupeKey: `search:${newLookup.keyHash}`,
+        fileName: getSearchFileName(key.artist, key.album),
+        priority: Priority.High,
+        metadata: {
+          correlationId: newLookup.keyHash,
+        },
+      });
       return newLookup;
     },
     async deleteLookup(hash: string) {
@@ -108,7 +112,14 @@ export const buildLookupInteractor = ({
 
       if (!albumData) {
         logger.info({ event, albumData }, "Scheduling album for crawling");
-        await crawlerInteractor.schedule(data.data.fileName, lookupHash);
+        await crawlerInteractor.schedule({
+          dedupeKey: `save:${lookupHash}`,
+          fileName: data.data.fileName,
+          priority: Priority.High,
+          metadata: {
+            correlationId: lookupHash,
+          },
+        });
       }
     },
   };

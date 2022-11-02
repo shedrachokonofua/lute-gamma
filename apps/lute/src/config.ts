@@ -40,6 +40,9 @@ export const config = {
       windowDays: env.get("QUOTA_WINDOW_DAYS").default(1).asIntPositive(),
       maxRequests: env.get("QUOTA_MAX_REQUESTS").default(500).asIntPositive(),
     },
+    concurrency: env.get("CRAWLER_CONCURRENCY").default(3).asIntPositive(),
+    maxSize: env.get("CRAWLER_QUEUE_MAX_SIZE").default(1000).asIntPositive(),
+    dlqMaxSize: env.get("CRAWLER_DLQ_MAX_SIZE").default(2000).asIntPositive(),
   },
   files: {
     useSpaces: env.get("USE_SPACES").default("true").asBool(),

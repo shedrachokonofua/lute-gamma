@@ -36,9 +36,7 @@ export const buildSeedLookupInteractor = ({
               albumFileName,
               count: trackCount,
             });
-            console.log("Successfully put album on profile");
           } catch (error) {
-            console.log("Error putting album on profile", error);
             logger.error(
               { error, lookup, albumFileName, trackCount },
               "Failed to put album on profile"

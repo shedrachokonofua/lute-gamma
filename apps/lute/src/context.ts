@@ -29,11 +29,14 @@ export const buildContext = async () => {
   const artistInteractor = buildArtistInteractor(mongoClient);
   const albumInteractor = buildAlbumInteractor({ eventBus, mongoClient });
   const chartInteractor = buildChartInteractor({ eventBus, mongoClient });
-  const crawlerInteractor = buildCrawlerInteractor(redisClient);
   const fileInteractor = buildFileInteractor({
     eventBus,
     redisClient,
     fileStorageClient,
+  });
+  const crawlerInteractor = buildCrawlerInteractor({
+    redisClient,
+    fileInteractor,
   });
   const lookupInteractor = buildLookupInteractor({
     albumInteractor,

@@ -1,8 +1,5 @@
 lockfileVersion: 5.4
 
-overrides:
-  '@blueprintjs/icons': 4.5.0
-
 importers:
 
   .:
@@ -90,6 +87,7 @@ importers:
       '@types/spotify-web-api-node': ^5.0.2
       '@types/x-ray': ^2.3.3
       axios: ^0.27.2
+      bottleneck: ^2.19.5
       bree: ^9.1.2
       cls-rtracer: ^2.6.2
       cors: ^2.8.5
@@ -117,6 +115,7 @@ importers:
       '@ladjs/graceful': 3.0.2
       '@lute/domain': link:../../packages/domain
       axios: 0.27.2
+      bottleneck: 2.19.5
       bree: 9.1.2
       cls-rtracer: 2.6.2
       cors: 2.8.5
@@ -2578,6 +2577,10 @@ packages:
 
   /boolean/3.2.0:
     resolution: {integrity: sha512-d0II/GO9uf9lfUHH2BQsjxzRJZBdsjgsBiW4BvhWk/3qoKwQFjIDVN19PfX8F2D/r9PCMTtLWjYVCFrpeYUzsw==}
+    dev: false
+
+  /bottleneck/2.19.5:
+    resolution: {integrity: sha512-VHiNCbI1lKdl44tGrhNfU3lup0Tj/ZBMJB5/2ZbNXRCPuRCO7ed2mgcK4r17y+KB2EfuYuRaVlwNbAeaWGSpbw==}
     dev: false
 
   /bowser/2.11.0:

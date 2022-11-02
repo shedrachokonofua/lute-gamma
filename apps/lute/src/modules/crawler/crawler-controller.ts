@@ -1,6 +1,7 @@
 import { buildControllerFactory } from "../../lib";
 import { Context } from "../../context";
 import { isCrawlerStatus } from "./crawler-repo";
+import { Priority } from "./priority-queue";
 
 export const buildCrawlerController = buildControllerFactory<Context>(
   ({ crawlerInteractor }) => ({
@@ -21,11 +22,15 @@ export const buildCrawlerController = buildControllerFactory<Context>(
       return res.json({ ok: true, data: { current } });
     },
     async schedule(req, res) {
-      const { fileName, eventCorrelationId } = req.body;
+      const { fileName } = req.body;
       if (!fileName) {
         return res.status(400).json({ ok: false, error: "Invalid fileName" });
       }
-      await crawlerInteractor.schedule(fileName, eventCorrelationId);
+      await crawlerInteractor.schedule({
+        fileName,
+        dedupeKey: Date.now().toString(), // Don't dedupe
+        priority: Priority.Express,
+      });
       return res.json({ ok: true });
     },
     async clearError(_, res) {

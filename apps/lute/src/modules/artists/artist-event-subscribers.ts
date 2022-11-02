@@ -1,5 +1,6 @@
 import { Context } from "../../context";
 import { EventType, ProfileAlbumAddedEventPayload } from "../../lib";
+import { Priority } from "../crawler";
 
 export const registerArtistEventSubscribers = async (context: Context) => {
   await context.eventBus.subscribe<ProfileAlbumAddedEventPayload>(
@@ -9,10 +10,13 @@ export const registerArtistEventSubscribers = async (context: Context) => {
       async consumeEvent(context, { data: { albumFileName } }) {
         const album = await context.albumInteractor.getAlbum(albumFileName);
         if (!album) return;
-        const artists = album.artists || [];
+
         await Promise.all(
-          artists.map((artist) =>
-            context.crawlerInteractor.schedule(artist.fileName)
+          (album.artists || []).map(({ fileName }) =>
+            context.crawlerInteractor.cachedSchedule({
+              fileName,
+              priority: Priority.Low,
+            })
           )
         );
       },

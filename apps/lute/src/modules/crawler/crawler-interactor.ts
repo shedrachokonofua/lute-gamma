@@ -2,14 +2,38 @@ import { CrawlerStatus } from "@lute/domain";
 import { config } from "../../config";
 import { RedisClient } from "../../lib";
 import { logger } from "../../logger";
+import { FileInteractor } from "../files";
 import { buildCrawlerRepo } from "./crawler-repo";
+import {
+  buildPriorityQueue,
+  QueueItem,
+  QueuePushParams,
+} from "./priority-queue";
 
 const QUOTA_REACHED = "QUOTA_REACHED";
 
-export const buildCrawlerInteractor = (redisClient: RedisClient) => {
+export const buildCrawlerInteractor = ({
+  redisClient,
+  fileInteractor,
+}: {
+  redisClient: RedisClient;
+  fileInteractor: FileInteractor;
+}) => {
   const crawlerRepo = buildCrawlerRepo(redisClient);
+  const queue = buildPriorityQueue({
+    redisClient,
+    key: "crawler:queue",
+    maxSize: config.crawler.maxSize,
+  });
+  const dlq = buildPriorityQueue({
+    redisClient,
+    key: "crawler:dlq",
+    maxSize: config.crawler.dlqMaxSize,
+  });
 
   const interactor = {
+    queue,
+    dlq,
     async setStatus(status: CrawlerStatus) {
       await crawlerRepo.setStatus(status);
     },
@@ -17,10 +41,28 @@ export const buildCrawlerInteractor = (redisClient: RedisClient) => {
       return crawlerRepo.getStatus();
     },
     async peek() {
-      return crawlerRepo.peek();
+      return queue.peek(config.crawler.concurrency);
     },
-    async schedule(fileName: string, eventCorrelationId?: string) {
-      await crawlerRepo.schedule({ fileName, eventCorrelationId });
+    async collect() {
+      return queue.collect(config.crawler.concurrency);
+    },
+    async schedule(params: QueuePushParams) {
+      await queue.push(params);
+    },
+    async cachedSchedule(params: QueuePushParams) {
+      if (!(await fileInteractor.getDoesFileExist(params.fileName))) {
+        await queue.push(params);
+      }
+    },
+    async batchCachedSchedule(params: QueuePushParams[]) {
+      for (const item of params) {
+        if (!(await fileInteractor.getDoesFileExist(item.fileName))) {
+          await queue.push(item);
+        }
+      }
+    },
+    async pushToDLQ(item: QueueItem) {
+      await dlq.push(item);
     },
     async clearError() {
       await crawlerRepo.clearError();
@@ -31,8 +73,8 @@ export const buildCrawlerInteractor = (redisClient: RedisClient) => {
     async getMonitor() {
       const status = await crawlerRepo.getStatus();
       const error = await crawlerRepo.getError();
-      const current = await crawlerRepo.peek();
-      const queueSize = await crawlerRepo.getQueueSize();
+      const current = await queue.peek(config.crawler.concurrency);
+      const queueSize = await queue.getSize();
       const remainingQuota =
         config.crawler.quota.maxRequests -
         (await crawlerRepo.getQuotaWindowHits());
@@ -46,7 +88,7 @@ export const buildCrawlerInteractor = (redisClient: RedisClient) => {
       };
     },
     async emptyQueue() {
-      await crawlerRepo.emptyQueue();
+      await queue.empty();
     },
     async getQuotaWindowHits() {
       return crawlerRepo.getQuotaWindowHits();
@@ -54,7 +96,7 @@ export const buildCrawlerInteractor = (redisClient: RedisClient) => {
     async incrementQuotaWindowHits() {
       return crawlerRepo.incrementQuotaWindowHits();
     },
-    async getIsQuotaEnforced() {
+    async isQuotaEnforced() {
       return (
         (await crawlerRepo.getStatus()) === CrawlerStatus.Stopped &&
         (await crawlerRepo.getError()) === QUOTA_REACHED
@@ -63,19 +105,19 @@ export const buildCrawlerInteractor = (redisClient: RedisClient) => {
     async resetQuota() {
       logger.info("Resetting quota");
       await crawlerRepo.resetQuotaWindowHits();
-      if (await interactor.getIsQuotaEnforced()) {
+      if (await interactor.isQuotaEnforced()) {
         await crawlerRepo.clearError();
         await crawlerRepo.setStatus(CrawlerStatus.Running);
       }
     },
-    async getIsQuotaReached() {
+    async hasReachedQuota() {
       const hits = await crawlerRepo.getQuotaWindowHits();
       return hits >= config.crawler.quota.maxRequests;
     },
     async enforceQuota() {
       if (
-        !(await interactor.getIsQuotaReached()) ||
-        (await interactor.getIsQuotaEnforced())
+        !(await interactor.hasReachedQuota()) ||
+        (await interactor.isQuotaEnforced())
       )
         return;
       await crawlerRepo.setStatus(CrawlerStatus.Stopped);

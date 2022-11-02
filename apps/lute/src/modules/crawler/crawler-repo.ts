@@ -1,5 +1,5 @@
-import { RedisClient, buildQueue, QueueItem } from "../../lib";
-import { CrawlerStatus, CrawlerItem } from "@lute/domain";
+import { RedisClient } from "../../lib";
+import { CrawlerStatus } from "@lute/domain";
 
 export const isCrawlerStatus = (status: string): status is CrawlerStatus =>
   Object.values(CrawlerStatus).includes(status as CrawlerStatus);
@@ -11,17 +11,7 @@ const keys = {
 };
 
 export const buildCrawlerRepo = (redisClient: RedisClient) => {
-  const queue = buildQueue<CrawlerItem>({
-    redisClient,
-    name: "crawler",
-  });
   return {
-    async schedule(item: CrawlerItem) {
-      await queue.push(item);
-    },
-    async peek(): Promise<QueueItem<CrawlerItem> | null> {
-      return queue.peek();
-    },
     async getStatus(): Promise<CrawlerStatus> {
       const statusStr = await redisClient.get(keys.status);
       return statusStr ? (statusStr as CrawlerStatus) : CrawlerStatus.Running;
@@ -37,12 +27,6 @@ export const buildCrawlerRepo = (redisClient: RedisClient) => {
     },
     async clearError() {
       await redisClient.del(keys.error);
-    },
-    async getQueueSize(): Promise<number> {
-      return await queue.getSize();
-    },
-    async emptyQueue(): Promise<void> {
-      return await queue.empty();
     },
     async getQuotaWindowHits(): Promise<number> {
       const hitsStr = await redisClient.get(keys.quotaWindowHits);

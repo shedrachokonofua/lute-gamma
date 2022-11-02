@@ -101,3 +101,5 @@ export const buildFileInteractor = ({
 
   return interactor;
 };
+
+export type FileInteractor = ReturnType<typeof buildFileInteractor>;
