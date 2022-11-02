@@ -40,12 +40,6 @@ export const buildCrawlerInteractor = ({
     async getStatus() {
       return crawlerRepo.getStatus();
     },
-    async peek() {
-      return queue.peek(config.crawler.concurrency);
-    },
-    async collect() {
-      return queue.collect(config.crawler.concurrency);
-    },
     async schedule(params: QueuePushParams) {
       await queue.push(params);
     },
@@ -73,7 +67,7 @@ export const buildCrawlerInteractor = ({
     async getMonitor() {
       const status = await crawlerRepo.getStatus();
       const error = await crawlerRepo.getError();
-      const current = await queue.peek(config.crawler.concurrency);
+      const current = await queue.getClaimedItems();
       const queueSize = await queue.getSize();
       const remainingQuota =
         config.crawler.quota.maxRequests -

@@ -20,11 +20,10 @@ export interface QueuePushParams {
 }
 
 export type QueueItem = QueuePushParams & {
+  itemKey: string;
   enqueueTime: Date;
   dedupeKey: string;
 };
-
-const limiter = new Bottleneck({ maxConcurrent: 1 });
 
 export const buildPriorityQueue = ({
   redisClient,
@@ -37,6 +36,8 @@ export const buildPriorityQueue = ({
 }) => {
   const itemsSetKey = `${key}:items`;
   const delimeter = ":DELIMETER:";
+  const pushLimiter = new Bottleneck({ maxConcurrent: 1 });
+  const claimLimiter = new Bottleneck({ maxConcurrent: 1 });
 
   const queue = {
     async contains(dedupeKey: string) {
@@ -54,7 +55,7 @@ export const buildPriorityQueue = ({
       dedupeKey = fileName,
       metadata = {},
     }: QueuePushParams) {
-      await limiter.schedule(async () => {
+      await pushLimiter.schedule(async () => {
         if (await queue.contains(dedupeKey)) return;
         if (await queue.isFull()) {
           logger.warn({ key }, "Push failed, queue is full");
@@ -77,41 +78,74 @@ export const buildPriorityQueue = ({
         await transaction.exec();
       });
     },
-    async peek(count = 1): Promise<QueueItem[]> {
-      const items = await redisClient.zRange(key, 0, count - 1);
-      return Promise.all(
-        items.map(async (item) => {
-          const [enqueueTime, dedupeKey] = item.split(delimeter);
-          const { fileName, metadata } = JSON.parse(
-            (await redisClient.hGet(itemsSetKey, dedupeKey)) as string
-          );
+    async getItemByKey(itemKey: string): Promise<QueueItem | null> {
+      const [enqueueTime, dedupeKey] = itemKey.split(delimeter);
+      const itemData = await redisClient.hGet(itemsSetKey, dedupeKey);
+      if (!itemData) return null;
+      const { fileName, metadata } = JSON.parse(itemData);
 
-          return {
-            fileName,
-            enqueueTime: new Date(Number(enqueueTime)),
-            priority:
-              (await redisClient.zScore(key, item)) || Priority.Standard,
-            dedupeKey,
-            metadata,
-          };
-        })
-      );
+      return {
+        itemKey,
+        fileName,
+        enqueueTime: new Date(Number(enqueueTime)),
+        priority: (await redisClient.zScore(key, itemKey)) || Priority.Standard,
+        dedupeKey,
+        metadata,
+      };
     },
-    async collect(count = 1): Promise<QueueItem[]> {
-      const items = await queue.peek(count);
-      const transaction = redisClient.multi();
-      transaction.zRemRangeByRank(key, 0, count - 1);
-      items.forEach((item) => {
-        transaction.hDel(itemsSetKey, item.dedupeKey);
-      });
-      await transaction.exec();
-      return items;
+    async at(index: number): Promise<QueueItem | null> {
+      const [itemKey] = await redisClient.zRange(key, index, index);
+      if (!itemKey) return null;
+      return queue.getItemByKey(itemKey);
     },
-    async collectAll(): Promise<QueueItem[]> {
-      return this.collect(0);
+    async peek(): Promise<QueueItem | null> {
+      return queue.at(0);
     },
     async empty(): Promise<void> {
       await redisClient.del(key);
+    },
+    async isClaimed(itemKey: string): Promise<boolean> {
+      return (await redisClient.exists(`${key}:claimed:${itemKey}`)) === 1;
+    },
+    async getNextUnclaimedItem(): Promise<QueueItem | null> {
+      let currentIndex = 0;
+      while (true) {
+        const item = await queue.at(currentIndex);
+        if (!item) return null;
+        if (await queue.isClaimed(item.itemKey)) {
+          currentIndex++;
+          continue;
+        }
+        return item;
+      }
+    },
+    async claimItem(): Promise<QueueItem | null> {
+      return claimLimiter.schedule(async () => {
+        const item = await queue.getNextUnclaimedItem();
+        if (!item) return null;
+        await redisClient.set(`${key}:claimed:${item.itemKey}`, "true", {
+          EX: 10 * 60,
+        });
+        return item;
+      });
+    },
+    async deleteItem(itemKey: string): Promise<void> {
+      const [, dedupeKey] = itemKey.split(delimeter);
+      await redisClient
+        .multi()
+        .zRem(key, itemKey)
+        .hDel(itemsSetKey, dedupeKey)
+        .del(`${key}:claimed:${itemKey}`)
+        .exec();
+    },
+    async getClaimedItems(): Promise<QueueItem[]> {
+      const claimedKeys = await redisClient.keys(`${key}:claimed:*`);
+      const itemKeys = claimedKeys
+        .map((key) => key.split(":").pop())
+        .filter((s): s is string => !!s);
+      return (await Promise.all(itemKeys.map(queue.getItemByKey))).filter(
+        (item): item is QueueItem => !!item
+      );
     },
   };
 

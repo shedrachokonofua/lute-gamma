@@ -43,41 +43,39 @@ const crawl = async (context: Context, { fileName, metadata }: QueueItem) => {
   await context.crawlerInteractor.clearError();
 };
 
-export const startCrawler = async (context: Context) => {
+const startCrawlerWorker = async (context: Context) => {
+  const { crawlerInteractor } = context;
   while (true) {
-    await context.crawlerInteractor.enforceQuota();
+    await crawlerInteractor.enforceQuota();
 
-    const status = await context.crawlerInteractor.getStatus();
+    const status = await crawlerInteractor.getStatus();
     if (status === CrawlerStatus.Stopped || status === CrawlerStatus.Error) {
       await stall();
       continue;
     }
 
-    const items = await context.crawlerInteractor.peek();
-    if (!items.length) {
+    const item = await crawlerInteractor.queue.claimItem();
+    if (!item) {
       await stall();
       continue;
     }
 
-    crawlerLogger.info({ items }, "Crawling batch");
-    const [, elapsedTime] = await executeWithTimer(() =>
-      Promise.all(
-        items.map((item) =>
-          retry(
-            () => crawl(context, item),
-            async (error) => {
-              crawlerLogger.error({ error }, "Crawler error");
-              await context.crawlerInteractor.pushToDLQ(item);
-            }
-          )
-        )
-      )
+    await retry(
+      async () => {
+        await crawl(context, item);
+        await crawlerInteractor.queue.deleteItem(item.itemKey);
+      },
+      async (error) => {
+        crawlerLogger.error({ error }, "Crawler error");
+        await crawlerInteractor.queue.deleteItem(item.itemKey);
+        await crawlerInteractor.dlq.push(item);
+      }
     );
-    crawlerLogger.info(
-      { elapsedTime, concurrency: config.crawler.concurrency },
-      "Batch crawled"
-    );
+  }
+};
 
-    await context.crawlerInteractor.collect();
+export const startCrawler = async (context: Context) => {
+  for (let i = 0; i < config.crawler.concurrency; i++) {
+    startCrawlerWorker(context);
   }
 };
