@@ -44,6 +44,6 @@ export const parseMhtmlToHtml = async (
     name: newFileName,
     data: html,
   });
-  await context.fileInteractor.deleteFile(fileId);
+  await context.fileInteractor.deleteFile(fileName);
   if (!id) throw new Error("Could not upload file");
 };
