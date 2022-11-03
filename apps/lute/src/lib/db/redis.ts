@@ -5,10 +5,10 @@ export type RedisClient = ReturnType<typeof createClient>;
 
 export const buildRedisClient = async ({
   url = "redis://redis:6379",
-  logger,
+  logger = console,
 }: {
   url?: string;
-  logger: Logger;
+  logger?: Logger | Console;
 }): Promise<RedisClient> => {
   const redisClient = createClient({ url });
 
