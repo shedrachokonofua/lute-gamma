@@ -8,6 +8,18 @@ import {
   SPOTIFY_SCOPES,
 } from "../spotify";
 import { buildAuthRepo } from "./auth-repo";
+import SpotifyWebApi from "spotify-web-api-node";
+
+const getAuthStatus = (credentials: SpotifyCredentials) => {
+  const { accessToken, refreshToken, expiresAt } = credentials;
+  if (!accessToken || !refreshToken || !expiresAt) {
+    return AuthStatus.InvalidAuthorization;
+  }
+  if (expiresAt < Date.now()) {
+    return AuthStatus.Expired;
+  }
+  return AuthStatus.Authorized;
+};
 
 export const buildAuthInteractor = (redisClient: RedisClient) => {
   const authRepo = buildAuthRepo(redisClient);
@@ -31,17 +43,7 @@ export const buildAuthInteractor = (redisClient: RedisClient) => {
     },
     async getAuthStatus(): Promise<AuthStatus> {
       const credentials = await authRepo.getSpotifyCredentials();
-      if (!credentials) {
-        return AuthStatus.Unauthorized;
-      }
-      const { accessToken, refreshToken, expiresAt } = credentials;
-      if (!accessToken || !refreshToken || !expiresAt) {
-        return AuthStatus.InvalidAuthorization;
-      }
-      if (expiresAt < Date.now()) {
-        return AuthStatus.Expired;
-      }
-      return AuthStatus.Authorized;
+      return credentials ? getAuthStatus(credentials) : AuthStatus.Unauthorized;
     },
     async refreshCredentials(): Promise<SpotifyCredentials> {
       const credentials = await authRepo.getSpotifyCredentials();
@@ -70,6 +72,18 @@ export const buildAuthInteractor = (redisClient: RedisClient) => {
     },
     async getSpotifyCredentials(): Promise<SpotifyCredentials | null> {
       return authRepo.getSpotifyCredentials();
+    },
+    async getAuthorizedSpotifyApiOrThrow(): Promise<SpotifyWebApi> {
+      const credentials = await authRepo.getSpotifyCredentials();
+      if (!credentials) {
+        throw new Error("No credentials found");
+      }
+      const status = getAuthStatus(credentials);
+      if (status === AuthStatus.Expired) {
+        const refreshedCredentials = await this.refreshCredentials();
+        return buildAuthorizedSpotifyApi(refreshedCredentials);
+      }
+      return buildAuthorizedSpotifyApi(credentials);
     },
   };
 };

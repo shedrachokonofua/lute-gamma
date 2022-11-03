@@ -30,8 +30,7 @@ export const buildLibraryInteractor = (authInteractor: AuthInteractor) => {
       offset?: number;
       limit?: number;
     }): Promise<PaginatedValue<CatalogTrack>> {
-      const credentials = await interactor.getCredentialsOrThrow();
-      const spotifyApi = buildAuthorizedSpotifyApi(credentials);
+      const spotifyApi = await authInteractor.getAuthorizedSpotifyApiOrThrow();
       const {
         body: { items, total },
       } = await spotifyApi.getMySavedTracks({
@@ -56,8 +55,7 @@ export const buildLibraryInteractor = (authInteractor: AuthInteractor) => {
       offset?: number;
       limit?: number;
     }): Promise<PaginatedValue<CatalogTrack>> {
-      const credentials = await interactor.getCredentialsOrThrow();
-      const spotifyApi = buildAuthorizedSpotifyApi(credentials);
+      const spotifyApi = await authInteractor.getAuthorizedSpotifyApiOrThrow();
       const {
         body: { items, total },
       } = await spotifyApi.getPlaylistTracks(playlistId, {
