@@ -32,17 +32,15 @@ export const config = {
     clientSecret: env.get("SPOTIFY_CLIENT_SECRET").required().asString(),
   },
   crawler: {
-    coolDownSeconds: env
-      .get("COOL_DOWN_SECONDS")
-      .default(0.25)
-      .asFloatPositive(),
+    coolDownSeconds: env.get("COOL_DOWN_SECONDS").default(10).asFloatPositive(),
+    claimTtlMinutes: env.get("CLAIM_TTL_MINUTES").default(10).asFloatPositive(),
+    concurrency: env.get("CRAWLER_CONCURRENCY").default(10).asIntPositive(),
+    dlqMaxSize: env.get("CRAWLER_DLQ_MAX_SIZE").default(3500).asIntPositive(),
+    maxSize: env.get("CRAWLER_QUEUE_MAX_SIZE").default(3500).asIntPositive(),
     quota: {
       windowDays: env.get("QUOTA_WINDOW_DAYS").default(1).asIntPositive(),
       maxRequests: env.get("QUOTA_MAX_REQUESTS").default(500).asIntPositive(),
     },
-    concurrency: env.get("CRAWLER_CONCURRENCY").default(3).asIntPositive(),
-    maxSize: env.get("CRAWLER_QUEUE_MAX_SIZE").default(1000).asIntPositive(),
-    dlqMaxSize: env.get("CRAWLER_DLQ_MAX_SIZE").default(2000).asIntPositive(),
   },
   files: {
     useSpaces: env.get("USE_SPACES").default("true").asBool(),

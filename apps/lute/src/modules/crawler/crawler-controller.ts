@@ -18,7 +18,7 @@ export const buildCrawlerController = buildControllerFactory<Context>(
       return res.json({ ok: true, data: { status } });
     },
     async getHead(_, res) {
-      const current = await crawlerInteractor.peek();
+      const current = await crawlerInteractor.queue.peek();
       return res.json({ ok: true, data: { current } });
     },
     async schedule(req, res) {

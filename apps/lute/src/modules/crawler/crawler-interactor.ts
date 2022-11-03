@@ -1,3 +1,4 @@
+import Bottleneck from "bottleneck";
 import { CrawlerStatus } from "@lute/domain";
 import { config } from "../../config";
 import { RedisClient } from "../../lib";
@@ -6,11 +7,30 @@ import { FileInteractor } from "../files";
 import { buildCrawlerRepo } from "./crawler-repo";
 import {
   buildPriorityQueue,
+  ClaimedQueueItem,
+  Priority,
   QueueItem,
   QueuePushParams,
 } from "./priority-queue";
 
 const QUOTA_REACHED = "QUOTA_REACHED";
+
+const priorityToText = {
+  [Priority.Express]: "express",
+  [Priority.High]: "high",
+  [Priority.Standard]: "standard",
+  [Priority.Low]: "low",
+};
+
+interface CrawlerMonitor {
+  status: CrawlerStatus;
+  error: string | null;
+  current: (ClaimedQueueItem & {
+    priorityText: string;
+  })[];
+  queueSize: number;
+  remainingQuota: number;
+}
 
 export const buildCrawlerInteractor = ({
   redisClient,
@@ -30,6 +50,7 @@ export const buildCrawlerInteractor = ({
     key: "crawler:dlq",
     maxSize: config.crawler.dlqMaxSize,
   });
+  const quotaLimiter = new Bottleneck({ maxConcurrent: 1 });
 
   const interactor = {
     queue,
@@ -64,10 +85,13 @@ export const buildCrawlerInteractor = ({
     async getError() {
       return crawlerRepo.getError();
     },
-    async getMonitor() {
+    async getMonitor(): Promise<CrawlerMonitor> {
       const status = await crawlerRepo.getStatus();
       const error = await crawlerRepo.getError();
-      const current = await queue.getClaimedItems();
+      const current = (await queue.getClaimedItems()).map((item) => ({
+        ...item,
+        priorityText: priorityToText[item.priority],
+      }));
       const queueSize = await queue.getSize();
       const remainingQuota =
         config.crawler.quota.maxRequests -
@@ -105,17 +129,21 @@ export const buildCrawlerInteractor = ({
       }
     },
     async hasReachedQuota() {
-      const hits = await crawlerRepo.getQuotaWindowHits();
+      const hits =
+        (await crawlerRepo.getQuotaWindowHits()) +
+        (await queue.getClaimedItems()).length;
       return hits >= config.crawler.quota.maxRequests;
     },
     async enforceQuota() {
-      if (
-        !(await interactor.hasReachedQuota()) ||
-        (await interactor.isQuotaEnforced())
-      )
-        return;
-      await crawlerRepo.setStatus(CrawlerStatus.Stopped);
-      await crawlerRepo.setError(QUOTA_REACHED);
+      await quotaLimiter.schedule(async () => {
+        if (
+          !(await interactor.hasReachedQuota()) ||
+          (await interactor.isQuotaEnforced())
+        )
+          return;
+        await crawlerRepo.setStatus(CrawlerStatus.Stopped);
+        await crawlerRepo.setError(QUOTA_REACHED);
+      });
     },
     async setError(error: string) {
       await crawlerRepo.setError(error);

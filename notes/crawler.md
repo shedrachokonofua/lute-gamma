@@ -2,7 +2,8 @@
 
 - [x] Refactor backing data-structure to sorted set
 - [x] Support dedupe key
-- [x] Support priority
+- [x] Priority FIFO
 - [x] Support concurrent requests
 - [x] DLQ
-- [ ] Dequeue when in-progress
+- [x] Claim in-progress messages
+- [ ] DLQ Redrive cron

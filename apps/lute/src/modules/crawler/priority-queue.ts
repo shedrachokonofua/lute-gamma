@@ -1,4 +1,5 @@
 import Bottleneck from "bottleneck";
+import { config } from "../../config";
 import { RedisClient } from "../../lib";
 import { logger } from "../../logger";
 
@@ -23,6 +24,11 @@ export type QueueItem = QueuePushParams & {
   itemKey: string;
   enqueueTime: Date;
   dedupeKey: string;
+  priority: Priority;
+};
+
+export type ClaimedQueueItem = QueueItem & {
+  claimTtlSeconds: number;
 };
 
 export const buildPriorityQueue = ({
@@ -122,10 +128,14 @@ export const buildPriorityQueue = ({
     async claimItem(): Promise<QueueItem | null> {
       return claimLimiter.schedule(async () => {
         const item = await queue.getNextUnclaimedItem();
-        if (!item) return null;
+        if (!item) {
+          logger.debug("No unclaimed items in queue");
+          return null;
+        }
         await redisClient.set(`${key}:claimed:${item.itemKey}`, "true", {
-          EX: 10 * 60,
+          EX: config.crawler.claimTtlMinutes * 60,
         });
+        logger.info({ item }, "Claimed item");
         return item;
       });
     },
@@ -137,15 +147,26 @@ export const buildPriorityQueue = ({
         .hDel(itemsSetKey, dedupeKey)
         .del(`${key}:claimed:${itemKey}`)
         .exec();
+      logger.debug({ itemKey }, "Deleted item");
     },
-    async getClaimedItems(): Promise<QueueItem[]> {
-      const claimedKeys = await redisClient.keys(`${key}:claimed:*`);
-      const itemKeys = claimedKeys
-        .map((key) => key.split(":").pop())
-        .filter((s): s is string => !!s);
-      return (await Promise.all(itemKeys.map(queue.getItemByKey))).filter(
-        (item): item is QueueItem => !!item
+    async getClaimedItems(): Promise<ClaimedQueueItem[]> {
+      const claimedKeysRedis = await redisClient.keys(`${key}:claimed:*`);
+      const claimedKeys = claimedKeysRedis.map((redisKey) => {
+        return redisKey.replace(`${key}:claimed:`, "");
+      });
+      const itemsOrNull = await Promise.all(
+        claimedKeys.map(queue.getItemByKey)
       );
+      const items = itemsOrNull.filter((item) => item !== null) as QueueItem[];
+      const claimedItems = await Promise.all(
+        items.map(async (item) => ({
+          ...item,
+          claimTtlSeconds: await redisClient.ttl(
+            `${key}:claimed:${item.itemKey}`
+          ),
+        }))
+      );
+      return claimedItems;
     },
   };
 
