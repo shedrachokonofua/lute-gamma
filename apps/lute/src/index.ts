@@ -1,3 +1,4 @@
+import "newrelic";
 import { buildContext } from "./context";
 import { startCrons } from "./cron";
 import { registerEventSubscribers } from "./event-subscribers";
