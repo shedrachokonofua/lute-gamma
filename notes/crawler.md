@@ -7,3 +7,4 @@
 - [x] DLQ
 - [x] Claim in-progress messages
 - [ ] DLQ Redrive cron
+- [ ] DLQ item expiry
