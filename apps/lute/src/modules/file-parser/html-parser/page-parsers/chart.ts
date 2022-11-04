@@ -6,7 +6,7 @@ import {
 } from "@lute/domain";
 import {
   EventEntity,
-  ParserPageParsedEventPayload,
+  FileSavedEventPayload,
   transformObject,
 } from "../../../../lib";
 import { xRay } from "./xray";
@@ -157,7 +157,7 @@ const parseChartParameters = (fileName: string): ChartParameters => {
 };
 
 export const parseChart = async (
-  event: EventEntity<ParserPageParsedEventPayload>,
+  event: EventEntity<FileSavedEventPayload>,
   html: string
 ): Promise<ChartPage | undefined> => {
   const parameters = parseChartParameters(event.data.fileName);

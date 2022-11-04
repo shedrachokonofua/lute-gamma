@@ -1,13 +1,13 @@
 import {
   EventEntity,
-  ParserPageParsedEventPayload,
+  FileSavedEventPayload,
   transformObject,
 } from "../../../../lib";
 import { AlbumPage, parseReleaseDateString, Track } from "@lute/domain";
 import { xRay, xRayMetaSelector } from "./xray";
 
 export const parseAlbum = async (
-  event: EventEntity<ParserPageParsedEventPayload>,
+  event: EventEntity<FileSavedEventPayload>,
   html: string
 ): Promise<AlbumPage> => {
   const albumData = await xRay(html, ".release_page", {

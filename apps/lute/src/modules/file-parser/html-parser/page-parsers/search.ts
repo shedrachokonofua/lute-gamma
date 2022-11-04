@@ -1,10 +1,10 @@
 import { SearchBestMatch, isLuteAlbumFileName } from "@lute/domain";
-import { EventEntity, ParserPageParsedEventPayload } from "../../../../lib";
+import { EventEntity, FileSavedEventPayload } from "../../../../lib";
 import { logger } from "../../../../logger";
 import { xRay } from "./xray";
 
 export const parseSearch = async (
-  event: EventEntity<ParserPageParsedEventPayload>,
+  event: EventEntity<FileSavedEventPayload>,
   html: string
 ): Promise<SearchBestMatch | undefined> => {
   const results = (await xRay(html, ".infobox", [

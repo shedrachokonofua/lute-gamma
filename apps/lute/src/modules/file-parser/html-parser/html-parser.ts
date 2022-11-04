@@ -2,6 +2,7 @@ import { PageType } from "@lute/domain";
 import {
   EventType,
   ParserFailedEventPayload,
+  FileSavedEventPayload,
   ParserPageParsedEventPayload,
 } from "../../../lib";
 import { Context } from "../../../context";
@@ -15,10 +16,7 @@ import {
 import { EventEntity } from "../../../lib/events/event-entity";
 import { getPageTypeFromFileName } from "../../../lib";
 
-const parsePage = (
-  event: EventEntity<ParserPageParsedEventPayload>,
-  html: string
-) => {
+const parsePage = (event: EventEntity<FileSavedEventPayload>, html: string) => {
   const pageType = getPageTypeFromFileName(event.data.fileName);
 
   switch (pageType) {
@@ -37,7 +35,7 @@ const parsePage = (
 
 export const parseHtmlToPageData = async (
   context: Context,
-  event: EventEntity<ParserPageParsedEventPayload>
+  event: EventEntity<FileSavedEventPayload>
 ) => {
   const {
     data: { fileId, fileName },

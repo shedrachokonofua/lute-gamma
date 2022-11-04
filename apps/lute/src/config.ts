@@ -65,4 +65,7 @@ export const config = {
   cron: {
     isTsNode: env.get("TS_NODE").default("false").asBool(),
   },
+  parser: {
+    poolSize: env.get("PARSER_POOL_SIZE").default(5).asIntPositive(),
+  },
 } as const;
