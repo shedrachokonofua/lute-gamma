@@ -25,9 +25,10 @@ const priorityToText = {
 interface CrawlerMonitor {
   status: CrawlerStatus;
   error: string | null;
-  current: (ClaimedQueueItem & {
+  claimedItems: (ClaimedQueueItem & {
     priorityText: string;
   })[];
+  claimedItemsCount: number;
   queueSize: number;
   remainingQuota: number;
 }
@@ -88,10 +89,11 @@ export const buildCrawlerInteractor = ({
     async getMonitor(): Promise<CrawlerMonitor> {
       const status = await crawlerRepo.getStatus();
       const error = await crawlerRepo.getError();
-      const current = (await queue.getClaimedItems()).map((item) => ({
+      const claimedItems = (await queue.getClaimedItems()).map((item) => ({
         ...item,
         priorityText: priorityToText[item.priority],
       }));
+      const claimedItemsCount = claimedItems.length;
       const queueSize = await queue.getSize();
       const remainingQuota =
         config.crawler.quota.maxRequests -
@@ -100,7 +102,8 @@ export const buildCrawlerInteractor = ({
       return {
         status,
         error,
-        current,
+        claimedItems,
+        claimedItemsCount,
         queueSize,
         remainingQuota,
       };
