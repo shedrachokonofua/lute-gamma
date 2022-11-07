@@ -14,7 +14,7 @@ const bree = new Bree({
   jobs: [
     {
       name: "seed-default-profile",
-      interval: "every 6 hours",
+      interval: `every ${config.cron.profileSeedIntervalHours} hours`,
     },
     {
       name: "reset-crawler-quota",

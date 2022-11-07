@@ -22,7 +22,7 @@ const network = axios.create({
   },
 });
 
-const stall = () => delay(config.crawler.coolDownSeconds);
+const stall = () => delay(config.crawler.stallSeconds);
 
 const crawlerLogger = logger.child({ module: "crawler" });
 

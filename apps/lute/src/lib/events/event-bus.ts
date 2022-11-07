@@ -22,6 +22,7 @@ export class EventBus {
   private readonly redisClient: RedisClient;
   private readonly subscriberByName = new Map<string, EventSubscriber<any>>();
   private readonly eventTypesBySubscriberName = new Map<string, string[]>();
+  private readonly redisClientBySubscriberName = new Map<string, RedisClient>();
   private readonly subscriberKeysByName = new Map<
     string,
     {
@@ -88,7 +89,8 @@ export class EventBus {
     context: Context,
     subscriberName: string
   ): Promise<void> {
-    const redisClient = await context.buildRedisClient();
+    const redisClient = await context.spawnRedisClient();
+    this.redisClientBySubscriberName.set(subscriberName, redisClient);
     const subscriber = this.subscriberByName.get(subscriberName);
     const subscriberKeys = this.subscriberKeysByName.get(subscriberName);
     if (!subscriber || !subscriberKeys) {
@@ -151,5 +153,14 @@ export class EventBus {
         this.subscriberListen(context, subscriberName)
       )
     );
+  }
+
+  async terminate(): Promise<void> {
+    await Promise.all(
+      Array.from(this.redisClientBySubscriberName.values()).map((redisClient) =>
+        redisClient.quit()
+      )
+    );
+    await this.redisClient.quit();
   }
 }

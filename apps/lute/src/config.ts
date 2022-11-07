@@ -32,14 +32,26 @@ export const config = {
     clientSecret: env.get("SPOTIFY_CLIENT_SECRET").required().asString(),
   },
   crawler: {
-    coolDownSeconds: env.get("COOL_DOWN_SECONDS").default(10).asFloatPositive(),
-    claimTtlMinutes: env.get("CLAIM_TTL_MINUTES").default(10).asFloatPositive(),
+    stallSeconds: env
+      .get("CRAWLER_STALL_SECONDS")
+      .default(10)
+      .asFloatPositive(),
+    claimTtlMinutes: env
+      .get("CRAWLER_CLAIM_TTL_MINUTES")
+      .default(10)
+      .asFloatPositive(),
     concurrency: env.get("CRAWLER_CONCURRENCY").default(10).asIntPositive(),
     dlqMaxSize: env.get("CRAWLER_DLQ_MAX_SIZE").default(3500).asIntPositive(),
     maxSize: env.get("CRAWLER_QUEUE_MAX_SIZE").default(3500).asIntPositive(),
     quota: {
-      windowDays: env.get("QUOTA_WINDOW_DAYS").default(1).asIntPositive(),
-      maxRequests: env.get("QUOTA_MAX_REQUESTS").default(500).asIntPositive(),
+      windowDays: env
+        .get("CRAWLER_QUOTA_WINDOW_DAYS")
+        .default(1)
+        .asIntPositive(),
+      maxRequests: env
+        .get("CRAWLER_QUOTA_MAX_REQUESTS")
+        .default(500)
+        .asIntPositive(),
     },
   },
   files: {
@@ -53,7 +65,7 @@ export const config = {
       .default("./test-bucket")
       .asString(),
     ttlDays: {
-      artist: env.get("ARTIST_TTL_DAYS").default(14).asIntPositive(),
+      artist: env.get("FILE_ARTIST_TTL_DAYS").default(14).asIntPositive(),
       album: env.get("FILE_ALBUM_TTL_DAYS").default(7).asIntPositive(),
       chart: env.get("FILE_CHARTS_TTL_DAYS").default(7).asIntPositive(),
       search: env.get("FILE_SEARCH_TTL_DAYS").default(1).asIntPositive(),
@@ -64,8 +76,12 @@ export const config = {
   },
   cron: {
     isTsNode: env.get("TS_NODE").default("false").asBool(),
+    profileSeedIntervalHours: env
+      .get("CRON_PROFILE_SEED_INTERVAL_HOURS")
+      .default(6)
+      .asIntPositive(),
   },
   parser: {
-    poolSize: env.get("PARSER_POOL_SIZE").default(5).asIntPositive(),
+    poolSize: env.get("PARSER_POOL_SIZE").default(3).asIntPositive(),
   },
 } as const;

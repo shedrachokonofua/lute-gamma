@@ -22,8 +22,7 @@ export const buildContext = async () => {
   const redisClient = await spawnRedisClient();
   const fileStorageClient = buildFileStorageClient();
 
-  const eventBusRedisClient = await spawnRedisClient();
-  const eventBus = new EventBus({ redisClient: eventBusRedisClient });
+  const eventBus = new EventBus({ redisClient: await spawnRedisClient() });
 
   const artistInteractor = buildArtistInteractor(mongoClient);
   const albumInteractor = buildAlbumInteractor({ eventBus, mongoClient });
@@ -50,12 +49,17 @@ export const buildContext = async () => {
   });
   const spotifyInteractor = buildSpotifyInteractor(redisClient);
 
+  const terminate = async () => {
+    await mongoClient.close();
+    await redisClient.quit();
+    await eventBus.terminate();
+  };
+
   return {
-    buildRedisClient: () => buildRedisClient({ logger, url: config.redis.url }),
+    spawnRedisClient,
     fileStorageClient,
     mongoClient,
     redisClient,
-    eventBusRedisClient,
     eventBus,
     artistInteractor,
     albumInteractor,
@@ -65,21 +69,8 @@ export const buildContext = async () => {
     lookupInteractor,
     profileInteractor,
     spotifyInteractor,
+    terminate,
   };
 };
 
 export type Context = Awaited<ReturnType<typeof buildContext>>;
-
-export const buildWorkerContext = async () => {
-  const context = await buildContext();
-  return {
-    ...context,
-    async terminate() {
-      await context.mongoClient.close();
-      await context.redisClient.quit();
-      await context.eventBusRedisClient.quit();
-    },
-  };
-};
-
-export type WorkerContext = Awaited<ReturnType<typeof buildWorkerContext>>;
