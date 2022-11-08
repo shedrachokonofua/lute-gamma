@@ -6,6 +6,7 @@ import { EventEntity } from "./event-entity";
 import { EventSubscriber } from "./event-subscriber";
 
 export interface EventBusParams {
+  batchSize?: number;
   blockDurationSeconds?: number;
   retryCount?: number;
   redisClient: RedisClient;
@@ -17,6 +18,7 @@ const getEventStreamCursorKey = (subscriberName: string, eventType: string) =>
   `cursor:${subscriberName}:${eventType}`;
 
 export class EventBus {
+  private readonly batchSize: number;
   private readonly blockDurationSeconds: number;
   private readonly retryCount: number;
   private readonly redisClient: RedisClient;
@@ -32,6 +34,7 @@ export class EventBus {
   >();
 
   constructor({
+    batchSize = 25,
     blockDurationSeconds = 5,
     retryCount = 5,
     redisClient,
@@ -39,6 +42,7 @@ export class EventBus {
     this.blockDurationSeconds = blockDurationSeconds;
     this.retryCount = retryCount;
     this.redisClient = redisClient;
+    this.batchSize = batchSize;
   }
 
   subscribe<T extends Record<string, any> = any>(
@@ -112,6 +116,7 @@ export class EventBus {
 
       const responses = await redisClient.xRead(readParams, {
         BLOCK: this.blockDurationSeconds * 1000,
+        COUNT: this.batchSize,
       });
       if (!responses) continue;
 
