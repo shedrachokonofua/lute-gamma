@@ -102,10 +102,10 @@ export const buildCrawlerInteractor = ({
       return {
         status,
         error,
-        claimedItems,
-        claimedItemsCount,
         queueSize,
         remainingQuota,
+        claimedItemsCount,
+        claimedItems,
       };
     },
     async emptyQueue() {
