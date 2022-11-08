@@ -33,14 +33,14 @@ export type ClaimedQueueItem = QueueItem & {
 
 export const buildPriorityQueue = ({
   redisClient,
-  key,
+  key: queueKey,
   maxSize,
 }: {
   redisClient: RedisClient;
   key: string;
   maxSize: number;
 }) => {
-  const itemsSetKey = `${key}:items`;
+  const itemsSetKey = `${queueKey}:items`;
   const delimeter = ":DELIMETER:";
   const pushLimiter = new Bottleneck({ maxConcurrent: 1 });
   const claimLimiter = new Bottleneck({ maxConcurrent: 1 });
@@ -50,7 +50,7 @@ export const buildPriorityQueue = ({
       return redisClient.hExists(itemsSetKey, dedupeKey);
     },
     async getSize(): Promise<number> {
-      return await redisClient.zCard(key);
+      return await redisClient.zCard(queueKey);
     },
     async isFull() {
       return (await queue.getSize()) >= maxSize;
@@ -64,7 +64,7 @@ export const buildPriorityQueue = ({
       await pushLimiter.schedule(async () => {
         if (await queue.contains(dedupeKey)) return;
         if (await queue.isFull()) {
-          logger.warn({ key }, "Push failed, queue is full");
+          logger.warn({ key: queueKey }, "Push failed, queue is full");
           throw new Error("Queue is full");
         }
 
@@ -77,7 +77,7 @@ export const buildPriorityQueue = ({
             metadata,
           })
         );
-        transaction.zAdd(key, {
+        transaction.zAdd(queueKey, {
           score: priority,
           value: `${Date.now()}${delimeter}${dedupeKey}`,
         });
@@ -94,13 +94,14 @@ export const buildPriorityQueue = ({
         itemKey,
         fileName,
         enqueueTime: new Date(Number(enqueueTime)),
-        priority: (await redisClient.zScore(key, itemKey)) || Priority.Standard,
+        priority:
+          (await redisClient.zScore(queueKey, itemKey)) || Priority.Standard,
         dedupeKey,
         metadata,
       };
     },
     async at(index: number): Promise<QueueItem | null> {
-      const [itemKey] = await redisClient.zRange(key, index, index);
+      const [itemKey] = await redisClient.zRange(queueKey, index, index);
       if (!itemKey) return null;
       return queue.getItemByKey(itemKey);
     },
@@ -108,10 +109,10 @@ export const buildPriorityQueue = ({
       return queue.at(0);
     },
     async empty(): Promise<void> {
-      await redisClient.del(key);
+      await redisClient.del(queueKey);
     },
     async isClaimed(itemKey: string): Promise<boolean> {
-      return (await redisClient.exists(`${key}:claimed:${itemKey}`)) === 1;
+      return (await redisClient.exists(`${queueKey}:claimed:${itemKey}`)) === 1;
     },
     async getNextUnclaimedItem(): Promise<QueueItem | null> {
       let currentIndex = 0;
@@ -132,7 +133,7 @@ export const buildPriorityQueue = ({
           logger.debug("No unclaimed items in queue");
           return null;
         }
-        await redisClient.set(`${key}:claimed:${item.itemKey}`, "true", {
+        await redisClient.set(`${queueKey}:claimed:${item.itemKey}`, "true", {
           EX: config.crawler.claimTtlMinutes * 60,
         });
         logger.info({ item }, "Claimed item");
@@ -143,16 +144,16 @@ export const buildPriorityQueue = ({
       const [, dedupeKey] = itemKey.split(delimeter);
       await redisClient
         .multi()
-        .zRem(key, itemKey)
+        .zRem(queueKey, itemKey)
         .hDel(itemsSetKey, dedupeKey)
-        .del(`${key}:claimed:${itemKey}`)
+        .del(`${queueKey}:claimed:${itemKey}`)
         .exec();
       logger.debug({ itemKey }, "Deleted item");
     },
     async getClaimedItems(): Promise<ClaimedQueueItem[]> {
-      const claimedKeysRedis = await redisClient.keys(`${key}:claimed:*`);
+      const claimedKeysRedis = await redisClient.keys(`${queueKey}:claimed:*`);
       const claimedKeys = claimedKeysRedis.map((redisKey) => {
-        return redisKey.replace(`${key}:claimed:`, "");
+        return redisKey.replace(`${queueKey}:claimed:`, "");
       });
       const itemsOrNull = await Promise.all(
         claimedKeys.map(queue.getItemByKey)
@@ -162,7 +163,7 @@ export const buildPriorityQueue = ({
         items.map(async (item) => ({
           ...item,
           claimTtlSeconds: await redisClient.ttl(
-            `${key}:claimed:${item.itemKey}`
+            `${queueKey}:claimed:${item.itemKey}`
           ),
         }))
       );
