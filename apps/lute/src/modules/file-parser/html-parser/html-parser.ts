@@ -4,6 +4,9 @@ import {
   ParserFailedEventPayload,
   FileSavedEventPayload,
   ParserPageParsedEventPayload,
+  executeWithTimer,
+  getPageTypeFromFileName,
+  EventEntity,
 } from "../../../lib";
 import { Context } from "../../../context";
 import { logger } from "../../../logger";
@@ -13,8 +16,6 @@ import {
   parseChart,
   parseSearch,
 } from "./page-parsers";
-import { EventEntity } from "../../../lib/events/event-entity";
-import { getPageTypeFromFileName } from "../../../lib";
 
 const parsePage = (event: EventEntity<FileSavedEventPayload>, html: string) => {
   const pageType = getPageTypeFromFileName(event.data.fileName);
@@ -42,21 +43,37 @@ export const parseHtmlToPageData = async (
     metadata: { correlationId } = {},
   } = event;
   try {
-    const html = await context.fileInteractor.getFileContent(fileName);
+    const [html, fileDownloadTimeElapsed] = await executeWithTimer(async () =>
+      context.fileInteractor.getFileContent(fileName)
+    );
     if (!html) {
       logger.error("Could not find file content", {
         fileId,
         fileName,
       });
+
       return;
     }
-    const pageData = await parsePage(event, html);
+    logger.info(
+      { fileName, timeElapsed: fileDownloadTimeElapsed },
+      "File downloaded"
+    );
     const pageType = getPageTypeFromFileName(fileName);
 
-    if (!pageData || !pageType) {
+    if (!pageType) {
+      logger.error({ fileName }, "Could not determine page type");
+      throw new Error("Could not determine page type");
+    }
+
+    const [pageData, timeElapsed] = await executeWithTimer(async () =>
+      parsePage(event, html)
+    );
+
+    if (!pageData) {
       logger.error({ event }, "Unable to parse page");
       throw new Error("Unable to parse page");
     }
+    logger.info({ fileName, timeElapsed, pageType }, "Parsed file");
 
     await context.eventBus.publish<ParserPageParsedEventPayload>({
       type: EventType.ParserPageParsed,

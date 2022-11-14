@@ -6,6 +6,7 @@ import { logger } from "../../logger";
 import { Context } from "../../context";
 import { config } from "../../config";
 import { QueueItem } from "./priority-queue";
+import { crawlerMetricsReporter } from "./crawler-metrics-reporter";
 
 const network = axios.create({
   baseURL: "https://www.rateyourmusic.com",
@@ -71,10 +72,15 @@ const startCrawlerWorker = async (context: Context) => {
         await crawlerInteractor.dlq.push(item);
       }
     );
+    await crawlerInteractor.reportCrawlerQueueLengthMetric();
   }
 };
 
 export const startCrawler = async (context: Context) => {
+  crawlerMetricsReporter.setQueueLength(
+    await context.crawlerInteractor.queue.getSize()
+  );
+
   for (let i = 0; i < config.crawler.concurrency; i++) {
     startCrawlerWorker(context);
   }

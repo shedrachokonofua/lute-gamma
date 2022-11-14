@@ -11,7 +11,12 @@ import { logger } from "../../logger";
 import { buildAssessment, buildAssessmentContext } from "./assessment";
 import { MongoClient } from "mongodb";
 import { AlbumInteractor } from "../albums";
-import { EventBus, EventType, ProfileAlbumAddedEventPayload } from "../../lib";
+import {
+  EventBus,
+  EventType,
+  executeWithTimer,
+  ProfileAlbumAddedEventPayload,
+} from "../../lib";
 
 export const buildProfileInteractor = ({
   mongoClient,
@@ -246,37 +251,54 @@ export const buildProfileInteractor = ({
       if (!profile) {
         throw new Error("Unknown profile");
       }
-      const assessmentContext = await buildAssessmentContext({
-        albumInteractor,
-        profile,
-        settings: settings.assessmentSettings,
-      });
-      logger.info({ assessmentContext }, "Built assessment context");
-
-      const albums = await albumInteractor.findAlbums({
-        primaryGenres: [...settings.filter.primaryGenres],
-        excludeArtists: [...settings.filter.excludeArtists],
-        excludePrimaryGenres: [...settings.filter.excludePrimaryGenres],
-        excludeKeys: [
-          ...profile.albums.map((a) => a.item),
-          ...settings.filter.excludeAlbums,
-        ],
-      });
-      logger.info({ albums: albums.length }, "Got albums");
-
-      const recommendations = albums.map((album) => {
-        try {
-          return {
-            album: album as any,
-            assessment: buildAssessment(assessmentContext, album),
-          };
-        } catch {
-          return undefined;
-        }
-      });
+      const [assessmentContext, assessmentContextElapsedTime] =
+        await executeWithTimer(() =>
+          buildAssessmentContext({
+            albumInteractor,
+            profile,
+            settings: settings.assessmentSettings,
+          })
+        );
       logger.info(
-        { recommendations: recommendations.length },
-        "Built assessments"
+        { elapsedTime: assessmentContextElapsedTime },
+        "Built assessment context"
+      );
+
+      const [albums, albumsElapsedTime] = await executeWithTimer(() =>
+        albumInteractor.findAlbums({
+          primaryGenres: [...settings.filter.primaryGenres],
+          excludeArtists: [...settings.filter.excludeArtists],
+          excludePrimaryGenres: [...settings.filter.excludePrimaryGenres],
+          excludeKeys: [
+            ...profile.albums.map((a) => a.item),
+            ...settings.filter.excludeAlbums,
+          ],
+        })
+      );
+      logger.info(
+        { albums: albums.length, elapsedTime: albumsElapsedTime },
+        "Got albums"
+      );
+
+      const [recommendations, recommendationElapsedTime] =
+        await executeWithTimer(async () =>
+          albums.map((album) => {
+            try {
+              return {
+                album: album as any,
+                assessment: buildAssessment(assessmentContext, album),
+              };
+            } catch {
+              return undefined;
+            }
+          })
+        );
+      logger.info(
+        {
+          recommendations: recommendations.length,
+          elapsedTime: recommendationElapsedTime,
+        },
+        "Built recommendation assessments"
       );
 
       const results = recommendations

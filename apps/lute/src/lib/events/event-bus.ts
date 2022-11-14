@@ -4,6 +4,7 @@ import { RedisClient } from "../db";
 import { retry } from "../utils";
 import { EventEntity } from "./event-entity";
 import { EventSubscriber } from "./event-subscriber";
+import { executeWithTimer } from "../helpers";
 
 export interface EventBusParams {
   batchSize?: number;
@@ -34,7 +35,7 @@ export class EventBus {
   >();
 
   constructor({
-    batchSize = 25,
+    batchSize = 50,
     blockDurationSeconds = 5,
     retryCount = 5,
     redisClient,
@@ -133,20 +134,26 @@ export class EventBus {
             data: JSON.parse(message.message.data) as Record<string, any>,
           }));
 
-          await Promise.allSettled(
-            events.map(async (event) => {
-              await retry(
-                async () => subscriber.consumeEvent(context, event),
-                async (error) => {
-                  logger.debug({ error }, "Error consuming event");
-                },
-                this.retryCount
-              );
-            })
-          );
+          const [, elapsedTime] = await executeWithTimer(async () => {
+            await Promise.allSettled(
+              events.map(async (event) => {
+                await retry(
+                  async () => subscriber.consumeEvent(context, event),
+                  async (error) => {
+                    logger.debug({ error }, "Error consuming event");
+                  },
+                  this.retryCount
+                );
+              })
+            );
 
-          const lastEvent = events[events.length - 1];
-          await this.updateEventCursor(subscriberName, lastEvent);
+            const lastEvent = events[events.length - 1];
+            await this.updateEventCursor(subscriberName, lastEvent);
+          });
+          logger.info(
+            { elapsedTime, eventCount: events.length, subscriberName },
+            "Event batch consumed"
+          );
         })
       );
     }

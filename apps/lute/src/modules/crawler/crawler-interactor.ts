@@ -12,6 +12,7 @@ import {
   QueueItem,
   QueuePushParams,
 } from "./priority-queue";
+import { crawlerMetricsReporter } from "./crawler-metrics-reporter";
 
 const QUOTA_REACHED = "QUOTA_REACHED";
 
@@ -56,25 +57,23 @@ export const buildCrawlerInteractor = ({
   const interactor = {
     queue,
     dlq,
+    async reportCrawlerQueueLengthMetric() {
+      crawlerMetricsReporter.setQueueLength(await queue.getSize());
+    },
     async setStatus(status: CrawlerStatus) {
       await crawlerRepo.setStatus(status);
+      await interactor.reportCrawlerQueueLengthMetric();
     },
     async getStatus() {
       return crawlerRepo.getStatus();
     },
     async schedule(params: QueuePushParams) {
       await queue.push(params);
+      await interactor.reportCrawlerQueueLengthMetric();
     },
     async cachedSchedule(params: QueuePushParams) {
       if (!(await fileInteractor.getDoesFileExist(params.fileName))) {
-        await queue.push(params);
-      }
-    },
-    async batchCachedSchedule(params: QueuePushParams[]) {
-      for (const item of params) {
-        if (!(await fileInteractor.getDoesFileExist(item.fileName))) {
-          await queue.push(item);
-        }
+        await interactor.schedule(params);
       }
     },
     async pushToDLQ(item: QueueItem) {
@@ -110,6 +109,7 @@ export const buildCrawlerInteractor = ({
     },
     async emptyQueue() {
       await queue.empty();
+      await interactor.reportCrawlerQueueLengthMetric();
     },
     async getQuotaWindowHits() {
       return crawlerRepo.getQuotaWindowHits();

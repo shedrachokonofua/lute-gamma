@@ -100,16 +100,18 @@ importers:
       date-fns: ^2.29.3
       env-var: ^7.3.0
       express: ^4.18.1
+      express-prom-bundle: ^6.5.0
       form-data: ^4.0.0
       mongodb: ^4.10.0
       multer: ^1.4.5-lts.1
       multer-s3: ^3.0.1
       nanoid: ^3.3.4
-      newrelic: ^9.1.0
       nodemon: ^2.0.20
       pino: ^8.6.0
       pino-http: ^8.2.0
+      pino-loki: ^2.0.3
       pino-mongodb: ^4.3.0
+      prom-client: ^14.1.0
       redis: ^4.3.1
       simple-statistics: ^7.7.6
       spotify-web-api-node: ^5.0.2
@@ -131,16 +133,18 @@ importers:
       date-fns: 2.29.3
       env-var: 7.3.0
       express: 4.18.1
+      express-prom-bundle: 6.5.0_prom-client@14.1.0
       form-data: 4.0.0
       mongodb: 4.10.0
       multer: 1.4.5-lts.1
       multer-s3: 3.0.1_4oucwmcdtaqseijs44akv4xjsm
       nanoid: 3.3.4
-      newrelic: 9.1.0
       nodemon: 2.0.20
       pino: 8.6.0
       pino-http: 8.2.0
+      pino-loki: 2.0.3
       pino-mongodb: 4.3.0
+      prom-client: 14.1.0
       redis: 4.3.1
       simple-statistics: 7.7.6
       spotify-web-api-node: 5.0.2
@@ -2538,6 +2542,10 @@ packages:
     engines: {node: '>=8'}
     dev: false
 
+  /bintrees/1.0.2:
+    resolution: {integrity: sha512-VOMgTMwjAaUG580SXn3LacVgjurrbMme7ZZNYGSSV7mmtY6QQRh0Eg3pwIcntQ77DErK1L0NxkbetjcoXzVwKw==}
+    dev: false
+
   /bluebird/3.7.2:
     resolution: {integrity: sha512-XpNj6GDQzdfW+r2Wnn7xiSAd7TM3jzkxGXBGTtWKuSXv1xUV+azxAm8jdWZN06QTQk+2N2XB9jRDkvbmQmcRtg==}
     dev: false
@@ -3140,6 +3148,12 @@ packages:
     engines: {node: '>= 0.8'}
     dev: false
 
+  /end-of-stream/1.4.4:
+    resolution: {integrity: sha512-+uw1inIHVPQoaVuHzRyXd21icM+cnt4CzD5rW+NC1wjOUSTOs+Te7FOv7AhN7vS9x/oIyhLP5PR1H+phQAHu5Q==}
+    dependencies:
+      once: 1.4.0
+    dev: false
+
   /enqueue/1.0.2:
     resolution: {integrity: sha512-6C3wjFsq5SqRLDAgOBYVouvjlFblsp//cdoIdUDt66jdHii7dp3yJCqiNDcFdRp4vKNXYug+XVTbhxfe5MCtCw==}
     dependencies:
@@ -3534,6 +3548,17 @@ packages:
   /events/3.3.0:
     resolution: {integrity: sha512-mQw+2fkQbALzQ7V0MY0IqdnXNOeTtP4r0lN9z7AAawCXgqea7bDii20AYrIBrFd/Hx0M2Ocz6S111CaFkUcb0Q==}
     engines: {node: '>=0.8.x'}
+    dev: false
+
+  /express-prom-bundle/6.5.0_prom-client@14.1.0:
+    resolution: {integrity: sha512-paFAm0FK7TV1Ln6Blh9edDt2mJ4Pk6Py/fjhZDMcoMHENYryBjCpnXDXuCu8NE1kkvp58IrPcAAkNeNqdvZnnw==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      prom-client: '>=12.0.0'
+    dependencies:
+      on-finished: 2.4.1
+      prom-client: 14.1.0
+      url-value-parser: 2.2.0
     dev: false
 
   /express/4.18.1:
@@ -4841,7 +4866,6 @@ packages:
     resolution: {integrity: sha512-lNaJgI+2Q5URQBkccEKHTQOPaXdUxnZZElQTZY0MFUAuaEqe1E+Nyvgdz/aIyNi6Z9MzO5dv1H8n58/GELp3+w==}
     dependencies:
       wrappy: 1.0.2
-    dev: true
 
   /optionator/0.9.1:
     resolution: {integrity: sha512-74RlY5FCnhq4jRxVUPKDaRwrVNXMqsGsiW6AJw4XK8hmtm10wC0ypZBLw5IIp85NZMr91+qd1RvvENwg7jjRFw==}
@@ -4965,6 +4989,18 @@ packages:
       process-warning: 2.0.0
     dev: false
 
+  /pino-loki/2.0.3:
+    resolution: {integrity: sha512-nZ9sMaw69TBNwIpGzwbuFXD9Hs/aoYtcYxH4P0y5GAqlhG+kFq+fwgpcd1bv4cuvzb7OlelfpSpANxE5OMtITg==}
+    hasBin: true
+    dependencies:
+      axios: 0.27.2
+      commander: 9.4.0
+      pino-abstract-transport: 1.0.0
+      pump: 3.0.0
+    transitivePeerDependencies:
+      - debug
+    dev: false
+
   /pino-mongodb/4.3.0:
     resolution: {integrity: sha512-vxlqjU/fu8ThRuN/xlO2/pkZh7TVuen50KXaea1cPgG0H97U038tkTeaNScSQp9s0FUyPMRY+ehV9JFt3OLCpw==}
     hasBin: true
@@ -5022,6 +5058,13 @@ packages:
   /process/0.11.10:
     resolution: {integrity: sha512-cdGef/drWFoydD1JsMzuFf8100nZl+GT+yacc2bEced5f9Rjk4z+WtFUTBu9PhOi9j/jfmBPu0mMEY4wIdAF8A==}
     engines: {node: '>= 0.6.0'}
+    dev: false
+
+  /prom-client/14.1.0:
+    resolution: {integrity: sha512-iFWCchQmi4170omLpFXbzz62SQTmPhtBL35v0qGEVRHKcqIeiexaoYeP0vfZTujxEq3tA87iqOdRbC9svS1B9A==}
+    engines: {node: '>=10'}
+    dependencies:
+      tdigest: 0.1.2
     dev: false
 
   /promise-polyfill/1.1.6:
@@ -5089,6 +5132,13 @@ packages:
 
   /pstree.remy/1.1.8:
     resolution: {integrity: sha512-77DZwxQmxKnu3aR542U+X8FypNzbfJ+C5XQDk3uWjWxn6151aIMGthWYRXTqT1E5oJvg+ljaa2OJi+VfvCOQ8w==}
+    dev: false
+
+  /pump/3.0.0:
+    resolution: {integrity: sha512-LwZy+p3SFs1Pytd/jYct4wpv49HiYCqd9Rlc5ZVdk0V+8Yzv6jR5Blk3TRmPL1ft69TxP0IMZGJ+WPFU2BFhww==}
+    dependencies:
+      end-of-stream: 1.4.4
+      once: 1.4.0
     dev: false
 
   /punycode/1.4.1:
@@ -5678,6 +5728,12 @@ packages:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
 
+  /tdigest/0.1.2:
+    resolution: {integrity: sha512-+G0LLgjjo9BZX2MfdvPfH+MKLCrxlXSYec5DaPYP1fe6Iyhf0/fSmJ0bFiZ1F8BT6cGXl2LpltQptzjXKWEkKA==}
+    dependencies:
+      bintrees: 1.0.2
+    dev: false
+
   /text-table/0.2.0:
     resolution: {integrity: sha512-N+8UisAXDGk8PFXP4HAzVR9nbfmVJ3zYLAWiTIoqC5v5isinhr+r5uaO8+7r3BMfuNIufIsA7RdpVgacC2cSpw==}
     dev: true
@@ -5946,6 +6002,11 @@ packages:
       punycode: 2.1.1
     dev: true
 
+  /url-value-parser/2.2.0:
+    resolution: {integrity: sha512-yIQdxJpgkPamPPAPuGdS7Q548rLhny42tg8d4vyTNzFqvOnwqrgHXvgehT09U7fwrzxi3RxCiXjoNUNnNOlQ8A==}
+    engines: {node: '>=6.0.0'}
+    dev: false
+
   /use-composed-ref/1.3.0_react@18.2.0:
     resolution: {integrity: sha512-GLMG0Jc/jiKov/3Ulid1wbv3r54K9HlMW29IWcDFPEqFkSO2nS0MuefWgMJpeHQ9YJeXDL3ZUF+P3jdXlZX/cQ==}
     peerDependencies:
@@ -6076,7 +6137,6 @@ packages:
 
   /wrappy/1.0.2:
     resolution: {integrity: sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ==}
-    dev: true
 
   /x-ray-crawler/2.0.5:
     resolution: {integrity: sha512-+VPYebF7WgiqZBLFOOCir1zExBXX1vkQ68o5S4NvyUHnfzm0LINN41l7h2h8CsqCfM1wzn9MgyUkxQPBs9kIfg==}
