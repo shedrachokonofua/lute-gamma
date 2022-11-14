@@ -35,6 +35,7 @@ export interface AlbumPage {
   descriptors: string[];
   releaseDate: Date;
   tracks: Track[];
+  releaseDateString?: string;
 }
 
 export interface ChartParameters {
@@ -96,7 +97,12 @@ export type PutChartPayload = ChartPage & {
   fileId: string;
 };
 
+const SUPPORTED_RELEASE_TYPES = ["album", "mixtape", "ep"];
+
 export const isLuteAlbumFileName = (fileName: string) =>
-  fileName.startsWith("release/album/") ||
-  fileName.startsWith("release/mixtape/") ||
-  fileName.startsWith("release/ep/");
+  SUPPORTED_RELEASE_TYPES.some((releaseType) =>
+    fileName.startsWith(`release/${releaseType}/`)
+  );
+
+export const isLuteChartFileName = (fileName: string) =>
+  /^charts\/(\w+)\/(album|mixtape|ep)\//.test(fileName);

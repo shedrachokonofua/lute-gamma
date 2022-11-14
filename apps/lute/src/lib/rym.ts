@@ -1,4 +1,8 @@
-import { PageType, isLuteAlbumFileName } from "@lute/domain";
+import {
+  PageType,
+  isLuteAlbumFileName,
+  isLuteChartFileName,
+} from "@lute/domain";
 
 export const getPageTypeFromFileName = (
   fileName: string
@@ -6,7 +10,7 @@ export const getPageTypeFromFileName = (
   if (isLuteAlbumFileName(fileName)) {
     return PageType.Album;
   }
-  if (fileName.startsWith("charts/")) {
+  if (isLuteChartFileName(fileName)) {
     return PageType.Chart;
   }
   if (fileName.startsWith("search")) {
