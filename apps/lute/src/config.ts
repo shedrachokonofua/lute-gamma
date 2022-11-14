@@ -86,7 +86,4 @@ export const config = {
       .default(6)
       .asIntPositive(),
   },
-  parser: {
-    poolSize: env.get("PARSER_POOL_SIZE").default(3).asIntPositive(),
-  },
 } as const;

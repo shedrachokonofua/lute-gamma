@@ -1,7 +1,6 @@
 # In Progress
 
 - [ ] Migrate from new relic to grafana cloud
-- [ ] Worker threads [Notes](notes/worker-threads.md)
 - [ ] Artist entity support [Notes](notes/artists.md)
 - [ ] Crawler improvements [Notes](notes/crawler.md)
 
