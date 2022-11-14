@@ -2,14 +2,17 @@ import * as rTracer from "cls-rtracer";
 
 export const transformObject = <T extends Record<string, any>>(
   obj: T,
-  tranformers: Partial<Record<keyof T, (value: any) => any>>
-): T =>
-  Object.entries(obj).reduce((acc, [key, value]) => {
-    const keyOfT = key as keyof T;
-    const transformer = tranformers[keyOfT];
-    acc[keyOfT] = transformer ? transformer(value) : value;
-    return acc;
-  }, {} as T);
+  transformers: Partial<Record<keyof T, (value: any) => any>>
+): T => {
+  const keys = [...Object.keys(obj), ...Object.keys(transformers)];
+  const result = {} as T;
+  for (const key of keys) {
+    const value = obj[key];
+    const transformer = transformers[key];
+    result[key as keyof T] = transformer ? transformer(value) : value;
+  }
+  return result;
+};
 
 export const delay = (seconds: number) =>
   new Promise((resolve) => setTimeout(resolve, seconds * 1000));

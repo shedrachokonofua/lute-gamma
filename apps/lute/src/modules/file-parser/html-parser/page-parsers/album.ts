@@ -35,6 +35,7 @@ export const parseAlbum = async (
   });
 
   return transformObject<AlbumPage>(albumData, {
+    releaseDateString: albumData.releaseDate,
     releaseDate: parseReleaseDateString,
     tracks: (value: Track[]) =>
       value
