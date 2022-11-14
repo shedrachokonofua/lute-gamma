@@ -19,6 +19,7 @@ const spawnRedisClient = () =>
 
 export const buildContext = async () => {
   const mongoClient = new MongoClient(config.mongo.url);
+  await mongoClient.connect();
   const redisClient = await spawnRedisClient();
   const fileStorageClient = buildFileStorageClient();
 

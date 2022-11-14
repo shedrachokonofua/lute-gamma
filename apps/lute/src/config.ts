@@ -27,6 +27,11 @@ export const config = {
     username: env.get("PROXY_USERNAME").required().asString(),
     password: env.get("PROXY_PASSWORD").required().asString(),
   },
+  loki: {
+    host: env.get("LOKI_HOST").required().asString(),
+    username: env.get("LOKI_USERNAME").required().asString(),
+    password: env.get("LOKI_PASSWORD").required().asString(),
+  },
   spotify: {
     clientId: env.get("SPOTIFY_CLIENT_ID").required().asString(),
     clientSecret: env.get("SPOTIFY_CLIENT_SECRET").required().asString(),

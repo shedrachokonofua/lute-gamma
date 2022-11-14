@@ -8,6 +8,7 @@ import cors from "cors";
 import * as rTracer from "cls-rtracer";
 import { Logger } from "pino";
 import pinoHttp from "pino-http";
+import expressPromBundle from "express-prom-bundle";
 
 export const buildServer = <Context extends {}>({
   name,
@@ -21,6 +22,10 @@ export const buildServer = <Context extends {}>({
   port?: number;
 }) => {
   const server = express();
+  const metricsMiddleware = expressPromBundle({
+    includeMethod: true,
+    includePath: true,
+  });
 
   return async (context: Context) => {
     const router = await buildRouter(context);
@@ -37,6 +42,7 @@ export const buildServer = <Context extends {}>({
         logger,
       })
     );
+    server.use(metricsMiddleware);
     server.get("/health", (_, res) =>
       res.json({ ok: true, data: { serverName: name } })
     );

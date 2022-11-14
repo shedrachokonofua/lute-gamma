@@ -1,22 +1,39 @@
 version: '3'
 
+volumes:
+  prometheus_data: {}
+
 services:
-  newrelic-agent:
-    container_name: newrelic-infra
-    build:
-      context: newrelic-infra
-      dockerfile: newrelic-infra.dockerfile
-    cap_add:
-      - SYS_PTRACE
-    network_mode: host
-    pid: host
-    privileged: true
-    volumes:
-      - "/:/host:ro"
-      - "/var/run/docker.sock:/var/run/docker.sock"
+  node-exporter:
+    image: prom/node-exporter:latest
     restart: unless-stopped
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    expose:
+      - 9100
+
+  prometheus:
+    image: prom/prometheus:latest
+    restart: unless-stopped
+    build: ./prometheus
+    volumes:
+      - prometheus_data:/prometheus
     environment:
-      - MY_NEWRELIC_LICENSE_KEY
+      - ENV
+      - PROM_NODE_EXPORTER_TARGET
+      - PROM_LUTE_TARGET
+      - PROM_REMOTE_WRITE_HOST
+      - PROM_REMOTE_WRITE_USERNAME
+      - PROM_REMOTE_WRITE_PASSWORD
+    ports:
+     - 9090:9090
   
   dashboard:
     build:
@@ -43,6 +60,7 @@ services:
         workspace: lute
     ports:
       - ${SERVER_PORT}:80
+      - 9229:9229
     restart: always
     env_file:
       - .env

@@ -1,6 +1,43 @@
 version: '3'
 
+volumes:
+  prometheus_data: {}
+
 services:
+  
+  node-exporter:
+    image: prom/node-exporter:latest
+    restart: unless-stopped
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    expose:
+      - 9100
+
+  prometheus:
+    image: prom/prometheus:latest
+    restart: unless-stopped
+    build: ./prometheus
+    volumes:
+      - prometheus_data:/prometheus
+    environment:
+      - ENV
+      - PROM_NODE_EXPORTER_TARGET
+      - PROM_LUTE_TARGET
+      - PROM_REMOTE_WRITE_HOST
+      - PROM_REMOTE_WRITE_USERNAME
+      - PROM_REMOTE_WRITE_PASSWORD
+    ports:
+     - 9090:9090
+    links:
+      - "node-exporter:node-exporter-dev"
+      - "lute:lute-dev"
   redis:
     image: 'bitnami/redis:latest'
     environment:
