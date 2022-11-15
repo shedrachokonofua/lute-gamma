@@ -1,6 +1,5 @@
 # In Progress
 
-- [ ] Migrate from new relic to grafana cloud
 - [ ] Artist entity support [Notes](notes/artists.md)
 - [ ] Crawler improvements [Notes](notes/crawler.md)
 
@@ -9,10 +8,11 @@
 ### High Priority
 
 - [ ] Extract recommendation module[Notes](notes/recommendation-module.md)
-- [ ] Artist recommendations
+- [ ] Setup Grafana Tempo
 
 ### Medium Priority
 
+- [ ] Failed parses redrive script
 - [ ] Support adding album ratings to profiles
 - [ ] Recommendation list item action menu
 - [ ] Fix release date parsing
