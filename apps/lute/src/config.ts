@@ -15,11 +15,7 @@ export const config = {
   spaces: {
     key: env.get("SPACES_KEY").required(isProduction).asString(),
     secret: env.get("SPACES_SECRET").required(isProduction).asString(),
-    bucket: env
-      .get("SPACES_BUCKET")
-      .required(isProduction)
-      .default("")
-      .asString(),
+    bucket: env.get("SPACES_BUCKET").required(isProduction).asString(),
   },
   proxy: {
     host: env.get("PROXY_HOST").required().asString(),
