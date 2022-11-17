@@ -1,11 +1,10 @@
-import { Profile } from "@lute/domain";
+import { Profile, QuantileRankAssessmentSettings } from "@lute/domain";
 import { AlbumInteractor } from "../../../albums";
 import {
   QuantileRankAssessableAlbum,
   quantileRankAssessableAlbumSchema,
   QuantileRankAssessableProfileDetails,
   quantileRankAssessableProfileSchema,
-  QuantileRankAssessmentSettings,
 } from "./quantile-rank-schema";
 
 export interface QuantileRankAssessmentContext {

@@ -1,3 +1,9 @@
+import {
+  AssessmentModel,
+  Assessment,
+  RecommendationParameters,
+  Recommendation,
+} from "@lute/domain";
 import { executeWithTimer } from "../../lib";
 import { logger } from "../../logger";
 import { AlbumInteractor } from "../albums";
@@ -6,13 +12,7 @@ import {
   buildQuantileRankAssessment,
   buildQuantileRankAssessmentContext,
 } from "./models";
-import {
-  Assessment,
-  AssessmentModel,
-  AssessmentParameters,
-  Recommendation,
-  RecommendationParameters,
-} from "./recommendation-schema";
+import { AssessmentParameters } from "./recommendation-schema";
 
 const modelToContextBuilder = {
   [AssessmentModel.QuantileRank]: buildQuantileRankAssessmentContext,

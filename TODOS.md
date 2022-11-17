@@ -1,5 +1,6 @@
 # In Progress
 
+- [ ] Extract recommendation module[Notes](notes/recommendation-module.md)
 - [ ] Artist entity support [Notes](notes/artists.md)
 - [ ] Crawler improvements [Notes](notes/crawler.md)
 
@@ -7,8 +8,8 @@
 
 ### High Priority
 
-- [ ] Extract recommendation module[Notes](notes/recommendation-module.md)
 - [ ] Setup Grafana Tempo
+- [ ] Collect album language(s)
 
 ### Medium Priority
 

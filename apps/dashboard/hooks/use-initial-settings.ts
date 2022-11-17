@@ -4,7 +4,7 @@ import { useAsync } from "./use-async";
 const defaultRecommendationSettings = {
   profileId: "default",
   count: 10,
-  assessmentSettings: {
+  settings: {
     noveltyFactor: 0.5,
     useAlbumWeight: true,
     parameterWeights: {

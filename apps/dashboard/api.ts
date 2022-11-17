@@ -1,6 +1,10 @@
 import axios from "axios";
 import * as qs from "qs";
-import { Recommendation, RecommendationSettings } from "@lute/domain";
+import {
+  AssessmentModel,
+  Recommendation,
+  RecommendationParameters,
+} from "@lute/domain";
 import { config } from "./config";
 
 const isBrowser = typeof window !== "undefined";
@@ -11,11 +15,13 @@ const http = axios.create({ baseURL: host });
 
 export const api = {
   async getRecommendations(
-    profileId: string,
-    settings: RecommendationSettings
+    params: Omit<RecommendationParameters, "model">
   ): Promise<Recommendation[]> {
     const response = await http.get(
-      `/profile/${profileId}/recommendations?${qs.stringify(settings)}`
+      `/recommendation/albums?${qs.stringify({
+        model: AssessmentModel.QuantileRank,
+        ...params,
+      })}`
     );
     return response.data?.data || [];
   },

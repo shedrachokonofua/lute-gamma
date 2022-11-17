@@ -1,22 +1,10 @@
-import {
-  AssessmentSettings,
-  ProfileDetails,
-  ProfileSummary,
-  Recommendation,
-  RecommendationSettings,
-} from "@lute/domain";
+import { ProfileDetails, ProfileSummary } from "@lute/domain";
 import { AddAlbumToProfilePayload, buildProfileRepo } from "./profile-repo";
 import { startOfDecade } from "date-fns";
 import { logger } from "../../logger";
-import { buildAssessment, buildAssessmentContext } from "./assessment";
 import { MongoClient } from "mongodb";
 import { AlbumInteractor } from "../albums";
-import {
-  EventBus,
-  EventType,
-  executeWithTimer,
-  ProfileAlbumAddedEventPayload,
-} from "../../lib";
+import { EventBus, EventType, ProfileAlbumAddedEventPayload } from "../../lib";
 
 export const buildProfileInteractor = ({
   mongoClient,
@@ -211,105 +199,6 @@ export const buildProfileInteractor = ({
     },
     createProfile(id: string, title: string) {
       return profileRepo.createProfile(id, title);
-    },
-    async getAlbumAssessment({
-      profileId,
-      albumFileId,
-      settings,
-    }: {
-      profileId: string;
-      albumFileId: string;
-      settings: AssessmentSettings;
-    }) {
-      const profile = await interactor.getProfile(profileId);
-      if (!profile) {
-        logger.error({ profileId }, "Unknown profile");
-        throw new Error("Unknown profile");
-      }
-      const album = await albumInteractor.getAlbum(albumFileId);
-      if (!album) {
-        logger.error({ albumFileId }, "Unknown album");
-        throw new Error("Unknown album");
-      }
-      return buildAssessment(
-        await buildAssessmentContext({
-          albumInteractor,
-          profile,
-          settings,
-        }),
-        album
-      );
-    },
-    async getRecommendations({
-      profileId,
-      settings,
-    }: {
-      profileId: string;
-      settings: RecommendationSettings;
-    }): Promise<Recommendation[]> {
-      const profile = await interactor.getProfile(profileId);
-      if (!profile) {
-        throw new Error("Unknown profile");
-      }
-      const [assessmentContext, assessmentContextElapsedTime] =
-        await executeWithTimer(() =>
-          buildAssessmentContext({
-            albumInteractor,
-            profile,
-            settings: settings.assessmentSettings,
-          })
-        );
-      logger.info(
-        { elapsedTime: assessmentContextElapsedTime },
-        "Built assessment context"
-      );
-
-      const [albums, albumsElapsedTime] = await executeWithTimer(() =>
-        albumInteractor.findAlbums({
-          primaryGenres: [...settings.filter.primaryGenres],
-          excludeArtists: [...settings.filter.excludeArtists],
-          excludePrimaryGenres: [...settings.filter.excludePrimaryGenres],
-          excludeKeys: [
-            ...profile.albums.map((a) => a.item),
-            ...settings.filter.excludeAlbums,
-          ],
-        })
-      );
-      logger.info(
-        { albums: albums.length, elapsedTime: albumsElapsedTime },
-        "Got albums"
-      );
-
-      const [recommendations, recommendationElapsedTime] =
-        await executeWithTimer(async () =>
-          albums.map((album) => {
-            try {
-              return {
-                album: album as any,
-                assessment: buildAssessment(assessmentContext, album),
-              };
-            } catch {
-              return undefined;
-            }
-          })
-        );
-      logger.info(
-        {
-          recommendations: recommendations.length,
-          elapsedTime: recommendationElapsedTime,
-        },
-        "Built recommendation assessments"
-      );
-
-      const results = recommendations
-        .filter((a): a is Recommendation => a !== undefined)
-        .sort(
-          (a, b) => b.assessment.averageQuantile - a.assessment.averageQuantile
-        )
-        .slice(0, settings.count);
-      logger.info({ recommendations: results.length }, "Built recommendations");
-
-      return results;
     },
   };
 

@@ -9,8 +9,6 @@ export const buildProfileRouter = (context: Context) => {
     .post("/", controller.createProfile)
     .get("/:id", controller.getProfile)
     .post("/:id/album", controller.putAlbumOnProfile)
-    .get("/:id/album/:albumFileId/assessment", controller.getAlbumAssessment)
-    .get("/:id/recommendations", controller.getRecommendations)
     .post("/seed/default", controller.seedDefaultProfile)
     .post(
       "/seed/:id/playlists/:playlistId",

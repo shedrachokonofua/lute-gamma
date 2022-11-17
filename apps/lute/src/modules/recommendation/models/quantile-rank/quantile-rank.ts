@@ -1,12 +1,12 @@
 import * as ss from "simple-statistics";
-import { AlbumDocument } from "@lute/domain";
-import { Assessment } from "../../recommendation-schema";
-import { QuantileRankAssessmentContext } from "./quantile-rank-assessment-context";
 import {
-  quantileRankAssessableAlbumSchema,
+  AlbumDocument,
+  Assessment,
   QuantileRankAssessmentSettings,
   quantileRankAssessmentSettingsSchema,
-} from "./quantile-rank-schema";
+} from "@lute/domain";
+import { QuantileRankAssessmentContext } from "./quantile-rank-assessment-context";
+import { quantileRankAssessableAlbumSchema } from "./quantile-rank-schema";
 
 const repeat = (value: number, times: number) =>
   Array.from({ length: times }, () => value);

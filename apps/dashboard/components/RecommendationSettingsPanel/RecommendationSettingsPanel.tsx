@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { RecommendationSettings } from "@lute/domain";
+import { RecommendationParameters } from "@lute/domain";
 import {
   ActionIcon,
   Autocomplete,
@@ -20,9 +20,10 @@ import { IconCircleMinus } from "@tabler/icons";
 const getValueByPath = (obj: any, path: string) =>
   path.split(".").reduce((acc, key) => acc[key], obj);
 
-export type RecommendationSettingsForm = RecommendationSettings & {
-  profileId: string;
-};
+export type RecommendationSettingsForm = Omit<
+  RecommendationParameters,
+  "model"
+>;
 
 interface RecommendationSettingsPaneProps {
   defaultSettings: RecommendationSettingsForm;
@@ -139,20 +140,15 @@ export const RecommendationSettingsPanel = ({
                       max={1}
                       step={0.1}
                       precision={1}
-                      {...form.getInputProps(
-                        "assessmentSettings.noveltyFactor"
-                      )}
+                      {...form.getInputProps("settings.noveltyFactor")}
                     />
                   </div>
                   <div>
                     <Switch
                       label="Use Album Weight"
-                      {...form.getInputProps(
-                        "assessmentSettings.useAlbumWeight",
-                        {
-                          type: "checkbox",
-                        }
-                      )}
+                      {...form.getInputProps("settings.useAlbumWeight", {
+                        type: "checkbox",
+                      })}
                     />
                   </div>
                   <Title order={6}>Parameter Weights</Title>
@@ -166,91 +162,91 @@ export const RecommendationSettingsPanel = ({
                         max={100}
                         step={1}
                         {...form.getInputProps(
-                          "assessmentSettings.parameterWeights.primaryGenres"
+                          "settings.parameterWeights.primaryGenres"
                         )}
                       />
                     </Grid.Col>
                     <Grid.Col md={6}>
                       <NumberInput
                         label="Secondary Genres"
-                        name="assessmentSettings.parameterWeights.secondaryGenres"
+                        name="settings.parameterWeights.secondaryGenres"
                         placeholder="Secondary Genres"
                         variant="filled"
                         min={0}
                         max={100}
                         step={1}
                         {...form.getInputProps(
-                          "assessmentSettings.parameterWeights.secondaryGenres"
+                          "settings.parameterWeights.secondaryGenres"
                         )}
                       />
                     </Grid.Col>
                     <Grid.Col md={6}>
                       <NumberInput
                         label="Pr. Cross Genres"
-                        name="assessmentSettings.parameterWeights.primaryCrossGenres"
+                        name="settings.parameterWeights.primaryCrossGenres"
                         placeholder="P. Cross Genres"
                         variant="filled"
                         min={0}
                         max={100}
                         step={1}
                         {...form.getInputProps(
-                          "assessmentSettings.parameterWeights.primaryCrossGenres"
+                          "settings.parameterWeights.primaryCrossGenres"
                         )}
                       />
                     </Grid.Col>
                     <Grid.Col md={6}>
                       <NumberInput
                         label="2-ary Cross Genres"
-                        name="assessmentSettings.parameterWeights.secondaryCrossGenres"
+                        name="settings.parameterWeights.secondaryCrossGenres"
                         placeholder="S. Cross Genres"
                         variant="filled"
                         min={0}
                         max={100}
                         step={1}
                         {...form.getInputProps(
-                          "assessmentSettings.parameterWeights.secondaryCrossGenres"
+                          "settings.parameterWeights.secondaryCrossGenres"
                         )}
                       />
                     </Grid.Col>
                     <Grid.Col md={6}>
                       <NumberInput
                         label="Rating"
-                        name="assessmentSettings.parameterWeights.rating"
+                        name="settings.parameterWeights.rating"
                         placeholder="Rating"
                         variant="filled"
                         min={0}
                         max={100}
                         step={1}
                         {...form.getInputProps(
-                          "assessmentSettings.parameterWeights.rating"
+                          "settings.parameterWeights.rating"
                         )}
                       />
                     </Grid.Col>
                     <Grid.Col md={6}>
                       <NumberInput
                         label="Rating Count"
-                        name="assessmentSettings.parameterWeights.ratingCount"
+                        name="settings.parameterWeights.ratingCount"
                         placeholder="Rating"
                         variant="filled"
                         min={0}
                         max={100}
                         step={1}
                         {...form.getInputProps(
-                          "assessmentSettings.parameterWeights.ratingCount"
+                          "settings.parameterWeights.ratingCount"
                         )}
                       />
                     </Grid.Col>
                     <Grid.Col md={6}>
                       <NumberInput
                         label="Descriptors"
-                        name="assessmentSettings.parameterWeights.descriptors"
+                        name="settings.parameterWeights.descriptors"
                         placeholder="Descriptors"
                         variant="filled"
                         min={0}
                         max={100}
                         step={1}
                         {...form.getInputProps(
-                          "assessmentSettings.parameterWeights.descriptors"
+                          "settings.parameterWeights.descriptors"
                         )}
                       />
                     </Grid.Col>

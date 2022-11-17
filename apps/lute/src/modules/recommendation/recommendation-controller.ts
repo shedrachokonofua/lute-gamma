@@ -1,9 +1,6 @@
+import { isAssessmentModel, recommendationFilterSchema } from "@lute/domain";
 import { Context } from "../../context";
 import { buildControllerFactory } from "../../lib";
-import {
-  isAssessmentModel,
-  recommendationFilterSchema,
-} from "./recommendation-schema";
 
 export const buildRecommendationController = buildControllerFactory<Context>(
   (context) => {

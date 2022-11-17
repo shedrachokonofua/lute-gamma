@@ -1,8 +1,4 @@
 import { buildControllerFactory } from "../../lib";
-import {
-  recommendationSettingsSchema,
-  assessmentSettingsSchema,
-} from "@lute/domain";
 import { seedDefaultProfile, seedProfileWithPlaylist } from "./seeders";
 import { Context } from "../../context";
 
@@ -69,33 +65,6 @@ export const buildProfileController = buildControllerFactory<Context>(
           playlistId,
         });
         return res.json({ ok: true });
-      },
-      async getAlbumAssessment(req, res) {
-        const { id: profileId, albumFileId } = req.params;
-        const settings = assessmentSettingsSchema.parse(req.query);
-
-        if (!profileId || !albumFileId) {
-          return res.status(400).json({ ok: false, error: "Bad request" });
-        }
-
-        const assessment = await profileInteractor.getAlbumAssessment({
-          profileId,
-          albumFileId,
-          settings,
-        });
-        return res.json({ ok: true, data: assessment });
-      },
-      async getRecommendations(req, res) {
-        const { id: profileId } = req.params;
-        const settings = recommendationSettingsSchema.parse(req.query);
-        if (!profileId) {
-          return res.status(400).json({ ok: false, error: "Bad request" });
-        }
-        const recommendations = await profileInteractor.getRecommendations({
-          profileId,
-          settings,
-        });
-        return res.json({ ok: true, data: recommendations });
       },
     };
   }

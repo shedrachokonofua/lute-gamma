@@ -30,7 +30,7 @@ const Rating = ({ assessment }: { assessment: Assessment }) => (
           margin: "auto",
         }}
       >
-        {printPercentile(assessment.averageQuantile)}
+        {printPercentile(assessment.score)}
       </Text>
     </HoverCard.Target>
     <HoverCard.Dropdown>
@@ -38,32 +38,44 @@ const Rating = ({ assessment }: { assessment: Assessment }) => (
         Percentiles
       </Text>
       <Text size="xs">
-        Rating: {printPercentile(assessment.ratingQuantile)}
+        Rating: {printPercentile(assessment.metadata.ratingQuantile as number)}
       </Text>
       <Text size="xs">
-        Rating Count: {printPercentile(assessment.ratingCountQuantile)}
+        Rating Count:{" "}
+        {printPercentile(assessment.metadata.ratingCountQuantile as number)}
       </Text>
       <Text size="xs">
-        Descriptors: {printPercentile(assessment.averageDescriptorQuantile)}
+        Descriptors:{" "}
+        {printPercentile(
+          assessment.metadata.averageDescriptorQuantile as number
+        )}
       </Text>
       <Text size="xs">
         Primary Genres:{" "}
-        {printPercentile(assessment.averagePrimaryGenreQuantile)}
+        {printPercentile(
+          assessment.metadata.averagePrimaryGenreQuantile as number
+        )}
       </Text>
       <Text size="xs">
         Secondary Genres:{" "}
-        {assessment?.averageSecondaryGenreQuantile
-          ? printPercentile(assessment.averageSecondaryGenreQuantile)
+        {assessment.metadata?.averageSecondaryGenreQuantile
+          ? printPercentile(
+              assessment.metadata.averageSecondaryGenreQuantile as number
+            )
           : "N/A"}
       </Text>
       <Text size="xs">
         Primary Cross Genres:{" "}
-        {printPercentile(assessment.averagePrimaryCrossGenreQuantile)}
+        {printPercentile(
+          assessment.metadata.averagePrimaryCrossGenreQuantile as number
+        )}
       </Text>
       <Text size="xs">
         Secondary Cross Genres:{" "}
-        {assessment?.averageSecondaryCrossGenreQuantile
-          ? printPercentile(assessment.averageSecondaryCrossGenreQuantile)
+        {assessment.metadata?.averageSecondaryCrossGenreQuantile
+          ? printPercentile(
+              assessment.metadata.averageSecondaryCrossGenreQuantile as number
+            )
           : "N/A"}
       </Text>
     </HoverCard.Dropdown>
@@ -119,20 +131,20 @@ export const Recommendations = ({ recommendations }: RecommendationsProps) => (
           </Group>
           <div>
             <Text size="lg" weight="bold">
-              {recommendation.album.artists.map((a) => a.name).join(", ")}
+              {recommendation.album.artists?.map((a) => a.name).join(", ")}
             </Text>
           </div>
           <div>
-            <Text>{recommendation.album.primaryGenres.join(", ")}</Text>
+            <Text>{recommendation.album.primaryGenres?.join(", ")}</Text>
           </div>
           <div>
             <Text size="md">
-              {recommendation.album.secondaryGenres.join(", ")}
+              {recommendation.album.secondaryGenres?.join(", ")}
             </Text>
           </div>
           <div>
             <Text size="sm" color="gray">
-              {recommendation.album.descriptors.join(", ")}
+              {recommendation.album.descriptors?.join(", ")}
             </Text>
           </div>
         </Grid.Col>
