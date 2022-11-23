@@ -3,24 +3,36 @@ import {
   Assessment,
   RecommendationParameters,
   Recommendation,
+  AlbumDocument,
 } from "@lute/domain";
 import { executeWithTimer } from "../../lib";
 import { logger } from "../../logger";
 import { AlbumInteractor } from "../albums";
 import { ProfileInteractor } from "../profile";
 import {
+  buildJaccardAssessment,
   buildQuantileRankAssessment,
   buildQuantileRankAssessmentContext,
 } from "./models";
 import { AssessmentParameters } from "./recommendation-schema";
 
-const modelToContextBuilder = {
-  [AssessmentModel.QuantileRank]: buildQuantileRankAssessmentContext,
-} as const;
-
-const modelToBuilder = {
-  [AssessmentModel.QuantileRank]: buildQuantileRankAssessment,
-} as const;
+const assessAlbums = async (
+  albums: AlbumDocument[],
+  assess: (album: AlbumDocument) => Promise<Assessment>
+) =>
+  Promise.all(
+    albums.map(async (album) => {
+      try {
+        return {
+          album,
+          assessment: await assess(album),
+        };
+      } catch (error) {
+        logger.error({ albumId: album.fileName }, "Failed to assess album");
+        return undefined;
+      }
+    })
+  );
 
 export const buildRecommendationInteractor = ({
   albumInteractor,
@@ -48,15 +60,24 @@ export const buildRecommendationInteractor = ({
         throw new Error("Unknown album");
       }
 
-      return modelToBuilder[model]({
-        album,
-        settings,
-        assessmentContext: await modelToContextBuilder[model]({
-          albumInteractor,
-          profile,
-          settings,
-        }),
-      });
+      switch (model) {
+        case AssessmentModel.JaccardIndex:
+          return buildJaccardAssessment({
+            album,
+            profile,
+            settings,
+          });
+        case AssessmentModel.QuantileRank:
+          return buildQuantileRankAssessment({
+            album,
+            settings,
+            assessmentContext: await buildQuantileRankAssessmentContext({
+              albumInteractor,
+              profile,
+              settings,
+            }),
+          });
+      }
     },
     async recommendAlbums({
       profileId,
@@ -70,19 +91,6 @@ export const buildRecommendationInteractor = ({
         logger.error({ profileId }, "Unknown profile");
         throw new Error("Unknown profile");
       }
-
-      const [assessmentContext, assessmentContextElapsedTime] =
-        await executeWithTimer(() =>
-          modelToContextBuilder[model]({
-            albumInteractor,
-            profile,
-            settings,
-          })
-        );
-      logger.info(
-        { elapsedTime: assessmentContextElapsedTime },
-        "Built assessment context"
-      );
 
       const [albums, albumsElapsedTime] = await executeWithTimer(() =>
         albumInteractor.findAlbums({
@@ -101,22 +109,34 @@ export const buildRecommendationInteractor = ({
       );
 
       const [recommendations, recommendationElapsedTime] =
-        await executeWithTimer(async () =>
-          albums.map((album) => {
-            try {
-              return {
-                album: album as any,
-                assessment: modelToBuilder[model]({
+        await executeWithTimer(async () => {
+          switch (model) {
+            case AssessmentModel.JaccardIndex:
+              return assessAlbums(albums, async (album) =>
+                buildJaccardAssessment({
                   album,
-                  assessmentContext,
+                  profile,
                   settings,
-                }),
-              };
-            } catch {
-              return undefined;
-            }
-          })
-        );
+                })
+              );
+            case AssessmentModel.QuantileRank:
+              const assessmentContext =
+                await buildQuantileRankAssessmentContext({
+                  albumInteractor,
+                  profile,
+                  settings,
+                });
+              return assessAlbums(
+                albums,
+                async (album) =>
+                  await buildQuantileRankAssessment({
+                    album,
+                    settings,
+                    assessmentContext,
+                  })
+              );
+          }
+        });
       logger.info(
         {
           recommendations: recommendations.length,

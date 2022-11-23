@@ -3,6 +3,7 @@ import { AlbumDocument } from "./rym";
 
 export enum AssessmentModel {
   QuantileRank = "quantile-rank",
+  JaccardIndex = "jaccard-index",
 }
 
 export const isAssessmentModel = (value: unknown): value is AssessmentModel =>
@@ -56,12 +57,50 @@ export type QuantileRankAssessmentSettings = z.infer<
   typeof quantileRankAssessmentSettingsSchema
 >;
 
+export const jaccardAssessmentSettingsSchema = z
+  .object({
+    parameterWeights: z
+      .object({
+        primaryGenres: weightSchema.default(3),
+        secondaryGenres: weightSchema.default(2),
+        primaryCrossGenres: weightSchema.default(1),
+        secondaryCrossGenres: weightSchema.default(1),
+        descriptors: weightSchema.default(5),
+      })
+      .default({}),
+  })
+  .default({});
+
+export type JaccardAssessmentSettings = z.infer<
+  typeof jaccardAssessmentSettingsSchema
+>;
+
 export type RecommendationFilter = z.infer<typeof recommendationFilterSchema>;
 
-export interface RecommendationParameters {
+export type RecommendationParameters = {
   profileId: string;
-  model: AssessmentModel.QuantileRank;
-  settings: QuantileRankAssessmentSettings;
   filter: RecommendationFilter;
   count?: number;
+} & (
+  | {
+      settings: QuantileRankAssessmentSettings;
+      model: AssessmentModel.QuantileRank;
+    }
+  | {
+      settings: JaccardAssessmentSettings;
+      model: AssessmentModel.JaccardIndex;
+    }
+);
+
+export interface _AsessementParameters<T extends {}> {
+  albumId: string;
+  profileId: string;
+  model: AssessmentModel;
+  settings: T;
 }
+
+export type _QuantileRankAssessmentParameters =
+  _AsessementParameters<QuantileRankAssessmentSettings>;
+
+export type _JaccardAssessmentParameters =
+  _AsessementParameters<JaccardAssessmentSettings>;

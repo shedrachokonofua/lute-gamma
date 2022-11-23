@@ -7,12 +7,7 @@ import {
 } from "@lute/domain";
 import { QuantileRankAssessmentContext } from "./quantile-rank-assessment-context";
 import { quantileRankAssessableAlbumSchema } from "./quantile-rank-schema";
-
-const repeat = (value: number, times: number) =>
-  Array.from({ length: times }, () => value);
-
-const flatCompact = <T>(arr: (T[] | undefined)[]) =>
-  arr.reduce<T[]>((acc, val) => acc.concat(val || []), [] as T[]);
+import { flatCompact, repeat } from "../helpers";
 
 export const buildQuantileRankAssessment = ({
   album: inputAlbum,
