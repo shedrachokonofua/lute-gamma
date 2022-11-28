@@ -1,10 +1,6 @@
 version: '3'
 
-volumes:
-  prometheus_data: {}
-
 services:
-  
   node-exporter:
     image: prom/node-exporter:latest
     restart: unless-stopped
@@ -25,7 +21,7 @@ services:
     restart: unless-stopped
     build: ./prometheus
     volumes:
-      - prometheus_data:/prometheus
+      - /prometheus/.data:/prometheus
     environment:
       - ENV
       - PROM_NODE_EXPORTER_TARGET
