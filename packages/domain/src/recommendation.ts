@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { ArtistDocument } from "./artists";
 import { AlbumDocument } from "./rym";
 
 export enum AssessmentModel {
@@ -9,18 +10,29 @@ export enum AssessmentModel {
 export const isAssessmentModel = (value: unknown): value is AssessmentModel =>
   Object.values(AssessmentModel).includes(value as AssessmentModel);
 
-export interface Assessment {
+export type AlbumAssessment = {
   albumId: string;
   score: number;
   metadata: Record<string, unknown>;
-}
+};
 
-export interface Recommendation {
+export type AlbumRecommendation = {
   album: AlbumDocument;
-  assessment: Assessment;
-}
+  assessment: AlbumAssessment;
+};
 
-export const recommendationFilterSchema = z
+export type ArtistAssessment = {
+  artistId: string;
+  score: number;
+  metadata: Record<string, unknown>;
+};
+
+export type ArtistRecommendation = {
+  artist: ArtistDocument;
+  assessment: ArtistAssessment;
+};
+
+export const albumRecommendationFilterSchema = z
   .object({
     excludeAlbums: z.array(z.string()).default([]),
     excludeArtists: z.array(z.string()).default([]),
@@ -75,11 +87,13 @@ export type JaccardAssessmentSettings = z.infer<
   typeof jaccardAssessmentSettingsSchema
 >;
 
-export type RecommendationFilter = z.infer<typeof recommendationFilterSchema>;
+export type AlbumRecommendationFilter = z.infer<
+  typeof albumRecommendationFilterSchema
+>;
 
 export type RecommendationParameters = {
   profileId: string;
-  filter: RecommendationFilter;
+  filter: AlbumRecommendationFilter;
   count?: number;
 } & (
   | {

@@ -1,4 +1,7 @@
-import { isAssessmentModel, recommendationFilterSchema } from "@lute/domain";
+import {
+  isAssessmentModel,
+  albumRecommendationFilterSchema,
+} from "@lute/domain";
 import { Context } from "../../context";
 import { buildControllerFactory } from "../../lib";
 
@@ -36,7 +39,7 @@ export const buildRecommendationController = buildControllerFactory<Context>(
           return res.status(400).json({ ok: false, error: "Bad request" });
         }
 
-        const filter = recommendationFilterSchema.parse(inputFilters);
+        const filter = albumRecommendationFilterSchema.parse(inputFilters);
         const recommendations = await recommendationInteractor.recommendAlbums({
           filter,
           model,

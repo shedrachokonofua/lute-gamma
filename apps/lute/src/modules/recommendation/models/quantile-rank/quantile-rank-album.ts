@@ -1,7 +1,7 @@
 import * as ss from "simple-statistics";
 import {
   AlbumDocument,
-  Assessment,
+  AlbumAssessment,
   QuantileRankAssessmentSettings,
   quantileRankAssessmentSettingsSchema,
 } from "@lute/domain";
@@ -17,7 +17,7 @@ export const buildQuantileRankAssessment = ({
   album: AlbumDocument;
   settings: QuantileRankAssessmentSettings;
   assessmentContext: QuantileRankAssessmentContext;
-}): Assessment => {
+}): AlbumAssessment => {
   const album = quantileRankAssessableAlbumSchema.parse(inputAlbum);
   const settings = quantileRankAssessmentSettingsSchema.parse(inputSettings);
 

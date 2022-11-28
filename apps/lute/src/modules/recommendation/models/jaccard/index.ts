@@ -1,1 +1,1 @@
-export * from "./jaccard";
+export * from "./jaccard-interactor";

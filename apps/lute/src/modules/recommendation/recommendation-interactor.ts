@@ -1,38 +1,15 @@
 import {
   AssessmentModel,
-  Assessment,
   RecommendationParameters,
-  Recommendation,
-  AlbumDocument,
+  AlbumAssessment,
+  AlbumRecommendation,
 } from "@lute/domain";
 import { executeWithTimer } from "../../lib";
 import { logger } from "../../logger";
 import { AlbumInteractor } from "../albums";
 import { ProfileInteractor } from "../profile";
-import {
-  buildJaccardAssessment,
-  buildQuantileRankAssessment,
-  buildQuantileRankAssessmentContext,
-} from "./models";
+import { buildQuantileRankInteractor, jaccardInteractor } from "./models";
 import { AssessmentParameters } from "./recommendation-schema";
-
-const assessAlbums = async (
-  albums: AlbumDocument[],
-  assess: (album: AlbumDocument) => Promise<Assessment>
-) =>
-  Promise.all(
-    albums.map(async (album) => {
-      try {
-        return {
-          album,
-          assessment: await assess(album),
-        };
-      } catch (error) {
-        logger.error({ albumId: album.fileName }, "Failed to assess album");
-        return undefined;
-      }
-    })
-  );
 
 export const buildRecommendationInteractor = ({
   albumInteractor,
@@ -41,13 +18,15 @@ export const buildRecommendationInteractor = ({
   albumInteractor: AlbumInteractor;
   profileInteractor: ProfileInteractor;
 }) => {
-  const interactor = {
+  const quantileRankInteractor = buildQuantileRankInteractor(albumInteractor);
+
+  return {
     async assessAlbum({
       albumId,
       profileId,
       model,
       settings,
-    }: AssessmentParameters): Promise<Assessment> {
+    }: AssessmentParameters): Promise<AlbumAssessment> {
       const profile = await profileInteractor.getProfile(profileId);
       if (!profile) {
         logger.error({ profileId }, "Unknown profile");
@@ -62,20 +41,16 @@ export const buildRecommendationInteractor = ({
 
       switch (model) {
         case AssessmentModel.JaccardIndex:
-          return buildJaccardAssessment({
+          return jaccardInteractor.assessAlbum({
             album,
             profile,
             settings,
           });
         case AssessmentModel.QuantileRank:
-          return buildQuantileRankAssessment({
+          return quantileRankInteractor.assessAlbum({
             album,
+            profile,
             settings,
-            assessmentContext: await buildQuantileRankAssessmentContext({
-              albumInteractor,
-              profile,
-              settings,
-            }),
           });
       }
     },
@@ -85,7 +60,7 @@ export const buildRecommendationInteractor = ({
       settings,
       filter,
       count = 50,
-    }: RecommendationParameters): Promise<Recommendation[]> {
+    }: RecommendationParameters): Promise<AlbumRecommendation[]> {
       const profile = await profileInteractor.getProfile(profileId);
       if (!profile) {
         logger.error({ profileId }, "Unknown profile");
@@ -108,52 +83,22 @@ export const buildRecommendationInteractor = ({
         "Got albums"
       );
 
-      const [recommendations, recommendationElapsedTime] =
-        await executeWithTimer(async () => {
-          switch (model) {
-            case AssessmentModel.JaccardIndex:
-              return assessAlbums(albums, async (album) =>
-                buildJaccardAssessment({
-                  album,
-                  profile,
-                  settings,
-                })
-              );
-            case AssessmentModel.QuantileRank:
-              const assessmentContext =
-                await buildQuantileRankAssessmentContext({
-                  albumInteractor,
-                  profile,
-                  settings,
-                });
-              return assessAlbums(
-                albums,
-                async (album) =>
-                  await buildQuantileRankAssessment({
-                    album,
-                    settings,
-                    assessmentContext,
-                  })
-              );
-          }
-        });
-      logger.info(
-        {
-          recommendations: recommendations.length,
-          elapsedTime: recommendationElapsedTime,
-        },
-        "Built recommendation assessments"
-      );
-
-      const results = recommendations
-        .filter((a): a is Recommendation => a !== undefined)
-        .sort((a, b) => b.assessment.score - a.assessment.score)
-        .slice(0, count);
-      logger.info({ recommendations: results.length }, "Built recommendations");
-
-      return results;
+      switch (model) {
+        case AssessmentModel.JaccardIndex:
+          return jaccardInteractor.recommendAlbums({
+            profile,
+            albums,
+            settings,
+            count,
+          });
+        case AssessmentModel.QuantileRank:
+          return quantileRankInteractor.recommendAlbums({
+            profile,
+            albums,
+            settings,
+            count,
+          });
+      }
     },
   };
-
-  return interactor;
 };
