@@ -43,9 +43,27 @@ export const albumRecommendationFilterSchema = z
   })
   .default({});
 
+export type AlbumRecommendationFilter = z.infer<
+  typeof albumRecommendationFilterSchema
+>;
+
+export const artistRecommendationFilterSchema = z
+  .object({
+    excludeArtists: z.array(z.string()).default([]),
+    primaryGenres: z.array(z.string()).default([]),
+    excludePrimaryGenres: z.array(z.string()).default([]),
+    secondaryGenres: z.array(z.string()).default([]),
+    excludeSecondaryGenres: z.array(z.string()).default([]),
+  })
+  .default({});
+
+export type ArtistRecommendationFilter = z.infer<
+  typeof artistRecommendationFilterSchema
+>;
+
 const weightSchema = z.preprocess(Number, z.number().min(0).max(100));
 
-export const quantileRankAssessmentSettingsSchema = z
+export const quantileRankAlbumAssessmentSettingsSchema = z
   .object({
     noveltyFactor: z.preprocess(Number, z.number().min(0).max(1)).default(0.5),
     useAlbumWeight: z
@@ -65,8 +83,30 @@ export const quantileRankAssessmentSettingsSchema = z
   })
   .default({});
 
-export type QuantileRankAssessmentSettings = z.infer<
-  typeof quantileRankAssessmentSettingsSchema
+export type QuantileRankAlbumAssessmentSettings = z.infer<
+  typeof quantileRankAlbumAssessmentSettingsSchema
+>;
+
+export const quantileRankArtistAssessmentSettingsSchema = z
+  .object({
+    noveltyFactor: z.preprocess(Number, z.number().min(0).max(1)).default(0.5),
+    useArtistWeight: z
+      .preprocess((val) => val === "true", z.boolean())
+      .default(true),
+    parameterWeights: z
+      .object({
+        primaryGenres: weightSchema.default(30),
+        secondaryGenres: weightSchema.default(15),
+        primaryCrossGenres: weightSchema.default(20),
+        secondaryCrossGenres: weightSchema.default(10),
+        descriptors: weightSchema.default(100),
+      })
+      .default({}),
+  })
+  .default({});
+
+export type QuantileRankArtistAssessmentSettings = z.infer<
+  typeof quantileRankArtistAssessmentSettingsSchema
 >;
 
 export const jaccardAssessmentSettingsSchema = z
@@ -87,17 +127,45 @@ export type JaccardAssessmentSettings = z.infer<
   typeof jaccardAssessmentSettingsSchema
 >;
 
-export type AlbumRecommendationFilter = z.infer<
-  typeof albumRecommendationFilterSchema
->;
+export type AlbumAssessmentParameters = {
+  albumId: string;
+  profileId: string;
+} & (
+  | {
+      model: AssessmentModel.QuantileRank;
+      settings: QuantileRankAlbumAssessmentSettings;
+    }
+  | {
+      model: AssessmentModel.JaccardIndex;
+      settings: JaccardAssessmentSettings;
+    }
+);
 
-export type RecommendationParameters = {
+export type ArtistAssessmentParameters = {
+  artistId: string;
+  profileId: string;
+} & (
+  | {
+      model: AssessmentModel.QuantileRank;
+      settings: QuantileRankArtistAssessmentSettings;
+    }
+  | {
+      model: AssessmentModel.JaccardIndex;
+      settings: JaccardAssessmentSettings;
+    }
+);
+
+export const recommendationCountSchema = z
+  .preprocess(Number, z.number().min(1).max(100))
+  .default(20);
+
+export type AlbumRecommendationParameters = {
   profileId: string;
   filter: AlbumRecommendationFilter;
   count?: number;
 } & (
   | {
-      settings: QuantileRankAssessmentSettings;
+      settings: QuantileRankAlbumAssessmentSettings;
       model: AssessmentModel.QuantileRank;
     }
   | {
@@ -106,15 +174,17 @@ export type RecommendationParameters = {
     }
 );
 
-export interface _AsessementParameters<T extends {}> {
-  albumId: string;
+export type ArtistRecommendationParameters = {
   profileId: string;
-  model: AssessmentModel;
-  settings: T;
-}
-
-export type _QuantileRankAssessmentParameters =
-  _AsessementParameters<QuantileRankAssessmentSettings>;
-
-export type _JaccardAssessmentParameters =
-  _AsessementParameters<JaccardAssessmentSettings>;
+  filter: ArtistRecommendationFilter;
+  count?: number;
+} & (
+  | {
+      settings: QuantileRankArtistAssessmentSettings;
+      model: AssessmentModel.QuantileRank;
+    }
+  | {
+      settings: JaccardAssessmentSettings;
+      model: AssessmentModel.JaccardIndex;
+    }
+);

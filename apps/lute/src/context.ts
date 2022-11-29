@@ -51,6 +51,7 @@ export const buildContext = async () => {
   });
   const recommendationInteractor = buildRecommendationInteractor({
     albumInteractor,
+    artistInteractor,
     profileInteractor,
   });
   const spotifyInteractor = buildSpotifyInteractor(redisClient);

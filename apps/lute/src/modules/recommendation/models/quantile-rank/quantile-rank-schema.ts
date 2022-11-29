@@ -24,6 +24,21 @@ export type QuantileRankAssessableAlbum = z.infer<
   typeof quantileRankAssessableAlbumSchema
 >;
 
+export const quantileRankAssessableArtistSchema = z
+  .object({
+    name: z.string(),
+    fileName: z.string(),
+    albumFileNames: z.array(z.string()).min(3),
+    primaryGenres: z.array(z.string()).nonempty(),
+    secondaryGenres: z.array(z.string()),
+    descriptors: z.array(z.string()).min(8),
+  })
+  .passthrough();
+
+export type QuantileRankAssessableArtist = z.infer<
+  typeof quantileRankAssessableArtistSchema
+>;
+
 const itemAndCountSchema = z.object({
   item: z.string(),
   count: z.number(),

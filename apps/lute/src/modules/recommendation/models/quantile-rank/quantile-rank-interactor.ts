@@ -3,27 +3,31 @@ import {
   AlbumRecommendation,
   ArtistAssessment,
   ArtistRecommendation,
-  QuantileRankAssessmentSettings,
+  QuantileRankAlbumAssessmentSettings,
+  QuantileRankArtistAssessmentSettings,
 } from "@lute/domain";
 import { AlbumInteractor } from "../../../albums";
-import { getAlbumRecommendations } from "../helpers";
+import { getAlbumRecommendations, getArtistRecommendations } from "../helpers";
 import { RecommendationModelInteractor } from "../recommendation-model-interactor";
-import { buildQuantileRankAssessment } from "./quantile-rank-album";
-import { buildQuantileRankAssessmentContext } from "./quantile-rank-assessment-context";
+import {
+  buildQuantileRankAlbumAssessment,
+  buildQuantileRankAlbumAssessmentContext,
+} from "./quantile-rank-album";
+import { buildQuantileRankArtistAssessment } from "./quantile-rank-artist";
 
 export const buildQuantileRankInteractor = (
   albumInteractor: AlbumInteractor
 ): RecommendationModelInteractor<
-  QuantileRankAssessmentSettings,
-  QuantileRankAssessmentSettings
+  QuantileRankAlbumAssessmentSettings,
+  QuantileRankArtistAssessmentSettings
 > => ({
   async assessAlbum({ album, profile, settings }): Promise<AlbumAssessment> {
-    const assessmentContext = await buildQuantileRankAssessmentContext({
+    const assessmentContext = await buildQuantileRankAlbumAssessmentContext({
       albumInteractor,
       profile,
       settings,
     });
-    return buildQuantileRankAssessment({
+    return buildQuantileRankAlbumAssessment({
       album,
       assessmentContext,
       settings,
@@ -35,7 +39,7 @@ export const buildQuantileRankInteractor = (
     settings,
     count,
   }): Promise<AlbumRecommendation[]> {
-    const assessmentContext = await buildQuantileRankAssessmentContext({
+    const assessmentContext = await buildQuantileRankAlbumAssessmentContext({
       albumInteractor,
       profile,
       settings,
@@ -44,17 +48,35 @@ export const buildQuantileRankInteractor = (
       albums,
       count,
       getAssessment: (album) =>
-        buildQuantileRankAssessment({
+        buildQuantileRankAlbumAssessment({
           album,
           assessmentContext,
           settings,
         }),
     });
   },
-  assessArtist({ artist, profile, settings }): Promise<ArtistAssessment> {
-    throw new Error("Function not implemented.");
+  async assessArtist({ artist, profile, settings }): Promise<ArtistAssessment> {
+    return buildQuantileRankArtistAssessment({
+      artist,
+      profile,
+      settings,
+    });
   },
-  recommendArtists({ profile, settings }): Promise<ArtistRecommendation[]> {
-    throw new Error("Function not implemented.");
+  recommendArtists({
+    artists,
+    profile,
+    settings,
+    count,
+  }): Promise<ArtistRecommendation[]> {
+    return getArtistRecommendations({
+      artists,
+      count,
+      getAssessment: (artist) =>
+        buildQuantileRankArtistAssessment({
+          artist,
+          profile,
+          settings,
+        }),
+    });
   },
 });

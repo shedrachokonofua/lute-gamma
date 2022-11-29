@@ -7,5 +7,7 @@ export const buildRecommendationRouter = (context: Context) => {
 
   return Router()
     .get("/assessment/album", controller.getAlbumAssessment)
-    .get("/albums", controller.getAlbumRecommendations);
+    .get("/assessment/artist", controller.getArtistAssessment)
+    .get("/albums", controller.getAlbumRecommendations)
+    .get("/artists", controller.getArtistRecommendations);
 };

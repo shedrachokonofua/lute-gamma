@@ -2,24 +2,65 @@ import * as ss from "simple-statistics";
 import {
   AlbumDocument,
   AlbumAssessment,
-  QuantileRankAssessmentSettings,
-  quantileRankAssessmentSettingsSchema,
+  QuantileRankAlbumAssessmentSettings,
+  quantileRankAlbumAssessmentSettingsSchema,
+  Profile,
 } from "@lute/domain";
-import { QuantileRankAssessmentContext } from "./quantile-rank-assessment-context";
-import { quantileRankAssessableAlbumSchema } from "./quantile-rank-schema";
+import {
+  QuantileRankAssessableAlbum,
+  quantileRankAssessableAlbumSchema,
+  QuantileRankAssessableProfileDetails,
+  quantileRankAssessableProfileSchema,
+} from "./quantile-rank-schema";
 import { flatCompact, repeat } from "../helpers";
+import { AlbumInteractor } from "../../../albums";
 
-export const buildQuantileRankAssessment = ({
+export interface QuantileRankAssessmentContext {
+  profileDetails: QuantileRankAssessableProfileDetails;
+  profileAlbums: QuantileRankAssessableAlbum[];
+}
+
+export const buildQuantileRankAlbumAssessmentContext = async ({
+  albumInteractor,
+  profile: inputProfile,
+  settings,
+}: {
+  albumInteractor: AlbumInteractor;
+  profile: Profile;
+  settings: QuantileRankAlbumAssessmentSettings;
+}): Promise<QuantileRankAssessmentContext> => {
+  const profile = quantileRankAssessableProfileSchema.parse(inputProfile);
+
+  const rawProfileAlbums = await albumInteractor.findAlbums({
+    keys: profile.albums.map((album) => album.item),
+  });
+
+  const profileAlbums = rawProfileAlbums.filter(
+    (album) => quantileRankAssessableAlbumSchema.safeParse(album).success
+  ) as unknown as QuantileRankAssessableAlbum[];
+
+  const profileDetails = settings.useAlbumWeight
+    ? profile.weightedProfileDetails
+    : profile.details;
+
+  return {
+    profileDetails,
+    profileAlbums,
+  };
+};
+
+export const buildQuantileRankAlbumAssessment = ({
   album: inputAlbum,
   settings: inputSettings,
   assessmentContext: { profileDetails, profileAlbums },
 }: {
   album: AlbumDocument;
-  settings: QuantileRankAssessmentSettings;
+  settings: QuantileRankAlbumAssessmentSettings;
   assessmentContext: QuantileRankAssessmentContext;
 }): AlbumAssessment => {
   const album = quantileRankAssessableAlbumSchema.parse(inputAlbum);
-  const settings = quantileRankAssessmentSettingsSchema.parse(inputSettings);
+  const settings =
+    quantileRankAlbumAssessmentSettingsSchema.parse(inputSettings);
 
   const ratingQuantile = ss.quantileRank(
     profileAlbums.map((a) => a.rating),

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { Filter } from "mongodb";
-import { AlbumDocument } from "@lute/domain";
+import { AlbumDocument, inNonEmptyArray } from "@lute/domain";
 
 export const albumQuerySchema = z.object({
   keys: z.array(z.string()).optional(),
@@ -16,9 +16,6 @@ export const albumQuerySchema = z.object({
 });
 
 export type AlbumQuery = z.infer<typeof albumQuerySchema>;
-
-const inNonEmptyArray = <T>(arr: T[] | undefined): arr is T[] =>
-  arr !== undefined && arr.length > 0;
 
 export const buildDbAlbumQuery = (
   albumQuery: AlbumQuery
