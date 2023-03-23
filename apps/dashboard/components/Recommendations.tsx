@@ -1,4 +1,4 @@
-import { Assessment, Recommendation } from "@lute/domain";
+import { AlbumAssessment, AlbumRecommendation } from "@lute/domain";
 import {
   ActionIcon,
   Badge,
@@ -12,13 +12,13 @@ import { IconDotsVertical, IconPlus, IconSearch, IconX } from "@tabler/icons";
 import React from "react";
 
 interface RecommendationsProps {
-  recommendations: Recommendation[];
+  recommendations: AlbumRecommendation[];
 }
 
 const printPercentile = (quantile: number): string =>
   `${(quantile * 100).toFixed(1)}%`;
 
-const Rating = ({ assessment }: { assessment: Assessment }) => (
+const Rating = ({ assessment }: { assessment: AlbumAssessment }) => (
   <HoverCard width={220} position="right-start" closeDelay={0}>
     <HoverCard.Target>
       <Text

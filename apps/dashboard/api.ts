@@ -2,8 +2,8 @@ import axios from "axios";
 import * as qs from "qs";
 import {
   AssessmentModel,
-  Recommendation,
-  RecommendationParameters,
+  AlbumRecommendation,
+  AlbumRecommendationParameters,
 } from "@lute/domain";
 import { config } from "./config";
 
@@ -15,8 +15,8 @@ const http = axios.create({ baseURL: host });
 
 export const api = {
   async getRecommendations(
-    params: Omit<RecommendationParameters, "model">
-  ): Promise<Recommendation[]> {
+    params: Omit<AlbumRecommendationParameters, "model">
+  ): Promise<AlbumRecommendation[]> {
     const response = await http.get(
       `/recommendation/albums?${qs.stringify({
         model: AssessmentModel.QuantileRank,

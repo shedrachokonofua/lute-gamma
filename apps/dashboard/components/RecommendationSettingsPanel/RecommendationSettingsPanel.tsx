@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { RecommendationParameters } from "@lute/domain";
+import { AlbumRecommendationParameters } from "@lute/domain";
 import {
   ActionIcon,
   Autocomplete,
@@ -21,7 +21,7 @@ const getValueByPath = (obj: any, path: string) =>
   path.split(".").reduce((acc, key) => acc[key], obj);
 
 export type RecommendationSettingsForm = Omit<
-  RecommendationParameters,
+  AlbumRecommendationParameters,
   "model"
 >;
 
