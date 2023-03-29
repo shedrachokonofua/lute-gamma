@@ -20,8 +20,6 @@ services:
     image: prom/prometheus:latest
     restart: unless-stopped
     build: ./prometheus
-    volumes:
-      - /prometheus/.data:/prometheus
     environment:
       - ENV
       - PROM_NODE_EXPORTER_TARGET
