@@ -63,8 +63,20 @@ services:
     volumes:
       - ./packages:/app/packages
       - ./apps/lute:/app/apps/lute
-    env_file:
-      - .env
+    environment:
+      - ENV
+      - SPOTIFY_CLIENT_ID
+      - SPOTIFY_CLIENT_SECRET
+      - PROXY_HOST
+      - PROXY_PORT
+      - PROXY_USERNAME
+      - PROXY_PASSWORD
+      - SPACES_KEY
+      - SPACES_SECRET
+      - SPACES_BUCKET
+      - LOKI_HOST
+      - LOKI_USERNAME
+      - LOKI_PASSWORD
 
   dashboard:
     build:
@@ -76,7 +88,5 @@ services:
     ports:
       - ${DASHBOARD_PORT}:80
     restart: always
-    env_file:
-      - .env
     environment:
       - PORT=80
