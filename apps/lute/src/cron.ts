@@ -1,11 +1,10 @@
 import Graceful from "@ladjs/graceful";
 import Bree from "bree";
-import breeTsWorker from "@breejs/ts-worker";
 import * as path from "node:path";
 import { logger } from "./logger";
 import { config } from "./config";
 
-Bree.extend(breeTsWorker);
+Bree.extend(require("@breejs/ts-worker"));
 
 const bree = new Bree({
   logger,

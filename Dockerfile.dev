@@ -1,11 +1,14 @@
 FROM node:lts-buster-slim AS base
 ARG workspace
 ENV WORKSPACE=${workspace}
-RUN npm install -g pnpm turbo
+ENV PNPM_HOME="/root/.local/share/pnpm"
+ENV PATH="${PATH}:${PNPM_HOME}"
+RUN npm install -g pnpm
 
 FROM base as builder
 WORKDIR /app
 COPY . .
+RUN pnpm install -g turbo
 RUN npx turbo prune --scope=${WORKSPACE} --docker
 
 FROM base AS installer
