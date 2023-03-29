@@ -1,707 +1,580 @@
 {
-	"info": {
-		"_postman_id": "578d51c3-a4b1-4336-90e2-d76dd45b78d5",
-		"name": "Lute V3",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-	},
-	"item": [
-		{
-			"name": "crawler",
-			"item": [
-				{
-					"name": "Monitor",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{host}}:4000/crawler/monitor",
-							"host": [
-								"{{host}}"
-							],
-							"port": "4000",
-							"path": [
-								"crawler",
-								"monitor"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Set Status",
-					"request": {
-						"method": "PUT",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"status\": \"running\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{host}}:4000/crawler/status",
-							"host": [
-								"{{host}}"
-							],
-							"port": "4000",
-							"path": [
-								"crawler",
-								"status"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Schedule",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"fileName\": \"charts/top/album/all-time/g:afrobeats/3\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{host}}:4000/crawler/schedule",
-							"host": [
-								"{{host}}"
-							],
-							"port": "4000",
-							"path": [
-								"crawler",
-								"schedule"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Empty Queue",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"url": {
-							"raw": "{{host}}:4000/crawler/empty",
-							"host": [
-								"{{host}}"
-							],
-							"port": "4000",
-							"path": [
-								"crawler",
-								"empty"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Reset Quota",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"url": {
-							"raw": "{{host}}:4000/crawler/reset-quota",
-							"host": [
-								"{{host}}"
-							],
-							"port": "4000",
-							"path": [
-								"crawler",
-								"reset-quota"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Remove Error",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{host}}:4000/crawler/error",
-							"host": [
-								"{{host}}"
-							],
-							"port": "4000",
-							"path": [
-								"crawler",
-								"error"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "files",
-			"item": []
-		},
-		{
-			"name": "profiles",
-			"item": [
-				{
-					"name": "Create Profile",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"id\": \"adam-blend\",\n    \"title\": \"adam-blend\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{host}}:4000/profile",
-							"host": [
-								"{{host}}"
-							],
-							"port": "4000",
-							"path": [
-								"profile"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get Profile",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{host}}:4000/profile/:id",
-							"host": [
-								"{{host}}"
-							],
-							"port": "4000",
-							"path": [
-								"profile",
-								":id"
-							],
-							"variable": [
-								{
-									"key": "id",
-									"value": "default"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Add album to profile",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"fileName\": \"release/album/2pac/all-eyez-on-me\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{host}}:4000/:id/album",
-							"host": [
-								"{{host}}"
-							],
-							"port": "4000",
-							"path": [
-								":id",
-								"album"
-							],
-							"variable": [
-								{
-									"key": "id",
-									"value": "6332569694c9aaccfea0b2cd"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Seed Profile with Playlist",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"keys\": [\"release/album/moodring/stargazer\"]\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{host}}:4000/profile/seed/:id/playlists/:playlistId",
-							"host": [
-								"{{host}}"
-							],
-							"port": "4000",
-							"path": [
-								"profile",
-								"seed",
-								":id",
-								"playlists",
-								":playlistId"
-							],
-							"variable": [
-								{
-									"key": "id",
-									"value": "adam-blend"
-								},
-								{
-									"key": "playlistId",
-									"value": "37i9dQZF1EJLiNFcmLN76A"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Seed Default Profile",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"url": {
-							"raw": "{{host}}:4000/seed/default",
-							"host": [
-								"{{host}}"
-							],
-							"port": "4000",
-							"path": [
-								"seed",
-								"default"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "albums",
-			"item": [
-				{
-					"name": "Get Album",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{host}}:4000/albums/:albumId",
-							"host": [
-								"{{host}}"
-							],
-							"port": "4000",
-							"path": [
-								"albums",
-								":albumId"
-							],
-							"variable": [
-								{
-									"key": "albumId",
-									"value": "release/album/bjork/homogenic"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Query Albums",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{host}}:4000/albums/query",
-							"host": [
-								"{{host}}"
-							],
-							"port": "4000",
-							"path": [
-								"albums",
-								"query"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "lookup",
-			"item": [
-				{
-					"name": "Lookup",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{host}}:4000/lookup?artist=MIKE&album=black soap",
-							"host": [
-								"{{host}}"
-							],
-							"port": "4000",
-							"path": [
-								"lookup"
-							],
-							"query": [
-								{
-									"key": "artist",
-									"value": "MIKE"
-								},
-								{
-									"key": "album",
-									"value": "black soap"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Lookup by hash",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{host}}:4000/lookup/:hash",
-							"host": [
-								"{{host}}"
-							],
-							"port": "4000",
-							"path": [
-								"lookup",
-								":hash"
-							],
-							"variable": [
-								{
-									"key": "hash",
-									"value": "0024385d27405715a851e8401e3af21337dcfdf3"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Delete Lookup",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{host}}:4000/:hash",
-							"host": [
-								"{{host}}"
-							],
-							"port": "4000",
-							"path": [
-								":hash"
-							],
-							"variable": [
-								{
-									"key": "hash",
-									"value": "81863eea3445fd42d38dfa310c0faef24485315b"
-								}
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "catalog",
-			"item": [
-				{
-					"name": "Get Tracks",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{host}}:4000/spotify/library/tracks",
-							"host": [
-								"{{host}}"
-							],
-							"port": "4000",
-							"path": [
-								"spotify",
-								"library",
-								"tracks"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Auth Status",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{host}}:4000/spotify/auth/status",
-							"host": [
-								"{{host}}"
-							],
-							"port": "4000",
-							"path": [
-								"spotify",
-								"auth",
-								"status"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get Playlist Tracks",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{host}}:4000/spotify/library/playlists/:playlistId/tracks",
-							"host": [
-								"{{host}}"
-							],
-							"port": "4000",
-							"path": [
-								"spotify",
-								"library",
-								"playlists",
-								":playlistId",
-								"tracks"
-							],
-							"variable": [
-								{
-									"key": "playlistId",
-									"value": ""
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get Saved Tracks",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{host}}:4000/spotify/library/tracks",
-							"host": [
-								"{{host}}"
-							],
-							"port": "4000",
-							"path": [
-								"spotify",
-								"library",
-								"tracks"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "artists",
-			"item": [
-				{
-					"name": "Get Artist",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{host}}:4000/artists/:fileName",
-							"host": [
-								"{{host}}"
-							],
-							"port": "4000",
-							"path": [
-								"artists",
-								":fileName"
-							],
-							"variable": [
-								{
-									"key": "fileName",
-									"value": "artist/jpegmafia"
-								}
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "recommendation",
-			"item": [
-				{
-					"name": "Get album assessment",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{host}}:4000/recommendation/assessment/album?profileId=default&model=quantile-rank&albumId=release/album/bjork/homogenic",
-							"host": [
-								"{{host}}"
-							],
-							"port": "4000",
-							"path": [
-								"recommendation",
-								"assessment",
-								"album"
-							],
-							"query": [
-								{
-									"key": "profileId",
-									"value": "default"
-								},
-								{
-									"key": "model",
-									"value": "quantile-rank"
-								},
-								{
-									"key": "albumId",
-									"value": "release/album/bjork/homogenic"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get artist assessment",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{host}}:4000/recommendation/assessment/artist?profileId=default&model=quantile-rank&artistId=artist/jpegmafia",
-							"host": [
-								"{{host}}"
-							],
-							"port": "4000",
-							"path": [
-								"recommendation",
-								"assessment",
-								"artist"
-							],
-							"query": [
-								{
-									"key": "profileId",
-									"value": "default"
-								},
-								{
-									"key": "model",
-									"value": "quantile-rank"
-								},
-								{
-									"key": "artistId",
-									"value": "artist/jpegmafia"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Recommend Albums",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{host}}:4000/recommendation/albums?profileId=adam&model=quantile-rank&filter[excludeArtists][]=Kaz Ba=C5=82agane&filter[excludeArtists][]=Kaz Bałagane&filter[excludeArtists][]=Khontkar",
-							"host": [
-								"{{host}}"
-							],
-							"port": "4000",
-							"path": [
-								"recommendation",
-								"albums"
-							],
-							"query": [
-								{
-									"key": "profileId",
-									"value": "adam"
-								},
-								{
-									"key": "model",
-									"value": "quantile-rank"
-								},
-								{
-									"key": "filter[excludeArtists][]",
-									"value": "Kaz Ba=C5=82agane"
-								},
-								{
-									"key": "filter[excludeArtists][]",
-									"value": "Kaz Bałagane"
-								},
-								{
-									"key": "filter[excludeArtists][]",
-									"value": "Khontkar"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Recommend Artists",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{host}}:4000/recommendation/artists?profileId=2022&model=quantile-rank",
-							"host": [
-								"{{host}}"
-							],
-							"port": "4000",
-							"path": [
-								"recommendation",
-								"artists"
-							],
-							"query": [
-								{
-									"key": "profileId",
-									"value": "2022"
-								},
-								{
-									"key": "model",
-									"value": "quantile-rank"
-								}
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		}
-	]
+  "info": {
+    "_postman_id": "578d51c3-a4b1-4336-90e2-d76dd45b78d5",
+    "name": "Lute V3",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "crawler",
+      "item": [
+        {
+          "name": "Monitor",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}:4000/crawler/monitor",
+              "host": ["{{host}}"],
+              "port": "4000",
+              "path": ["crawler", "monitor"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Set Status",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"status\": \"running\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{host}}:4000/crawler/status",
+              "host": ["{{host}}"],
+              "port": "4000",
+              "path": ["crawler", "status"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Schedule",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"fileName\": \"charts/top/album/all-time/g:afrobeats/3\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{host}}:4000/crawler/schedule",
+              "host": ["{{host}}"],
+              "port": "4000",
+              "path": ["crawler", "schedule"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Empty Queue",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{host}}:4000/crawler/empty",
+              "host": ["{{host}}"],
+              "port": "4000",
+              "path": ["crawler", "empty"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Reset Quota",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{host}}:4000/crawler/reset-quota",
+              "host": ["{{host}}"],
+              "port": "4000",
+              "path": ["crawler", "reset-quota"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Remove Error",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{host}}:4000/crawler/error",
+              "host": ["{{host}}"],
+              "port": "4000",
+              "path": ["crawler", "error"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "files",
+      "item": []
+    },
+    {
+      "name": "profiles",
+      "item": [
+        {
+          "name": "Create Profile",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"id\": \"adam-blend\",\n    \"title\": \"adam-blend\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{host}}:4000/profile",
+              "host": ["{{host}}"],
+              "port": "4000",
+              "path": ["profile"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}:4000/profile/:id",
+              "host": ["{{host}}"],
+              "port": "4000",
+              "path": ["profile", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "default"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add album to profile",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"fileName\": \"release/album/2pac/all-eyez-on-me\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{host}}:4000/:id/album",
+              "host": ["{{host}}"],
+              "port": "4000",
+              "path": [":id", "album"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "6332569694c9aaccfea0b2cd"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Seed Profile with Playlist",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"keys\": [\"release/album/moodring/stargazer\"]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{host}}:4000/profile/seed/:id/playlists/:playlistId",
+              "host": ["{{host}}"],
+              "port": "4000",
+              "path": ["profile", "seed", ":id", "playlists", ":playlistId"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "adam-blend"
+                },
+                {
+                  "key": "playlistId",
+                  "value": "37i9dQZF1EJLiNFcmLN76A"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Seed Default Profile",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{host}}:4000/profile/seed/default",
+              "host": ["{{host}}"],
+              "port": "4000",
+              "path": ["seed", "default"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "albums",
+      "item": [
+        {
+          "name": "Get Album",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}:4000/albums/:albumId",
+              "host": ["{{host}}"],
+              "port": "4000",
+              "path": ["albums", ":albumId"],
+              "variable": [
+                {
+                  "key": "albumId",
+                  "value": "release/album/bjork/homogenic"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Query Albums",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{host}}:4000/albums/query",
+              "host": ["{{host}}"],
+              "port": "4000",
+              "path": ["albums", "query"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "lookup",
+      "item": [
+        {
+          "name": "Lookup",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}:4000/lookup?artist=MIKE&album=black soap",
+              "host": ["{{host}}"],
+              "port": "4000",
+              "path": ["lookup"],
+              "query": [
+                {
+                  "key": "artist",
+                  "value": "MIKE"
+                },
+                {
+                  "key": "album",
+                  "value": "black soap"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Lookup by hash",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}:4000/lookup/:hash",
+              "host": ["{{host}}"],
+              "port": "4000",
+              "path": ["lookup", ":hash"],
+              "variable": [
+                {
+                  "key": "hash",
+                  "value": "0024385d27405715a851e8401e3af21337dcfdf3"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Lookup",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{host}}:4000/:hash",
+              "host": ["{{host}}"],
+              "port": "4000",
+              "path": [":hash"],
+              "variable": [
+                {
+                  "key": "hash",
+                  "value": "81863eea3445fd42d38dfa310c0faef24485315b"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "catalog",
+      "item": [
+        {
+          "name": "Get Tracks",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}:4000/spotify/library/tracks",
+              "host": ["{{host}}"],
+              "port": "4000",
+              "path": ["spotify", "library", "tracks"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Auth Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}:4000/spotify/auth/status",
+              "host": ["{{host}}"],
+              "port": "4000",
+              "path": ["spotify", "auth", "status"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Playlist Tracks",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}:4000/spotify/library/playlists/:playlistId/tracks",
+              "host": ["{{host}}"],
+              "port": "4000",
+              "path": [
+                "spotify",
+                "library",
+                "playlists",
+                ":playlistId",
+                "tracks"
+              ],
+              "variable": [
+                {
+                  "key": "playlistId",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Saved Tracks",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}:4000/spotify/library/tracks",
+              "host": ["{{host}}"],
+              "port": "4000",
+              "path": ["spotify", "library", "tracks"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "artists",
+      "item": [
+        {
+          "name": "Get Artist",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}:4000/artists/:fileName",
+              "host": ["{{host}}"],
+              "port": "4000",
+              "path": ["artists", ":fileName"],
+              "variable": [
+                {
+                  "key": "fileName",
+                  "value": "artist/jpegmafia"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "recommendation",
+      "item": [
+        {
+          "name": "Get album assessment",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}:4000/recommendation/assessment/album?profileId=default&model=quantile-rank&albumId=release/album/bjork/homogenic",
+              "host": ["{{host}}"],
+              "port": "4000",
+              "path": ["recommendation", "assessment", "album"],
+              "query": [
+                {
+                  "key": "profileId",
+                  "value": "default"
+                },
+                {
+                  "key": "model",
+                  "value": "quantile-rank"
+                },
+                {
+                  "key": "albumId",
+                  "value": "release/album/bjork/homogenic"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get artist assessment",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}:4000/recommendation/assessment/artist?profileId=default&model=quantile-rank&artistId=artist/jpegmafia",
+              "host": ["{{host}}"],
+              "port": "4000",
+              "path": ["recommendation", "assessment", "artist"],
+              "query": [
+                {
+                  "key": "profileId",
+                  "value": "default"
+                },
+                {
+                  "key": "model",
+                  "value": "quantile-rank"
+                },
+                {
+                  "key": "artistId",
+                  "value": "artist/jpegmafia"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Recommend Albums",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}:4000/recommendation/albums?profileId=adam&model=quantile-rank&filter[excludeArtists][]=Kaz Ba=C5=82agane&filter[excludeArtists][]=Kaz Bałagane&filter[excludeArtists][]=Khontkar",
+              "host": ["{{host}}"],
+              "port": "4000",
+              "path": ["recommendation", "albums"],
+              "query": [
+                {
+                  "key": "profileId",
+                  "value": "adam"
+                },
+                {
+                  "key": "model",
+                  "value": "quantile-rank"
+                },
+                {
+                  "key": "filter[excludeArtists][]",
+                  "value": "Kaz Ba=C5=82agane"
+                },
+                {
+                  "key": "filter[excludeArtists][]",
+                  "value": "Kaz Bałagane"
+                },
+                {
+                  "key": "filter[excludeArtists][]",
+                  "value": "Khontkar"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Recommend Artists",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}:4000/recommendation/artists?profileId=2022&model=quantile-rank",
+              "host": ["{{host}}"],
+              "port": "4000",
+              "path": ["recommendation", "artists"],
+              "query": [
+                {
+                  "key": "profileId",
+                  "value": "2022"
+                },
+                {
+                  "key": "model",
+                  "value": "quantile-rank"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
 }
