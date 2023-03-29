@@ -52,7 +52,7 @@ export const buildServer = <Context extends {}>({
         logger.error(err, "Request failed");
         res.status(500).json({
           ok: false,
-          error: "Internal server error",
+          error: err?.message ?? "Internal server error",
           traceId: rTracer.id(),
         });
       }
