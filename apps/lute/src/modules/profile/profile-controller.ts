@@ -66,6 +66,19 @@ export const buildProfileController = buildControllerFactory<Context>(
         });
         return res.json({ ok: true });
       },
+      async getProfiles(req, res) {
+        const profiles = await profileInteractor.getProfiles();
+        return res.json({ ok: true, data: profiles });
+      },
+      async deleteProfile(req, res) {
+        const profile = await profileInteractor.deleteProfile(
+          req.params.id as string
+        );
+        if (!profile) {
+          return res.status(404).json({ ok: false, error: "Not found" });
+        }
+        return res.json({ ok: true, data: profile });
+      },
     };
   }
 );

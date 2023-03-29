@@ -6,7 +6,7 @@ import { MongoClient } from "mongodb";
 import { AlbumInteractor } from "../albums";
 import { EventBus, EventType, ProfileAlbumAddedEventPayload } from "../../lib";
 
-export const buildProfileInteractor = ({
+export const buildProfileInteractor = async ({
   mongoClient,
   albumInteractor,
   eventBus,
@@ -15,7 +15,7 @@ export const buildProfileInteractor = ({
   albumInteractor: AlbumInteractor;
   eventBus: EventBus;
 }) => {
-  const profileRepo = buildProfileRepo(mongoClient);
+  const profileRepo = await buildProfileRepo(mongoClient);
 
   const interactor = {
     async getProfile(id: string) {
@@ -200,9 +200,21 @@ export const buildProfileInteractor = ({
     createProfile(id: string, title: string) {
       return profileRepo.createProfile(id, title);
     },
+    getProfiles() {
+      return profileRepo.getProfiles();
+    },
+    deleteProfile(id: string) {
+      if (id === "default") {
+        throw new Error("Cannot delete default profile");
+      }
+
+      return profileRepo.deleteProfile(id);
+    },
   };
 
   return interactor;
 };
 
-export type ProfileInteractor = ReturnType<typeof buildProfileInteractor>;
+export type ProfileInteractor = Awaited<
+  ReturnType<typeof buildProfileInteractor>
+>;

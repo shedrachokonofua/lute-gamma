@@ -14,10 +14,12 @@ export interface AddAlbumToProfilePayload {
   count?: number;
 }
 
-export const buildProfileRepo = (mongoClient: MongoClient) => {
+export const buildProfileRepo = async (mongoClient: MongoClient) => {
   const profilesCollection = mongoClient
     .db("profile")
     .collection<ProfileDocument>("profiles");
+
+  await profilesCollection.createIndex({ id: 1 }, { unique: true });
 
   const repo = {
     async getProfile(id: string): Promise<ProfileDocument | null> {
@@ -95,6 +97,29 @@ export const buildProfileRepo = (mongoClient: MongoClient) => {
       });
 
       return !!result;
+    },
+    getProfiles: async () => {
+      const profiles = await profilesCollection
+        .find(
+          {},
+          {
+            projection: {
+              id: 1,
+              title: 1,
+              lastUpdatedAt: 1,
+              albumCount: {
+                $size: "$albums",
+              },
+            },
+          }
+        )
+        .toArray();
+      return profiles;
+    },
+    deleteProfile: async (id: string) => {
+      return await profilesCollection.findOneAndDelete({
+        id,
+      });
     },
   };
 

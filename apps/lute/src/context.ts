@@ -44,7 +44,7 @@ export const buildContext = async () => {
     eventBus,
     redisClient,
   });
-  const profileInteractor = buildProfileInteractor({
+  const profileInteractor = await buildProfileInteractor({
     mongoClient,
     albumInteractor,
     eventBus,
