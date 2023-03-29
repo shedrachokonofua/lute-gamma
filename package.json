@@ -16,6 +16,7 @@
     "prod:build": "docker-compose -f ./docker-compose.prod.yml up --build",
     "prod:stop": "docker-compose -f ./docker-compose.prod.yml stop",
     "prod:down": "docker-compose -f ./docker-compose.prod.yml down",
+    "set-doppler-token": "sh ./scripts/set-doppler-token.sh",
     "script": "ts-node --cwd=./scripts --"
   },
   "devDependencies": {

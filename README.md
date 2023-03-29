@@ -24,5 +24,8 @@ Lute platform
 - [ ] Install [Node.js](https://nodejs.org/en/download/)
 - [ ] Install [pnpm](https://pnpm.io/installation)
 - [ ] Install [Doppler](https://doppler.com/docs/cli/installation)
-- [ ] Set doppler service token. [Instructions](https://docs.doppler.com/docs/service-tokens#option-1-persisted-service-token)
+- [ ] Clone this repository
+- [ ] Run `pnpm install`
+- [ ] Set doppler service token. Run `pnpm set-doppler-token`.
+- [ ] Ensure docker daemon is running. Run `docker ps`. If it fails, start docker daemon.
 - [ ] Run `pnpm dev:build`
