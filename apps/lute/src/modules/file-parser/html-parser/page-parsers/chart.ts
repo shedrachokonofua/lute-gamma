@@ -3,6 +3,7 @@ import {
   ChartPage,
   AlbumPage,
   parseReleaseDateString,
+  getChartReleaseType,
 } from "@lute/domain";
 import {
   EventEntity,
@@ -87,6 +88,7 @@ const parseFilterSegment = (
 const isPageNumber = (segment: string) => Number(segment) > 0;
 
 const parseChartParameters = (fileName: string): ChartParameters => {
+  const releaseType = getChartReleaseType(fileName);
   const relevantPart = fileName.replace("charts/top/album/", "");
   const [yearsSegment, ...filterSegments] = relevantPart.split("/");
   const pageNumber = isPageNumber(filterSegments[filterSegments.length - 1])
@@ -149,6 +151,7 @@ const parseChartParameters = (fileName: string): ChartParameters => {
       return params;
     },
     {
+      releaseType,
       pageNumber,
       yearsRangeStart,
       yearsRangeEnd,

@@ -39,6 +39,7 @@ export interface AlbumPage {
 }
 
 export interface ChartParameters {
+  releaseType: string;
   pageNumber: number;
   yearsRangeStart: number;
   yearsRangeEnd: number;
@@ -106,3 +107,28 @@ export const isLuteAlbumFileName = (fileName: string) =>
 
 export const isLuteChartFileName = (fileName: string) =>
   /^charts\/(\w+)\/(album|mixtape|ep)\//.test(fileName);
+
+export const getReleaseType = (fileName: string) => {
+  return fileName.split("/")[1];
+};
+
+export const getChartReleaseType = (fileName: string) => {
+  return fileName.split("/")[2];
+};
+
+export const toUrlTag = (value: string) =>
+  value.replaceAll(" ", "-").replaceAll("&", "and");
+
+export const getChartFileName = (parameters: ChartParameters) => {
+  let fileName = `charts/top/${parameters.releaseType}/${parameters.yearsRangeStart}-${parameters.yearsRangeEnd}`;
+
+  if (parameters.includePrimaryGenres) {
+    fileName += `/g:${parameters.includePrimaryGenres.map(toUrlTag).join(",")}`;
+  }
+
+  if (parameters.includeDescriptors) {
+    fileName += `/d:${parameters.includeDescriptors.map(toUrlTag).join(",")}`;
+  }
+
+  return `${fileName}/${parameters.pageNumber}`;
+};
