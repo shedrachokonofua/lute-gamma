@@ -188,3 +188,75 @@ export type ArtistRecommendationParameters = {
       model: AssessmentModel.JaccardIndex;
     }
 );
+
+type BasePreset<T> = {
+  id: string;
+  name: string;
+  type: T;
+};
+
+export type AlbumRecommendationPreset = BasePreset<"album"> & {
+  filter: AlbumRecommendationFilter;
+} & (
+    | {
+        settings: QuantileRankArtistAssessmentSettings;
+        model: AssessmentModel.QuantileRank;
+      }
+    | {
+        settings: JaccardAssessmentSettings;
+        model: AssessmentModel.JaccardIndex;
+      }
+  );
+
+export type ArtistRecommendationPreset = BasePreset<"artist"> & {
+  filter: ArtistRecommendationFilter;
+} & (
+    | {
+        settings: QuantileRankArtistAssessmentSettings;
+        model: AssessmentModel.QuantileRank;
+      }
+    | {
+        settings: JaccardAssessmentSettings;
+        model: AssessmentModel.JaccardIndex;
+      }
+  );
+
+export type RecommendationPreset =
+  | AlbumRecommendationPreset
+  | ArtistRecommendationPreset;
+
+export type RecommendationPresetType = RecommendationPreset["type"];
+
+export const isPresetType = (type: string): type is RecommendationPresetType =>
+  ["album", "artist"].includes(type);
+
+const settingsSchemaMap = {
+  [AssessmentModel.JaccardIndex]: {
+    album: jaccardAssessmentSettingsSchema,
+    artist: jaccardAssessmentSettingsSchema,
+  },
+  [AssessmentModel.QuantileRank]: {
+    album: quantileRankAlbumAssessmentSettingsSchema,
+    artist: quantileRankArtistAssessmentSettingsSchema,
+  },
+};
+
+export const getSettingsSchema = (
+  type: RecommendationPresetType,
+  model: AssessmentModel
+) => {
+  const schema = settingsSchemaMap[model]?.[type];
+  if (!schema) {
+    throw new Error("Invalid preset type or model");
+  }
+  return schema;
+};
+
+export const getFilterSchema = (type: RecommendationPresetType) => {
+  switch (type) {
+    case "album":
+      return albumRecommendationFilterSchema;
+    case "artist":
+      return artistRecommendationFilterSchema;
+  }
+};

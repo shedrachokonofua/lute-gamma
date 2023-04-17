@@ -35,8 +35,8 @@ export class EventBus {
   >();
 
   constructor({
-    batchSize = 50,
-    blockDurationSeconds = 5,
+    batchSize = 100,
+    blockDurationSeconds = 0.5,
     retryCount = 5,
     redisClient,
   }: EventBusParams) {

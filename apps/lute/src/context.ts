@@ -9,7 +9,10 @@ import { buildCrawlerInteractor } from "./modules/crawler";
 import { buildFileInteractor, buildFileStorageClient } from "./modules/files";
 import { buildLookupInteractor } from "./modules/lookup";
 import { buildProfileInteractor } from "./modules/profile";
-import { buildRecommendationInteractor } from "./modules/recommendation";
+import {
+  buildRecommendationInteractor,
+  buildRecommendationPresetInteractor,
+} from "./modules/recommendation";
 import { buildSpotifyInteractor } from "./modules/spotify";
 
 const spawnRedisClient = () =>
@@ -54,6 +57,10 @@ export const buildContext = async () => {
     artistInteractor,
     profileInteractor,
   });
+  const recommendationPresetInteractor =
+    await buildRecommendationPresetInteractor({
+      mongoClient,
+    });
   const spotifyInteractor = buildSpotifyInteractor(redisClient);
 
   const terminate = async () => {
@@ -76,6 +83,7 @@ export const buildContext = async () => {
     lookupInteractor,
     profileInteractor,
     recommendationInteractor,
+    recommendationPresetInteractor,
     spotifyInteractor,
     terminate,
   };
