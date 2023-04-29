@@ -7,5 +7,6 @@ export const buildRecommendationPresetRouter = (context: Context) => {
 
   return Router()
     .get("/:type", controller.getPresets)
-    .post("/", controller.createPreset);
+    .post("/", controller.createPreset)
+    .put("/:id", controller.updatePreset);
 };

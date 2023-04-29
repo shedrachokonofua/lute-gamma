@@ -31,3 +31,10 @@ export interface Profile {
   weightedSummary: ProfileSummary;
   weightedProfileDetails: ProfileDetails;
 }
+
+export interface ProfileDTO {
+  id: string;
+  title: string;
+  lastUpdatedAt: Date;
+  albumCount: number;
+}

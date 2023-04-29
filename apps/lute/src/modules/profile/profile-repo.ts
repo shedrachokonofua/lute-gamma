@@ -1,4 +1,4 @@
-import { ItemAndCount } from "@lute/domain";
+import { ItemAndCount, ProfileDTO } from "@lute/domain";
 import { MongoClient } from "mongodb";
 
 export interface ProfileDocument {
@@ -98,8 +98,8 @@ export const buildProfileRepo = async (mongoClient: MongoClient) => {
 
       return !!result;
     },
-    getProfiles: async () => {
-      const profiles = await profilesCollection
+    getProfiles: async (): Promise<ProfileDTO[]> => {
+      const profiles = (await profilesCollection
         .find(
           {},
           {
@@ -113,7 +113,7 @@ export const buildProfileRepo = async (mongoClient: MongoClient) => {
             },
           }
         )
-        .toArray();
+        .toArray()) as unknown as ProfileDTO[];
       return profiles;
     },
     deleteProfile: async (id: string) => {

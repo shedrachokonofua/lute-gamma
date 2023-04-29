@@ -21,15 +21,15 @@ export const buildRecommendationPresetRepo = async (
     async getPresetsByType(type: RecommendationPreset["type"]) {
       return presetsCollection.find({ type }).toArray();
     },
-    async updatePreset(id: string, update: DeepPartial<RecommendationPreset>) {
+    async updatePreset(id: string, update: Partial<RecommendationPreset>) {
       const existingPreset = await presetsCollection.findOne({ id });
       if (!existingPreset) {
         return null;
       }
-      const updatedPreset = deepMerge(
-        existingPreset,
-        update
-      ) as RecommendationPreset;
+      const updatedPreset = {
+        ...existingPreset,
+        ...update,
+      };
       await presetsCollection.updateOne({ id }, { $set: updatedPreset });
       return updatedPreset;
     },

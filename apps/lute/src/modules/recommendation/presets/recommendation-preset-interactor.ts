@@ -1,4 +1,4 @@
-import { DeepPartial, RecommendationPreset } from "@lute/domain";
+import { RecommendationPreset } from "@lute/domain";
 import { MongoClient } from "mongodb";
 import { buildRecommendationPresetRepo } from "./recommendation-preset-repo";
 
@@ -19,7 +19,7 @@ export const buildRecommendationPresetInteractor = async ({
     async getPresetsByType(type: RecommendationPreset["type"]) {
       return presetRepo.getPresetsByType(type);
     },
-    async updatePreset(id: string, update: DeepPartial<RecommendationPreset>) {
+    async updatePreset(id: string, update: Partial<RecommendationPreset>) {
       return presetRepo.updatePreset(id, update);
     },
   };

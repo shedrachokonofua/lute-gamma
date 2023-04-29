@@ -12,12 +12,19 @@ import { useEffect, useState } from "react";
 import { useInitialSettings } from "../hooks/use-initial-settings";
 import { useRecommendations } from "../hooks/use-recommendations";
 import { api } from "../api";
+import { AlbumRecommendationPreset, ProfileDTO } from "@lute/domain";
 
 export interface HomeProps {
   genreOptions: string[];
+  profiles: ProfileDTO[];
+  albumRecommendationPresets: AlbumRecommendationPreset[];
 }
 
-const Home: NextPage<HomeProps> = ({ genreOptions }) => {
+const Home: NextPage<HomeProps> = ({
+  genreOptions,
+  profiles,
+  albumRecommendationPresets,
+}) => {
   const { status: initialSettingsStatus, value: initialSettings } =
     useInitialSettings();
   const [settingsFormValue, setSettingsFormValue] = useState<
@@ -55,6 +62,8 @@ const Home: NextPage<HomeProps> = ({ genreOptions }) => {
                 defaultSettings={initialSettings}
                 genreOptions={genreOptions}
                 onSubmit={setSettingsFormValue}
+                profiles={profiles}
+                albumRecommendationPresets={albumRecommendationPresets}
               />
             </Grid.Col>
             <Grid.Col md={9}>
@@ -81,6 +90,8 @@ const Home: NextPage<HomeProps> = ({ genreOptions }) => {
 
 Home.getInitialProps = async () => ({
   genreOptions: await api.getGenres(),
+  profiles: await api.getProfiles(),
+  albumRecommendationPresets: await api.getAlbumRecommendationPresets(),
 });
 
 export default Home;

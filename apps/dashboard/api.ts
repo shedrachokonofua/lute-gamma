@@ -4,6 +4,9 @@ import {
   AssessmentModel,
   AlbumRecommendation,
   AlbumRecommendationParameters,
+  Profile,
+  ProfileDTO,
+  AlbumRecommendationPreset,
 } from "@lute/domain";
 import { config } from "./config";
 
@@ -28,5 +31,24 @@ export const api = {
   async getGenres() {
     const response = await http.get("/albums/genres");
     return response.data?.data || [];
+  },
+  async getProfiles(): Promise<ProfileDTO[]> {
+    const response = await http.get("/profile");
+    return response.data?.data || [];
+  },
+  async getAlbumRecommendationPresets(): Promise<Profile> {
+    const response = await http.get("/recommendation/presets/album");
+    return response.data?.data || [];
+  },
+  async createAlbumRecommendationPreset(
+    preset: AlbumRecommendationPreset
+  ): Promise<void> {
+    await http.post("/recommendation/presets", preset);
+  },
+  async updateAlbumRecommendationPreset(
+    id: string,
+    update: Partial<AlbumRecommendationPreset>
+  ): Promise<void> {
+    await http.put(`/recommendation/presets/${id}`, update);
   },
 };

@@ -52,6 +52,13 @@ export const buildRecommendationPresetController =
 
         return res.json({ ok: true });
       },
-      async updatePreset(req, res) {},
+      async updatePreset(req, res) {
+        const id = req.params.id as string;
+        const update = req.body as Partial<RecommendationPreset>;
+
+        await recommendationPresetInteractor.updatePreset(id, update);
+
+        return res.json({ ok: true });
+      },
     };
   });
