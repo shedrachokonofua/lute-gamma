@@ -268,23 +268,23 @@ export const RecommendationSettingsPanel = ({
                     <FilterSection
                       form={form}
                       path="filter.excludeAlbums"
-                      title="Exclude Albums"
+                      title="Excluded Albums"
                     />
                     <FilterSection
                       form={form}
                       path="filter.excludeArtists"
-                      title="Exclude Artists"
+                      title="Excluded Artists"
                     />
                     <FilterSection
                       form={form}
                       path="filter.excludePrimaryGenres"
-                      title="Exclude Primary Genres"
+                      title="Excluded Primary Genres"
                       options={genreOptions}
                     />
                     <FilterSection
                       form={form}
                       path="filter.excludeSecondaryGenres"
-                      title="Exclude Secondary Genres"
+                      title="Excluded Secondary Genres"
                       options={genreOptions}
                     />
                   </Stack>
