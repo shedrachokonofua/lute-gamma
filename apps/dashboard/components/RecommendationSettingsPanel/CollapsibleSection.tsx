@@ -23,7 +23,7 @@ export const CollapsibleSection = ({
         compact
         fullWidth
       >
-        {`${isOpen ? "Hide" : "Show"} ${title}`}
+        {title}
       </Button>
       <Collapse in={isOpen}>
         <div
