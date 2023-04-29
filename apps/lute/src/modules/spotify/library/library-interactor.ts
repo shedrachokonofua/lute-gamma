@@ -1,5 +1,5 @@
-import { PaginatedValue, CatalogTrack, SpotifyCredentials } from "@lute/domain";
-import { buildAuthorizedSpotifyApi, SpotifyTrack } from "../spotify";
+import { PaginatedValue, CatalogTrack } from "@lute/domain";
+import { SpotifyTrack } from "../spotify";
 import { logger } from "../../../logger";
 import { spotifyTrackToCatalogTrack } from "../helpers";
 import { AuthInteractor } from "../auth";
@@ -74,6 +74,39 @@ export const buildLibraryInteractor = (authInteractor: AuthInteractor) => {
 
       return {
         items: spotifyTracks.map(spotifyTrackToCatalogTrack),
+        nextOffset,
+        total,
+      };
+    },
+    async getTopTracks({
+      offset = 0,
+      limit = 50,
+    }): Promise<PaginatedValue<CatalogTrack>> {
+      const spotifyApi = await authInteractor.getAuthorizedSpotifyApiOrThrow();
+      try {
+        const {
+          body: { items, total },
+          statusCode,
+        } = await spotifyApi.getMyTopTracks({
+          offset,
+          limit,
+        });
+      } catch (e) {
+        console.log(e);
+        throw e;
+      }
+      const {
+        body: { items, total },
+        statusCode,
+      } = await spotifyApi.getMyTopTracks({
+        offset,
+        limit,
+      });
+      logger.info({ items, total }, "Got top tracks from spotify");
+      const nextOffset = getNextOffset(offset, limit, total);
+
+      return {
+        items: items.map((item) => spotifyTrackToCatalogTrack(item)),
         nextOffset,
         total,
       };

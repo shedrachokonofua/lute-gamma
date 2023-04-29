@@ -32,6 +32,15 @@ export const buildLibraryController = buildControllerFactory<Context>(
 
         return res.success(data);
       },
+      async getTopTracks(req, res) {
+        const { offset, limit } = req.query;
+        const data = await spotifyInteractor.getTopTracks({
+          offset: offset ? Number(offset) : undefined,
+          limit: limit ? Number(limit) : undefined,
+        });
+
+        return res.success(data);
+      },
     };
   }
 );

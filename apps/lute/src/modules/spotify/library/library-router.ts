@@ -7,5 +7,6 @@ export const buildLibraryRouter = (context: Context) => {
 
   return Router()
     .get("/tracks", libraryController.getSavedTracks)
+    .get("/top-tracks", libraryController.getTopTracks)
     .get("/playlists/:playlistId/tracks", libraryController.getPlaylistTracks);
 };

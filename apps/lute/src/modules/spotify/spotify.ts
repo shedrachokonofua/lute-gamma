@@ -4,7 +4,7 @@ import { config } from "../../config";
 
 const AUTH_CALLBACK_URL = `${config.server.host}/spotify/auth/callback`;
 
-export const SPOTIFY_SCOPES = ["user-library-read"];
+export const SPOTIFY_SCOPES = ["user-library-read", "user-top-read"];
 
 export const spotifyApi = new SpotifyWebApi({
   clientId: config.spotify.clientId,
