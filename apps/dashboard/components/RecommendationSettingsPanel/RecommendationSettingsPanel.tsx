@@ -14,8 +14,8 @@ import {
   Title,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { useForm } from "@mantine/form";
-import { Dispatch, SetStateAction, useState } from "react";
+import { UseFormReturnType } from "@mantine/form";
+import { FormEvent, useState } from "react";
 import { useRefreshData } from "../../hooks";
 import { Panel } from "../Panel";
 import { CollapsibleSection } from "./CollapsibleSection";
@@ -29,15 +29,15 @@ export type RecommendationSettingsForm = Omit<
 >;
 
 interface RecommendationSettingsPaneProps {
-  defaultSettings: RecommendationSettingsForm;
-  onSubmit: Dispatch<SetStateAction<RecommendationSettingsForm | undefined>>;
+  form: UseFormReturnType<RecommendationSettingsForm>;
+  onSubmit: (e?: FormEvent<HTMLFormElement>) => void;
   genreOptions?: string[];
   profiles: ProfileDTO[];
   albumRecommendationPresets: AlbumRecommendationPreset[];
 }
 
 export const RecommendationSettingsPanel = ({
-  defaultSettings,
+  form,
   onSubmit,
   genreOptions,
   profiles,
@@ -52,10 +52,6 @@ export const RecommendationSettingsPanel = ({
     isSavePresetModalOpen,
     { open: openSavePresetModal, close: closeSavePresetModal },
   ] = useDisclosure(false);
-  const form = useForm<RecommendationSettingsForm>({
-    initialValues: defaultSettings,
-  });
-  const handleSubmit = form.onSubmit((values) => onSubmit(values));
   const [mostRecentPreset, setMostRecentPreset] = useState<
     AlbumRecommendationPreset | undefined
   >(undefined);
@@ -68,7 +64,7 @@ export const RecommendationSettingsPanel = ({
     };
     form.setValues(next);
     setMostRecentPreset(preset);
-    onSubmit(next);
+    onSubmit();
   };
 
   const onSavePreset = () => {
@@ -96,7 +92,7 @@ export const RecommendationSettingsPanel = ({
       <Panel>
         <Stack spacing="lg">
           <Title order={4}>Settings</Title>
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={onSubmit}>
             <Stack spacing="xl">
               <Stack spacing="sm">
                 <Select

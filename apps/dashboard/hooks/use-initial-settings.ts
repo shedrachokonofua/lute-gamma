@@ -1,7 +1,7 @@
 import { RecommendationSettingsForm } from "../components";
 import { useAsync } from "./use-async";
 
-const defaultRecommendationSettings = {
+export const defaultRecommendationSettings = {
   profileId: "default",
   count: 10,
   settings: {

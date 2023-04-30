@@ -4,13 +4,10 @@ import {
   PageHeader,
   Panel,
   Recommendations,
-  RecommendationSettingsForm,
   RecommendationSettingsPanel,
   Spinner,
 } from "../components";
-import { useEffect, useState } from "react";
-import { useInitialSettings } from "../hooks/use-initial-settings";
-import { useRecommendations } from "../hooks/use-recommendations";
+import { useRecommendationSettingsForm, useRecommendations } from "../hooks";
 import { api } from "../api";
 import {
   AlbumDocument,
@@ -29,33 +26,19 @@ const Home: NextPage<HomeProps> = ({
   profiles,
   albumRecommendationPresets,
 }) => {
-  const { status: initialSettingsStatus, value: initialSettings } =
-    useInitialSettings();
-  const [settingsFormValue, setSettingsFormValue] = useState<
-    RecommendationSettingsForm | undefined
-  >(undefined);
-
   const {
     status: recommendationStatus,
     value: recommendations,
-    execute,
+    execute: fetchRecommendations,
   } = useRecommendations();
-
-  useEffect(() => {
-    if (initialSettingsStatus === "success" && !settingsFormValue) {
-      setSettingsFormValue(initialSettings);
-    }
-  }, [initialSettings, initialSettingsStatus, settingsFormValue]);
-
-  useEffect(() => {
-    if (settingsFormValue) {
-      localStorage.setItem("settings", JSON.stringify(settingsFormValue));
-      execute(settingsFormValue);
-    }
-  }, [execute, settingsFormValue]);
+  const {
+    form: settingsForm,
+    handleSubmit: submitSettingsForm,
+    isInitialSettingsLoading,
+  } = useRecommendationSettingsForm(fetchRecommendations);
 
   const findSimilarAlbums = (album: AlbumDocument) => {
-    setSettingsFormValue((value) => {
+    settingsForm.setValues((value) => {
       if (!value || !album.primaryGenres || !album.secondaryGenres)
         return value;
 
@@ -65,23 +48,24 @@ const Home: NextPage<HomeProps> = ({
           ...value.filter,
           primaryGenres: album.primaryGenres,
           secondaryGenres: album.secondaryGenres,
-        },
+        } as any,
       };
     });
+    submitSettingsForm();
   };
 
   return (
     <main>
       <PageHeader />
       <Container size="xl" py="lg">
-        {initialSettingsStatus === "pending" && <Spinner />}
-        {initialSettingsStatus === "success" && initialSettings && (
+        {isInitialSettingsLoading && <Spinner />}
+        {!isInitialSettingsLoading && (
           <Grid>
             <Grid.Col md={3}>
               <RecommendationSettingsPanel
-                defaultSettings={initialSettings}
+                form={settingsForm}
+                onSubmit={submitSettingsForm}
                 genreOptions={genreOptions}
-                onSubmit={setSettingsFormValue}
                 profiles={profiles}
                 albumRecommendationPresets={albumRecommendationPresets}
               />
