@@ -18,6 +18,7 @@ import React from "react";
 interface RecommendationsProps {
   recommendations: AlbumRecommendation[];
   handleFindSimilarAlbums: (album: AlbumDocument) => void;
+  handleExcludeAlbum: (album: AlbumDocument) => void;
 }
 
 const printPercentile = (quantile: number): string =>
@@ -90,6 +91,7 @@ const Rating = ({ assessment }: { assessment: AlbumAssessment }) => (
 export const Recommendations = ({
   recommendations,
   handleFindSimilarAlbums,
+  handleExcludeAlbum,
 }: RecommendationsProps) => (
   <Grid gutter="xl">
     {recommendations.map((recommendation) => (
@@ -111,7 +113,11 @@ export const Recommendations = ({
               >
                 Find Similar
               </Menu.Item>
-              <Menu.Item color="red" icon={<IconX size={14} />}>
+              <Menu.Item
+                color="red"
+                icon={<IconX size={14} />}
+                onClick={() => handleExcludeAlbum(recommendation.album)}
+              >
                 Exclude from Recommendations
               </Menu.Item>
             </Menu.Dropdown>

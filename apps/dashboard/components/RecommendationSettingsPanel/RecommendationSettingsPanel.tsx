@@ -30,7 +30,7 @@ export type RecommendationSettingsForm = Omit<
 
 interface RecommendationSettingsPaneProps {
   form: UseFormReturnType<RecommendationSettingsForm>;
-  onSubmit: (e?: FormEvent<HTMLFormElement>) => void;
+  onSubmit: (value: RecommendationSettingsForm) => void;
   genreOptions?: string[];
   profiles: ProfileDTO[];
   albumRecommendationPresets: AlbumRecommendationPreset[];
@@ -64,7 +64,7 @@ export const RecommendationSettingsPanel = ({
     };
     form.setValues(next);
     setMostRecentPreset(preset);
-    onSubmit();
+    onSubmit(next);
   };
 
   const onSavePreset = () => {
@@ -92,7 +92,7 @@ export const RecommendationSettingsPanel = ({
       <Panel>
         <Stack spacing="lg">
           <Title order={4}>Settings</Title>
-          <form onSubmit={onSubmit}>
+          <form onSubmit={form.onSubmit(onSubmit)}>
             <Stack spacing="xl">
               <Stack spacing="sm">
                 <Select
@@ -259,6 +259,12 @@ export const RecommendationSettingsPanel = ({
                       form={form}
                       path="filter.primaryGenres"
                       title="Included Primary Genres"
+                      options={genreOptions}
+                    />
+                    <FilterSection
+                      form={form}
+                      path="filter.secondaryGenres"
+                      title="Included Secondary Genres"
                       options={genreOptions}
                     />
                     <FilterSection

@@ -27,14 +27,14 @@ export const useRecommendationSettingsForm = (
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialSettingsStatus, initialSettings]);
 
-  const handleSubmit = form.onSubmit((values) => {
+  const submitForm = (values: RecommendationSettingsForm) => {
     localStorage.setItem("settings", JSON.stringify(values));
     onSubmit(values);
-  });
+  };
 
   return {
     form,
-    handleSubmit,
+    submitForm,
     isInitialSettingsLoading:
       initialSettingsStatus === "idle" || initialSettingsStatus === "pending",
   };

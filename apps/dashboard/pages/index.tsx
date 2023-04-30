@@ -11,6 +11,7 @@ import { useRecommendationSettingsForm, useRecommendations } from "../hooks";
 import { api } from "../api";
 import {
   AlbumDocument,
+  AlbumRecommendationFilter,
   AlbumRecommendationPreset,
   ProfileDTO,
 } from "@lute/domain";
@@ -33,25 +34,39 @@ const Home: NextPage<HomeProps> = ({
   } = useRecommendations();
   const {
     form: settingsForm,
-    handleSubmit: submitSettingsForm,
+    submitForm: submitSettingsForm,
     isInitialSettingsLoading,
   } = useRecommendationSettingsForm(fetchRecommendations);
 
-  const findSimilarAlbums = (album: AlbumDocument) => {
-    settingsForm.setValues((value) => {
-      if (!value || !album.primaryGenres || !album.secondaryGenres)
-        return value;
+  const updateFilter = (
+    filterFactory: (
+      value: AlbumRecommendationFilter
+    ) => Partial<AlbumRecommendationFilter>
+  ) => {
+    const filter = filterFactory(settingsForm.values.filter);
+    const nextValues = {
+      ...settingsForm.values,
+      filter: {
+        ...settingsForm.values.filter,
+        ...filter,
+      },
+    };
+    settingsForm.setValues(nextValues);
+    submitSettingsForm(nextValues);
+  };
 
-      return {
-        ...value,
-        filter: {
-          ...value.filter,
-          primaryGenres: album.primaryGenres,
-          secondaryGenres: album.secondaryGenres,
-        } as any,
-      };
-    });
-    submitSettingsForm();
+  const findSimilarAlbums = (album: AlbumDocument) => {
+    if (!album.primaryGenres || !album.secondaryGenres) return;
+    updateFilter(() => ({
+      primaryGenres: album.primaryGenres,
+      secondaryGenres: album.secondaryGenres,
+    }));
+  };
+
+  const excludeAlbumFromRecommendations = (album: AlbumDocument) => {
+    updateFilter((filter) => ({
+      excludeAlbums: [...filter.excludeAlbums, album.fileName],
+    }));
   };
 
   return (
@@ -83,6 +98,7 @@ const Home: NextPage<HomeProps> = ({
                     <Recommendations
                       recommendations={recommendations}
                       handleFindSimilarAlbums={findSimilarAlbums}
+                      handleExcludeAlbum={excludeAlbumFromRecommendations}
                     />
                   )}
                 </Stack>
