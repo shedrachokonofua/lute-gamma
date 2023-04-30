@@ -12,8 +12,6 @@ export const buildProfileRouter = (context: Context) => {
     .delete("/:id", controller.deleteProfile)
     .post("/:id/album", controller.putAlbumOnProfile)
     .post("/seed/default", controller.seedDefaultProfile)
-    .post(
-      "/seed/:id/playlists/:playlistId",
-      controller.seedProfileWithPlaylist
-    );
+    .post("/seed/:id/playlists/:playlistId", controller.seedProfileWithPlaylist)
+    .post("/seed/:id/top-tracks", controller.seedProfileWithTopTracks);
 };

@@ -13,6 +13,6 @@ export const spotifyTrackToCatalogTrack = (
   album: {
     catalogId: spotifyTrack.album.uri,
     name: spotifyTrack.album.name,
-    type: spotifyTrack.album.album_type,
+    type: spotifyTrack.album.album_type.toLowerCase() as any,
   },
 });

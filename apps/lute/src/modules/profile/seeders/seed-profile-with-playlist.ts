@@ -1,5 +1,5 @@
-import { Context } from "../../../../context";
-import { seedProfile } from "../seed";
+import { Context } from "../../../context";
+import { seedProfile } from "./seed";
 
 export const seedProfileWithPlaylist = async (
   context: Context,

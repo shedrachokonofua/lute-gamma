@@ -83,21 +83,9 @@ export const buildLibraryInteractor = (authInteractor: AuthInteractor) => {
       limit = 50,
     }): Promise<PaginatedValue<CatalogTrack>> {
       const spotifyApi = await authInteractor.getAuthorizedSpotifyApiOrThrow();
-      try {
-        const {
-          body: { items, total },
-          statusCode,
-        } = await spotifyApi.getMyTopTracks({
-          offset,
-          limit,
-        });
-      } catch (e) {
-        console.log(e);
-        throw e;
-      }
+
       const {
         body: { items, total },
-        statusCode,
       } = await spotifyApi.getMyTopTracks({
         offset,
         limit,

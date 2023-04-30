@@ -23,9 +23,12 @@ export const buildProfileInteractor = async ({
       if (!profileDocument) {
         return null;
       }
-      const albumDocuments = await albumInteractor.findAlbums({
-        keys: profileDocument.albums.map((album) => album.item),
-      });
+      const albumDocuments =
+        profileDocument.albums.length > 0
+          ? await albumInteractor.findAlbums({
+              keys: profileDocument.albums.map((album) => album.item),
+            })
+          : [];
       const trackCountByAlbumFileName = profileDocument.albums.reduce<
         Record<string, number>
       >((acc, album) => {

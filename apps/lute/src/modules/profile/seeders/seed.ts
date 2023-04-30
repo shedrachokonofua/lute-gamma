@@ -19,7 +19,6 @@ interface SeederState {
   offset: number;
   trackCountByCatalogAlbumId: Record<string, number>;
   lookupKeyByCatalogAlbumId: Record<string, LookupKey>;
-  skippedAlbumcatalogIds: Set<string>;
 }
 
 export const seedProfile = async (
@@ -27,9 +26,11 @@ export const seedProfile = async (
   {
     profileId,
     fetchTracks,
+    maxOffset = Number.MAX_SAFE_INTEGER,
   }: {
     profileId: string;
     fetchTracks: (state: SeederState) => Promise<PaginatedValue<CatalogTrack>>;
+    maxOffset?: number;
   }
 ) => {
   const seedLookupInteractor = buildSeedLookupInteractor({
@@ -42,11 +43,9 @@ export const seedProfile = async (
     limit: 50,
     trackCountByCatalogAlbumId: {} as Record<string, number>,
     lookupKeyByCatalogAlbumId: {} as Record<string, LookupKey>,
-    skippedAlbumcatalogIds: new Set<string>(),
   };
   while (state.hasNext) {
     const result = await fetchTracks(state);
-
     const relevantTracks = result.items.filter(
       (track): track is CatalogTrackWithAlbum =>
         !!track.album?.catalogId && track.album.type === "album"
@@ -71,8 +70,9 @@ export const seedProfile = async (
       };
     });
 
-    state.hasNext = result.items.length === 50;
-    state.offset = state.hasNext ? state.offset + 50 : state.offset;
+    const nextOffset = state.offset + 50;
+    state.hasNext = result.items.length === 50 && nextOffset < maxOffset;
+    state.offset = state.hasNext ? nextOffset : state.offset;
   }
 
   const trackCountByLookupHash = Object.keys(

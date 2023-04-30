@@ -1,5 +1,9 @@
 import { buildControllerFactory } from "../../lib";
-import { seedDefaultProfile, seedProfileWithPlaylist } from "./seeders";
+import {
+  seedDefaultProfile,
+  seedProfileWithPlaylist,
+  seedProfileWithTopTracks,
+} from "./seeders";
 import { Context } from "../../context";
 
 export const buildProfileController = buildControllerFactory<Context>(
@@ -64,6 +68,20 @@ export const buildProfileController = buildControllerFactory<Context>(
           profileId: id,
           playlistId,
         });
+        return res.json({ ok: true });
+      },
+      async seedProfileWithTopTracks(req, res) {
+        const { id } = req.params;
+        if (!id) {
+          return res.status(400).json({ ok: false, error: "Bad request" });
+        }
+        if (!(await profileInteractor.getProfile(id))) {
+          return res
+            .status(404)
+            .json({ ok: false, error: "Profile not found" });
+        }
+
+        seedProfileWithTopTracks(context, id);
         return res.json({ ok: true });
       },
       async getProfiles(req, res) {
