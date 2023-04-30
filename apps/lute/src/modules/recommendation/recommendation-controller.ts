@@ -6,6 +6,20 @@ import {
 import { Context } from "../../context";
 import { buildControllerFactory } from "../../lib";
 
+const formatFilterValuesAsArray = (
+  filters: Record<string, string[] | Record<string, string>>
+) => {
+  const formattedFilters: Record<string, string[]> = {};
+  for (const [key, value] of Object.entries(filters)) {
+    if (Array.isArray(value)) {
+      formattedFilters[key] = value;
+    } else {
+      formattedFilters[key] = Object.values(value);
+    }
+  }
+  return formattedFilters;
+};
+
 export const buildRecommendationController = buildControllerFactory<Context>(
   (context) => {
     const { recommendationInteractor } = context;
@@ -56,7 +70,9 @@ export const buildRecommendationController = buildControllerFactory<Context>(
           return res.status(400).json({ ok: false, error: "Bad request" });
         }
 
-        const filter = albumRecommendationFilterSchema.parse(inputFilters);
+        const filter = albumRecommendationFilterSchema.parse(
+          formatFilterValuesAsArray(inputFilters as any)
+        );
         const recommendations = await recommendationInteractor.recommendAlbums({
           filter,
           model,
@@ -79,7 +95,6 @@ export const buildRecommendationController = buildControllerFactory<Context>(
         if (!profileId || !isAssessmentModel(model)) {
           return res.status(400).json({ ok: false, error: "Bad request" });
         }
-
         const filter = artistRecommendationFilterSchema.parse(inputFilters);
         const recommendations = await recommendationInteractor.recommendArtists(
           {
