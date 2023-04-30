@@ -12,7 +12,11 @@ import { useEffect, useState } from "react";
 import { useInitialSettings } from "../hooks/use-initial-settings";
 import { useRecommendations } from "../hooks/use-recommendations";
 import { api } from "../api";
-import { AlbumRecommendationPreset, ProfileDTO } from "@lute/domain";
+import {
+  AlbumDocument,
+  AlbumRecommendationPreset,
+  ProfileDTO,
+} from "@lute/domain";
 
 export interface HomeProps {
   genreOptions: string[];
@@ -50,6 +54,22 @@ const Home: NextPage<HomeProps> = ({
     }
   }, [execute, settingsFormValue]);
 
+  const findSimilarAlbums = (album: AlbumDocument) => {
+    setSettingsFormValue((value) => {
+      if (!value || !album.primaryGenres || !album.secondaryGenres)
+        return value;
+
+      return {
+        ...value,
+        filter: {
+          ...value.filter,
+          primaryGenres: album.primaryGenres,
+          secondaryGenres: album.secondaryGenres,
+        },
+      };
+    });
+  };
+
   return (
     <main>
       <PageHeader />
@@ -76,7 +96,10 @@ const Home: NextPage<HomeProps> = ({
                     </div>
                   )}
                   {recommendationStatus === "success" && recommendations && (
-                    <Recommendations recommendations={recommendations} />
+                    <Recommendations
+                      recommendations={recommendations}
+                      handleFindSimilarAlbums={findSimilarAlbums}
+                    />
                   )}
                 </Stack>
               </Panel>

@@ -1,4 +1,8 @@
-import { AlbumAssessment, AlbumRecommendation } from "@lute/domain";
+import {
+  AlbumAssessment,
+  AlbumDocument,
+  AlbumRecommendation,
+} from "@lute/domain";
 import {
   ActionIcon,
   Badge,
@@ -13,6 +17,7 @@ import React from "react";
 
 interface RecommendationsProps {
   recommendations: AlbumRecommendation[];
+  handleFindSimilarAlbums: (album: AlbumDocument) => void;
 }
 
 const printPercentile = (quantile: number): string =>
@@ -82,7 +87,10 @@ const Rating = ({ assessment }: { assessment: AlbumAssessment }) => (
   </HoverCard>
 );
 
-export const Recommendations = ({ recommendations }: RecommendationsProps) => (
+export const Recommendations = ({
+  recommendations,
+  handleFindSimilarAlbums,
+}: RecommendationsProps) => (
   <Grid gutter="xl">
     {recommendations.map((recommendation) => (
       <React.Fragment key={recommendation.album.fileName}>
@@ -97,7 +105,10 @@ export const Recommendations = ({ recommendations }: RecommendationsProps) => (
               <Menu.Item icon={<IconPlus size={14} />}>
                 Add to Profile
               </Menu.Item>
-              <Menu.Item icon={<IconSearch size={14} />}>
+              <Menu.Item
+                icon={<IconSearch size={14} />}
+                onClick={() => handleFindSimilarAlbums(recommendation.album)}
+              >
                 Find Similar
               </Menu.Item>
               <Menu.Item color="red" icon={<IconX size={14} />}>
