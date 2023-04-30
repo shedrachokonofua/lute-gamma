@@ -10,6 +10,7 @@ export const albumQuerySchema = z.object({
   primaryGenres: z.array(z.string()).optional(),
   excludePrimaryGenres: z.array(z.string()).optional(),
   secondaryGenres: z.array(z.string()).optional(),
+  excludeSecondaryGenres: z.array(z.string()).optional(),
   descriptors: z.array(z.string()).optional(),
   minRating: z.number().optional(),
   maxRating: z.number().optional(),
@@ -66,6 +67,10 @@ export const buildDbAlbumQuery = (
 
   if (inNonEmptyArray(albumQuery.secondaryGenres)) {
     query["secondaryGenres"] = { $in: albumQuery.secondaryGenres };
+  }
+
+  if (inNonEmptyArray(albumQuery.excludeSecondaryGenres)) {
+    query["secondaryGenres"] = { $nin: albumQuery.excludeSecondaryGenres };
   }
 
   if (inNonEmptyArray(albumQuery.descriptors)) {

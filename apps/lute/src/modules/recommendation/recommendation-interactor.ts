@@ -108,6 +108,7 @@ export const buildRecommendationInteractor = ({
           primaryGenres: [...filter.primaryGenres],
           excludeArtists: [...filter.excludeArtists],
           excludePrimaryGenres: [...filter.excludePrimaryGenres],
+          excludeSecondaryGenres: [...filter.excludeSecondaryGenres],
           excludeKeys: [
             ...profile.albums.map((a) => a.item),
             ...filter.excludeAlbums,
