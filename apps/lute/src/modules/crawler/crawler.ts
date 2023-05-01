@@ -6,7 +6,7 @@ import { logger } from "../../logger";
 import { Context } from "../../context";
 import { config } from "../../config";
 import { QueueItem } from "./priority-queue";
-import { crawlerMetricsReporter } from "./crawler-metrics-reporter";
+import { crawlerMetrics } from "./crawler-metrics";
 
 const network = axios.create({
   baseURL: "https://www.rateyourmusic.com",
@@ -32,6 +32,7 @@ const crawl = async (context: Context, { fileName, metadata }: QueueItem) => {
   const [response, elapsedTime] = await executeWithTimer(() =>
     network.get(encodeURI(fileName))
   );
+  crawlerMetrics.observeFileDownloadDuration(elapsedTime);
   crawlerLogger.info({ fileName, elapsedTime }, "Page fetched");
 
   await context.crawlerInteractor.incrementQuotaWindowHits();
@@ -77,7 +78,7 @@ const startCrawlerWorker = async (context: Context) => {
 };
 
 export const startCrawler = async (context: Context) => {
-  crawlerMetricsReporter.setQueueLength(
+  crawlerMetrics.setQueueLength(
     await context.crawlerInteractor.queue.getSize()
   );
 

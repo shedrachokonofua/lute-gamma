@@ -5,6 +5,8 @@ import streamConsumers from "stream/consumers";
 import { config } from "../../../config";
 import { logger } from "../../../logger";
 import { FileStorageClient } from "./storage";
+import { executeWithTimer } from "../../../lib";
+import { fileMetrics } from "../file-metrics";
 
 const s3Client = new S3({
   endpoint: "https://nyc3.digitaloceanspaces.com",
@@ -49,10 +51,13 @@ export const spacesStorage: FileStorageClient = {
     });
   },
   saveFile: async (name: string, data: string) => {
-    await s3Client.putObject({
-      Bucket: config.spaces.bucket,
-      Key: name,
-      Body: data,
-    });
+    const [, elapsedTime] = await executeWithTimer(() =>
+      s3Client.putObject({
+        Bucket: config.spaces.bucket,
+        Key: name,
+        Body: data,
+      })
+    );
+    fileMetrics.observeFileUploadDuration(elapsedTime);
   },
 };

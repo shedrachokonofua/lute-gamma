@@ -16,6 +16,7 @@ import {
   parseChart,
   parseSearch,
 } from "./page-parsers";
+import { parserMetrics } from "../parser-metrics";
 
 const parsePage = (event: EventEntity<FileSavedEventPayload>, html: string) => {
   const pageType = getPageTypeFromFileName(event.data.fileName);
@@ -73,6 +74,7 @@ export const parseHtmlToPageData = async (
       logger.error({ event }, "Unable to parse page");
       throw new Error("Unable to parse page");
     }
+    parserMetrics.observeParseDuration(pageType, timeElapsed);
     logger.info({ fileName, timeElapsed, pageType }, "Parsed file");
 
     await context.eventBus.publish<ParserPageParsedEventPayload>({

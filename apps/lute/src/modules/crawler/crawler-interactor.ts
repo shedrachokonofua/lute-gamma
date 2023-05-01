@@ -12,7 +12,7 @@ import {
   QueueItem,
   QueuePushParams,
 } from "./priority-queue";
-import { crawlerMetricsReporter } from "./crawler-metrics-reporter";
+import { crawlerMetrics } from "./crawler-metrics";
 
 const QUOTA_REACHED = "QUOTA_REACHED";
 
@@ -58,7 +58,7 @@ export const buildCrawlerInteractor = ({
     queue,
     dlq,
     async reportCrawlerQueueLengthMetric() {
-      crawlerMetricsReporter.setQueueLength(await queue.getSize());
+      crawlerMetrics.setQueueLength(await queue.getSize());
     },
     async setStatus(status: CrawlerStatus) {
       await crawlerRepo.setStatus(status);

@@ -5,6 +5,7 @@ import { retry } from "../utils";
 import { EventEntity } from "./event-entity";
 import { EventSubscriber } from "./event-subscriber";
 import { executeWithTimer } from "../helpers";
+import { eventBusMetrics } from "./event-bus-metrics";
 
 export interface EventBusParams {
   batchSize?: number;
@@ -149,6 +150,11 @@ export class EventBus {
 
             const lastEvent = events[events.length - 1];
             await this.updateEventCursor(subscriberName, lastEvent);
+          });
+          eventBusMetrics.observeEventBatchConsumedDuration({
+            subscriberName,
+            elapsedTime,
+            eventCount: events.length,
           });
           logger.info(
             { elapsedTime, eventCount: events.length, subscriberName },
