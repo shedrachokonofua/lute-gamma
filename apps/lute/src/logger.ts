@@ -1,12 +1,6 @@
 import pino from "pino";
-import * as rTracer from "cls-rtracer";
 
 export const logger = pino({
-  mixin() {
-    return {
-      rTraceId: rTracer.id(),
-    };
-  },
   level: "trace",
 });
 
