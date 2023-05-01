@@ -10,6 +10,7 @@
     "clean": "npx rimraf **/build && npx rimraf ./**/node_modules && npx rimraf ./**/.next && npx rimraf ./**/newrelic_agent.log",
     "dev": "doppler run -- docker-compose -f ./docker-compose.dev.yml up",
     "dev:build": "doppler run -- docker-compose -f ./docker-compose.dev.yml up --build",
+    "dev:logs": "docker-compose -f ./docker-compose.dev.yml logs -f",
     "dev:stop": "docker-compose -f ./docker-compose.dev.yml stop",
     "dev:down": "docker-compose -f ./docker-compose.dev.yml down",
     "prod": "docker-compose -f ./docker-compose.prod.yml up",

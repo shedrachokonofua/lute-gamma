@@ -19,19 +19,40 @@ services:
   prometheus:
     image: prom/prometheus:latest
     restart: unless-stopped
-    build: ./prometheus
-    environment:
-      - ENV
-      - PROM_NODE_EXPORTER_TARGET
-      - PROM_LUTE_TARGET
-      - PROM_REMOTE_WRITE_HOST
-      - PROM_REMOTE_WRITE_USERNAME
-      - PROM_REMOTE_WRITE_PASSWORD
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--web.enable-lifecycle'
+  
+  grafana:
+    image: grafana/grafana:latest
     ports:
-     - 9090:9090
-    links:
-      - "node-exporter:node-exporter-dev"
-      - "lute:lute-dev"
+      - 4002:3000
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/grafana.ini:/etc/grafana/grafana.ini
+      - ./grafana/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
+
+  loki:
+    image: grafana/loki:latest
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - loki-data:/loki
+
+  promtail:
+    image: grafana/promtail:latest
+    volumes:
+      - promtail-data:/var/logs
+      - /var/log:/var/log
+      - ./promtail/config.yaml:/etc/promtail/docker-config.yaml
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: -config.file=/etc/promtail/docker-config.yaml
+    depends_on:
+      - loki
+      
   redis:
     image: 'bitnami/redis:latest'
     environment:
@@ -77,6 +98,9 @@ services:
       - LOKI_HOST
       - LOKI_USERNAME
       - LOKI_PASSWORD
+    labels:
+      logging: "promtail"
+      logging_jobname: "containerlogs"
 
   dashboard:
     build:
@@ -90,3 +114,12 @@ services:
     restart: always
     environment:
       - PORT=80
+    labels:
+      logging: "promtail"
+      logging_jobname: "containerlogs"
+
+volumes:
+  grafana-data:
+  loki-data:
+  promtail-data:
+  prometheus-data:
