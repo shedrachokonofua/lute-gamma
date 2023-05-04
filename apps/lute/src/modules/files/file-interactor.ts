@@ -5,101 +5,103 @@ import {
   EventType,
   extIsMhtml,
 } from "../../lib";
+import { span } from "../../lib/decorators";
 import { logger } from "../../logger";
-import { buildFileRepo } from "./file-repo";
+import { FileRepo, buildFileRepo } from "./file-repo";
 import { FileStorageClient } from "./storage";
 
-export const buildFileInteractor = ({
-  redisClient,
-  eventBus,
-  fileStorageClient,
-}: {
-  redisClient: RedisClient;
-  eventBus: EventBus;
-  fileStorageClient: FileStorageClient;
-}) => {
-  const fileRepo = buildFileRepo(redisClient);
+export class FileInteractor {
+  private fileRepo: FileRepo;
 
-  const interactor = {
-    async handleFileSave(
-      name: string,
-      eventCorrelationId?: string
-    ): Promise<string> {
-      const id = await fileRepo.saveFileName(name);
-      await eventBus.publish<FileSavedEventPayload>({
-        type: EventType.FileSaved,
-        data: {
-          fileId: id,
-          fileName: name,
-        },
-        metadata: {
-          correlationId: eventCorrelationId,
-        },
-      });
-      return id;
-    },
-    async getFileId(name: string): Promise<string | null> {
-      return fileRepo.getFileId(name);
-    },
-    async getFileName(id: string): Promise<string | null> {
-      const name = await fileRepo.getFileName(id);
-      if (!name) {
-        return null;
-      }
-      return name;
-    },
-    async handleFileDelete(id: string): Promise<void> {
-      const name = await fileRepo.getFileName(id);
-      if (!name) {
-        return;
-      }
-      await fileRepo.deleteFile(id);
-    },
-    async saveFile({
-      name,
-      data,
-      eventCorrelationId,
-    }: {
-      name: string;
-      data: string;
-      eventCorrelationId?: string;
-    }) {
-      await fileStorageClient.saveFile(name, data);
-      return interactor.handleFileSave(name, eventCorrelationId);
-    },
-    async deleteFile(name: string) {
-      await fileStorageClient.deleteFile(name);
-      const id = await fileRepo.getFileId(name);
-      if (!id) {
-        return;
-      }
-      await fileRepo.deleteFile(id);
-    },
-    async getFileContent(name: string): Promise<string | null> {
-      const content = await fileStorageClient.getFile(name);
-      if (!content) return null;
-      return content.toString();
-    },
-    async getDoesFileExist(name: string): Promise<boolean> {
-      const alternativeFileName = extIsMhtml(name)
-        ? name.replace(".mhtml", "")
-        : null;
+  constructor(
+    private redisClient: RedisClient,
+    private eventBus: EventBus,
+    private fileStorageClient: FileStorageClient
+  ) {
+    this.fileRepo = buildFileRepo(redisClient);
+  }
 
-      logger.info({ name, alternativeFileName }, "Checking if file exists");
+  async handleFileSave(
+    name: string,
+    eventCorrelationId?: string
+  ): Promise<string> {
+    const id = await this.fileRepo.saveFileName(name);
+    await this.eventBus.publish<FileSavedEventPayload>({
+      type: EventType.FileSaved,
+      data: {
+        fileId: id,
+        fileName: name,
+      },
+      metadata: {
+        correlationId: eventCorrelationId,
+      },
+    });
+    return id;
+  }
 
-      const fileId = await interactor.getFileId(name);
-      const alternativeFileId =
-        alternativeFileName &&
-        (await interactor.getFileId(alternativeFileName));
+  async getFileId(name: string): Promise<string | null> {
+    return this.fileRepo.getFileId(name);
+  }
 
-      logger.info({ fileId, alternativeFileId }, "Got file ids");
+  async getFileName(id: string): Promise<string | null> {
+    const name = await this.fileRepo.getFileName(id);
+    if (!name) {
+      return null;
+    }
+    return name;
+  }
 
-      const exists = fileId !== null || alternativeFileId !== null;
-      return exists;
-    },
-  };
+  async handleFileDelete(id: string): Promise<void> {
+    const name = await this.fileRepo.getFileName(id);
+    if (!name) {
+      return;
+    }
+    await this.fileRepo.deleteFile(id);
+  }
 
-  return interactor;
-};
+  @span
+  async saveFile({
+    name,
+    data,
+    eventCorrelationId,
+  }: {
+    name: string;
+    data: string;
+    eventCorrelationId?: string;
+  }) {
+    await this.fileStorageClient.saveFile(name, data);
+    return this.handleFileSave(name, eventCorrelationId);
+  }
 
-export type FileInteractor = ReturnType<typeof buildFileInteractor>;
+  async deleteFile(name: string) {
+    await this.fileStorageClient.deleteFile(name);
+    const id = await this.fileRepo.getFileId(name);
+    if (!id) {
+      return;
+    }
+    await this.fileRepo.deleteFile(id);
+  }
+
+  async getFileContent(name: string): Promise<string | null> {
+    const content = await this.fileStorageClient.getFile(name);
+    if (!content) return null;
+    return content.toString();
+  }
+
+  async getDoesFileExist(name: string): Promise<boolean> {
+    const alternativeFileName = extIsMhtml(name)
+      ? name.replace(".mhtml", "")
+      : null;
+
+    logger.info({ name, alternativeFileName }, "Checking if file exists");
+
+    const fileId = await this.getFileId(name);
+    const alternativeFileId =
+      alternativeFileName && (await this.getFileId(alternativeFileName));
+
+    logger.info({ fileId, alternativeFileId }, "Got file ids");
+
+    const exists = fileId !== null || alternativeFileId !== null;
+    return exists;
+  }
+}

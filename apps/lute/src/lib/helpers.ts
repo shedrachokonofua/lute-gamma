@@ -20,16 +20,3 @@ export const pFilter = async <T>(
   const results = await Promise.all(items.map(predicate));
   return items.filter((_, index) => results[index]);
 };
-
-export const generateHistogramBuckets = (
-  start: number,
-  end: number,
-  bucketCount: number
-): number[] => {
-  const buckets = [];
-  const step = (end - start) / bucketCount;
-  for (let i = 0; i < bucketCount; i++) {
-    buckets.push(start + step * i);
-  }
-  return buckets;
-};

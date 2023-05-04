@@ -2,7 +2,9 @@
   "extends": "@lute/ts-config/base.json",
   "compilerOptions": {
     "rootDir": "src",
-    "outDir": "build"
+    "outDir": "build",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
   },
   "include": ["src/**/*.ts"]
 }

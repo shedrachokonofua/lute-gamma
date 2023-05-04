@@ -6,7 +6,7 @@ import { buildAlbumInteractor } from "./modules/albums";
 import { buildArtistInteractor } from "./modules/artists";
 import { buildChartInteractor } from "./modules/charts";
 import { buildCrawlerInteractor } from "./modules/crawler";
-import { buildFileInteractor, buildFileStorageClient } from "./modules/files";
+import { FileInteractor, buildFileStorageClient } from "./modules/files";
 import { buildLookupInteractor } from "./modules/lookup";
 import { buildProfileInteractor } from "./modules/profile";
 import {
@@ -32,11 +32,11 @@ export const buildContext = async () => {
   const artistInteractor = buildArtistInteractor(mongoClient);
   const albumInteractor = buildAlbumInteractor({ eventBus, mongoClient });
   const chartInteractor = buildChartInteractor({ eventBus, mongoClient });
-  const fileInteractor = buildFileInteractor({
-    eventBus,
+  const fileInteractor = new FileInteractor(
     redisClient,
-    fileStorageClient,
-  });
+    eventBus,
+    fileStorageClient
+  );
   const crawlerInteractor = buildCrawlerInteractor({
     redisClient,
     fileInteractor,

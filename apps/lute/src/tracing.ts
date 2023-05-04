@@ -22,3 +22,5 @@ provider.addSpanProcessor(new SimpleSpanProcessor(exporter));
 registerInstrumentations({
   instrumentations: [getNodeAutoInstrumentations()],
 });
+
+export const tracer = provider.getTracer("lute");

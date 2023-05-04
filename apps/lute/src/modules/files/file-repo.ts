@@ -51,3 +51,5 @@ export const buildFileRepo = (redisClient: RedisClient) => ({
     logger.info({ id, name }, "Deleted file name");
   },
 });
+
+export type FileRepo = ReturnType<typeof buildFileRepo>;
