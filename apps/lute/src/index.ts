@@ -1,4 +1,4 @@
-// import "./tracing";
+import "./lib/tracing";
 import { collectDefaultMetrics } from "prom-client";
 import { buildContext } from "./context";
 import { startCrons } from "./cron";

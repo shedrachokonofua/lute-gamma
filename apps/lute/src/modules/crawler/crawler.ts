@@ -12,6 +12,10 @@ import { span } from "../../lib/decorators";
 const stall = () => delay(config.crawler.stallSeconds);
 
 export class Crawler {
+  private get crawlerInteractor() {
+    return this.context.crawlerInteractor;
+  }
+
   private readonly network = axios.create({
     baseURL: "https://www.rateyourmusic.com",
     httpsAgent: new https.Agent({
@@ -37,25 +41,25 @@ export class Crawler {
   @span
   async storeFile({ fileName, metadata }: QueueItem) {
     const response = await this.downloadFile(fileName);
-    await this.context.crawlerInteractor.incrementQuotaWindowHits();
+    await this.crawlerInteractor.incrementQuotaWindowHits();
     await this.context.fileInteractor.saveFile({
       name: fileName,
       data: response.data,
       eventCorrelationId: metadata?.correlationId,
     });
-    await this.context.crawlerInteractor.clearError();
+    await this.crawlerInteractor.clearError();
   }
 
   @span
   async execute() {
-    await this.context.crawlerInteractor.enforceQuota();
+    await this.crawlerInteractor.enforceQuota();
 
-    const status = await this.context.crawlerInteractor.getStatus();
+    const status = await this.crawlerInteractor.getStatus();
     if (status === CrawlerStatus.Stopped || status === CrawlerStatus.Error) {
       return false;
     }
 
-    const item = await this.context.crawlerInteractor.queue.claimItem();
+    const item = await this.crawlerInteractor.claimItem();
     if (!item) {
       return false;
     }
@@ -63,15 +67,14 @@ export class Crawler {
     await retry(
       async () => {
         await this.storeFile(item);
-        await this.context.crawlerInteractor.queue.deleteItem(item.itemKey);
+        await this.crawlerInteractor.releaseItem(item.itemKey);
       },
       async (error) => {
         logger.error({ error }, "Crawler error");
-        await this.context.crawlerInteractor.queue.deleteItem(item.itemKey);
-        await this.context.crawlerInteractor.dlq.push(item);
+        await this.crawlerInteractor.releaseItem(item.itemKey);
       }
     );
-    await this.context.crawlerInteractor.reportCrawlerQueueLengthMetric();
+    await this.crawlerInteractor.reportCrawlerQueueLengthMetric();
     return true;
   }
 
@@ -85,9 +88,7 @@ export class Crawler {
   }
 
   async start() {
-    crawlerMetrics.setQueueLength(
-      await this.context.crawlerInteractor.queue.getSize()
-    );
+    crawlerMetrics.setQueueLength(await this.crawlerInteractor.getQueueSize());
 
     for (let i = 0; i < config.crawler.concurrency; i++) {
       this.listen();

@@ -1,60 +1,81 @@
-import { buildControllerFactory } from "../../lib";
-import { Context } from "../../context";
-import { isCrawlerStatus } from "./crawler-repo";
+import { Controller, LuteExpressResponse as Response } from "../../lib";
+import { isCrawlerStatus } from "./crawler-repository";
 import { Priority } from "./priority-queue";
+import { Request, Router } from "express";
 
-// TODO: Migrate to new controller class
-export const buildCrawlerController = buildControllerFactory<Context>(
-  ({ crawlerInteractor }) => ({
-    async putStatus(req, res) {
-      const { status } = req.body;
-      if (!isCrawlerStatus(status)) {
-        return res.status(400).json({ ok: false, error: "invalid status" });
-      }
-      await crawlerInteractor.setStatus(status);
-      return res.json({ ok: true });
-    },
-    async getStatus(_, res) {
-      const status = await crawlerInteractor.getStatus();
-      return res.json({ ok: true, data: { status } });
-    },
-    async getHead(_, res) {
-      const current = await crawlerInteractor.queue.peek();
-      return res.json({ ok: true, data: { current } });
-    },
-    async schedule(req, res) {
-      const { fileName } = req.body;
-      if (!fileName) {
-        return res.status(400).json({ ok: false, error: "Invalid fileName" });
-      }
-      await crawlerInteractor.schedule({
-        fileName,
-        dedupeKey: Date.now().toString(), // Don't dedupe
-        priority: Priority.Express,
-      });
-      return res.json({ ok: true });
-    },
-    async clearError(_, res) {
-      await crawlerInteractor.clearError();
-      return res.json({ ok: true });
-    },
-    async getError(_, res) {
-      const error = await crawlerInteractor.getError();
-      return res.json({ ok: true, data: { error } });
-    },
-    async getMonitor(_, res) {
-      return res.json({
-        ok: true,
-        data: await crawlerInteractor.getMonitor(),
-      });
-    },
-    async empty(_, res) {
-      await crawlerInteractor.emptyQueue();
-      return res.json({ ok: true });
-    },
-    async resetQuota(_, res) {
-      await crawlerInteractor.resetQuota();
-      return res.json({ ok: true });
-    },
-  })
-);
+export class CrawlerController extends Controller {
+  private get crawlerInteractor() {
+    return this.context.crawlerInteractor;
+  }
+
+  get router() {
+    return Router()
+      .get("/monitor", this.mount(this.getMonitor))
+      .put("/status", this.mount(this.putStatus))
+      .get("/status", this.mount(this.getStatus))
+      .get("/head", this.mount(this.getHead))
+      .post("/schedule", this.mount(this.schedule))
+      .delete("/error", this.mount(this.clearError))
+      .get("/error", this.mount(this.getError))
+      .post("/empty", this.mount(this.empty))
+      .post("/reset-quota", this.mount(this.resetQuota));
+  }
+
+  async putStatus(req: Request, res: Response) {
+    const { status } = req.body;
+    if (!isCrawlerStatus(status)) {
+      return res.badRequest("Invalid status");
+    }
+
+    await this.crawlerInteractor.setStatus(status);
+    return res.success();
+  }
+
+  async getStatus(_: Request, res: Response) {
+    const status = await this.crawlerInteractor.getStatus();
+    return res.success({ status });
+  }
+
+  async getHead(_: Request, res: Response) {
+    const current = await this.crawlerInteractor.peek();
+    return res.success({ current });
+  }
+
+  async schedule(req: Request, res: Response) {
+    const { fileName } = req.body;
+    if (!fileName) {
+      return res.badRequest("Missing fileName");
+    }
+
+    await this.crawlerInteractor.schedule({
+      fileName,
+      dedupeKey: Date.now().toString(), // Don't dedupe
+      priority: Priority.Express,
+    });
+    return res.success();
+  }
+
+  async clearError(_: Request, res: Response) {
+    await this.crawlerInteractor.clearError();
+    return res.success();
+  }
+
+  async getError(_: Request, res: Response) {
+    const error = await this.crawlerInteractor.getError();
+    return res.success({ error });
+  }
+
+  async getMonitor(_: Request, res: Response) {
+    return res.success(await this.crawlerInteractor.getMonitor());
+  }
+
+  async empty(_: Request, res: Response) {
+    await this.crawlerInteractor.emptyQueue();
+    return res.success();
+  }
+
+  async resetQuota(_: Request, res: Response) {
+    await this.crawlerInteractor.resetQuota();
+    return res.success();
+  }
+}

@@ -35,7 +35,7 @@ export class FileController extends Controller {
       eventCorrelationId
     );
 
-    res.success({ metadata });
+    return res.success({ metadata });
   }
 
   async getIsFileStale(req: Request, res: Response) {
@@ -47,7 +47,7 @@ export class FileController extends Controller {
 
     const exists = await this.fileInteractor.isFileStale(name);
 
-    res.success({ exists });
+    return res.success({ exists });
   }
 
   async getFile(req: Request, res: Response) {
@@ -63,7 +63,7 @@ export class FileController extends Controller {
       return res.notFound();
     }
 
-    res.send(file);
+    return res.send(file);
   }
 
   async deleteFile(req: Request, res: Response) {
@@ -76,6 +76,6 @@ export class FileController extends Controller {
     await this.fileStorageClient.deleteFile(fileName);
     await this.fileInteractor.afterFileContentDeleted(fileName);
 
-    res.success();
+    return res.success();
   }
 }

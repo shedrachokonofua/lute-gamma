@@ -5,7 +5,7 @@ import { logger } from "./logger";
 import { buildAlbumInteractor } from "./modules/albums";
 import { buildArtistInteractor } from "./modules/artists";
 import { buildChartInteractor } from "./modules/charts";
-import { buildCrawlerInteractor } from "./modules/crawler";
+import { CrawlerInteractor } from "./modules/crawler";
 import { FileInteractor, buildFileStorageClient } from "./modules/files";
 import { buildLookupInteractor } from "./modules/lookup";
 import { buildProfileInteractor } from "./modules/profile";
@@ -23,7 +23,6 @@ const spawnRedisClient = () =>
 
 export const buildContext = async () => {
   const redisClient = await spawnRedisClient();
-  console.log(config.mongo.url);
   const mongoClient = await MongoClient.connect(config.mongo.url);
   const fileStorageClient = buildFileStorageClient();
 
@@ -37,10 +36,7 @@ export const buildContext = async () => {
     eventBus,
     fileStorageClient
   );
-  const crawlerInteractor = buildCrawlerInteractor({
-    redisClient,
-    fileInteractor,
-  });
+  const crawlerInteractor = new CrawlerInteractor(redisClient, fileInteractor);
   const lookupInteractor = buildLookupInteractor({
     albumInteractor,
     crawlerInteractor,

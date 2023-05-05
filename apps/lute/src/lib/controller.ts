@@ -34,7 +34,7 @@ export abstract class Controller {
   constructor(protected readonly context: Context) {}
   abstract router: Router;
   mount(
-    controllerMethod: (req: Request, res: LuteExpressResponse) => Promise<void>
+    controllerMethod: (req: Request, res: LuteExpressResponse) => Promise<any>
   ) {
     return async (req: Request, res: Response, next: NextFunction) => {
       try {
