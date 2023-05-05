@@ -3,6 +3,7 @@ import { Context } from "../../context";
 import { isCrawlerStatus } from "./crawler-repo";
 import { Priority } from "./priority-queue";
 
+// TODO: Migrate to new controller class
 export const buildCrawlerController = buildControllerFactory<Context>(
   ({ crawlerInteractor }) => ({
     async putStatus(req, res) {

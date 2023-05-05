@@ -76,7 +76,6 @@ export class Crawler {
   }
 
   async listen() {
-    logger.info(this);
     while (true) {
       const didWork = await this.execute();
       if (!didWork) {
@@ -93,5 +92,10 @@ export class Crawler {
     for (let i = 0; i < config.crawler.concurrency; i++) {
       this.listen();
     }
+  }
+
+  static async run(context: Context) {
+    const crawler = new Crawler(context);
+    await crawler.start();
   }
 }

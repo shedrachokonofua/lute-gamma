@@ -8,16 +8,19 @@ import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import { Resource } from "@opentelemetry/resources";
 import { SemanticResourceAttributes } from "@opentelemetry/semantic-conventions";
 
-const exporter = new OTLPTraceExporter({
-  url: "http://tempo:55681/v1/traces",
-});
 const provider = new NodeTracerProvider({
   resource: new Resource({
     [SemanticResourceAttributes.SERVICE_NAME]: "lute",
   }),
 });
+provider.addSpanProcessor(
+  new SimpleSpanProcessor(
+    new OTLPTraceExporter({
+      url: "http://tempo:55681/v1/traces",
+    })
+  )
+);
 provider.register();
-provider.addSpanProcessor(new SimpleSpanProcessor(exporter));
 
 registerInstrumentations({
   instrumentations: [getNodeAutoInstrumentations()],

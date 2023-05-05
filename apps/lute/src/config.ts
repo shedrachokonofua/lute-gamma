@@ -7,7 +7,10 @@ export const config = {
   isProduction,
   env: ENV,
   mongo: {
-    url: env.get("MONGO_URL").default("mongodb://mongodb:27017").asString(),
+    url: env
+      .get("MONGO_URL")
+      .default("mongodb://mongodb:27017/lute")
+      .asString(),
   },
   redis: {
     url: env.get("REDIS_URL").default("redis://redis:6379").asString(),

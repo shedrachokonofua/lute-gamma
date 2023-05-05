@@ -1,14 +1,7 @@
-# In Progress
-
-- [ ] Extract recommendation module[Notes](notes/recommendation-module.md)
-- [ ] Artist entity support [Notes](notes/artists.md)
-- [ ] Crawler improvements [Notes](notes/crawler.md)
-
 # Todos
 
 ### High Priority
 
-- [ ] Setup Grafana Tempo
 - [ ] Collect album language(s)
 
 ### Medium Priority
@@ -17,7 +10,6 @@
 - [ ] Support adding album ratings to profiles
 - [ ] Recommendation list item action menu
 - [ ] Fix release date parsing
-- [ ] Crawl release year chart for each genre when album added to profile
 - [ ] Support filtering recommendations by year/decade
 
 ### Low Priority

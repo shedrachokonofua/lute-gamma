@@ -4,7 +4,7 @@ import { logger } from "../../logger";
 
 export const buildArtistRepo = (mongoClient: MongoClient) => {
   const collection = mongoClient
-    .db("rym-data")
+    .db("lute")
     .collection<ArtistDocument>("artists");
 
   return {

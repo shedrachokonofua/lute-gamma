@@ -1,62 +1,55 @@
+import { FileMetadata, PageType } from "@lute/domain";
 import {
   RedisClient,
   EventBus,
   FileSavedEventPayload,
   EventType,
-  extIsMhtml,
 } from "../../lib";
 import { span } from "../../lib/decorators";
-import { logger } from "../../logger";
-import { FileRepo, buildFileRepo } from "./file-repo";
+import { FileMetadataRepository } from "./file-metadata-repository";
 import { FileStorageClient } from "./storage";
+import { config } from "../../config";
+import { isBefore, addDays } from "date-fns";
+
+const pageTypeToTTLDays = {
+  [PageType.Artist]: config.files.ttlDays.artist,
+  [PageType.Album]: config.files.ttlDays.album,
+  [PageType.Chart]: config.files.ttlDays.chart,
+  [PageType.Search]: config.files.ttlDays.search,
+};
 
 export class FileInteractor {
-  private fileRepo: FileRepo;
-
   constructor(
     private redisClient: RedisClient,
     private eventBus: EventBus,
-    private fileStorageClient: FileStorageClient
-  ) {
-    this.fileRepo = buildFileRepo(redisClient);
-  }
+    private fileStorageClient: FileStorageClient,
+    private fileMetadataRepository: FileMetadataRepository = new FileMetadataRepository(
+      redisClient
+    )
+  ) {}
 
-  async handleFileSave(
+  async afterFileContentSaved(
     name: string,
     eventCorrelationId?: string
-  ): Promise<string> {
-    const id = await this.fileRepo.saveFileName(name);
+  ): Promise<FileMetadata> {
+    const metadata = await this.fileMetadataRepository.upsert(name);
+
     await this.eventBus.publish<FileSavedEventPayload>({
       type: EventType.FileSaved,
       data: {
-        fileId: id,
-        fileName: name,
+        fileId: metadata.id,
+        fileName: metadata.name,
       },
       metadata: {
         correlationId: eventCorrelationId,
       },
     });
-    return id;
+
+    return metadata;
   }
 
-  async getFileId(name: string): Promise<string | null> {
-    return this.fileRepo.getFileId(name);
-  }
-
-  async getFileName(id: string): Promise<string | null> {
-    const name = await this.fileRepo.getFileName(id);
-    if (!name) {
-      return null;
-    }
-    return name;
-  }
-
-  async handleFileDelete(id: string): Promise<void> {
-    const name = await this.fileRepo.getFileName(id);
-    if (!name) {
-      return;
-    }
-    await this.fileRepo.deleteFile(id);
+  async afterFileContentDeleted(name: string): Promise<void> {
+    await this.fileMetadataRepository.delete(name);
   }
 
   @span
@@ -70,38 +63,30 @@ export class FileInteractor {
     eventCorrelationId?: string;
   }) {
     await this.fileStorageClient.saveFile(name, data);
-    return this.handleFileSave(name, eventCorrelationId);
+    return this.afterFileContentSaved(name, eventCorrelationId);
   }
 
+  @span
   async deleteFile(name: string) {
     await this.fileStorageClient.deleteFile(name);
-    const id = await this.fileRepo.getFileId(name);
-    if (!id) {
-      return;
-    }
-    await this.fileRepo.deleteFile(id);
+    await this.afterFileContentDeleted(name);
   }
 
+  @span
   async getFileContent(name: string): Promise<string | null> {
     const content = await this.fileStorageClient.getFile(name);
-    if (!content) return null;
-    return content.toString();
+    return content?.toString() ?? null;
   }
 
-  async getDoesFileExist(name: string): Promise<boolean> {
-    const alternativeFileName = extIsMhtml(name)
-      ? name.replace(".mhtml", "")
-      : null;
+  async isFileStale(name: string): Promise<boolean> {
+    const metadata = await this.fileMetadataRepository.findByName(name);
+    if (!metadata) return false;
 
-    logger.info({ name, alternativeFileName }, "Checking if file exists");
+    const ttlDays = pageTypeToTTLDays[metadata.pageType];
 
-    const fileId = await this.getFileId(name);
-    const alternativeFileId =
-      alternativeFileName && (await this.getFileId(alternativeFileName));
-
-    logger.info({ fileId, alternativeFileId }, "Got file ids");
-
-    const exists = fileId !== null || alternativeFileId !== null;
-    return exists;
+    return isBefore(
+      new Date(),
+      addDays(new Date(metadata.lastSavedAt), ttlDays)
+    );
   }
 }

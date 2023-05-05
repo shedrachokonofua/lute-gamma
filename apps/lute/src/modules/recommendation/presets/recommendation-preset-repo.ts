@@ -1,12 +1,12 @@
-import { DeepPartial, RecommendationPreset } from "@lute/domain";
+import { RecommendationPreset } from "@lute/domain";
 import { MongoClient } from "mongodb";
-import deepMerge from "ts-deepmerge";
 
+// TODO: Migrate to redis
 export const buildRecommendationPresetRepo = async (
   mongoClient: MongoClient
 ) => {
   const presetsCollection = mongoClient
-    .db("profile")
+    .db("lute")
     .collection<RecommendationPreset>("presets");
 
   await presetsCollection.createIndex({ id: 1 }, { unique: true });
@@ -30,7 +30,7 @@ export const buildRecommendationPresetRepo = async (
         ...existingPreset,
         ...update,
       };
-      await presetsCollection.updateOne({ id }, { $set: updatedPreset });
+      await presetsCollection.updateOne({ id }, { $set: updatedPreset as any });
       return updatedPreset;
     },
   };

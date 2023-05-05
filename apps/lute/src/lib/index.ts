@@ -1,3 +1,4 @@
+export * from "./controller";
 export * from "./db";
 export * from "./events";
 export * from "./helpers";

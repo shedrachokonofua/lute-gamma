@@ -1,69 +1,81 @@
-import { buildControllerFactory, extIsMhtml } from "../../lib";
+import { Controller, LuteExpressResponse as Response } from "../../lib";
 import { logger } from "../../logger";
-import { Context } from "../../context";
+import { Request, Router } from "express";
 
-export const buildFileController = buildControllerFactory(
-  ({ fileInteractor, fileStorageClient }: Context) => {
-    return {
-      async uploadFile(req, res) {
-        if (!req.file || !req.body.name) {
-          return res.status(400).json({ ok: false, error: "Invalid body" });
-        }
-        const { name, eventCorrelationId } = req.body;
-        logger.info({ name }, "File saved to storage");
-
-        const id = await fileInteractor.handleFileSave(
-          name,
-          eventCorrelationId
-        );
-
-        res.send({ ok: true, data: { id } });
-      },
-      async getDoesFileExist(req, res) {
-        const name = (req.query.name as string) ?? "";
-
-        if (!name) {
-          return res.status(400).json({ ok: false, error: "Invalid request" });
-        }
-
-        res.send({
-          ok: true,
-          data: { exists: await fileInteractor.getDoesFileExist(name) },
-        });
-      },
-      async getFile(req, res) {
-        const fileId = req.params.id;
-
-        if (!fileId) {
-          return res.status(400).json({ ok: false, error: "Invalid request" });
-        }
-
-        const fileName = await fileInteractor.getFileName(fileId);
-
-        if (!fileName) {
-          return res.status(404).json({ ok: false, error: "Not found" });
-        }
-
-        res.send(await fileStorageClient.getFile(fileName));
-      },
-      async deleteFile(req, res) {
-        const fileId = req.params.id;
-
-        if (!fileId) {
-          return res.status(400).json({ ok: false, error: "Invalid request" });
-        }
-
-        const fileName = await fileInteractor.getFileName(fileId);
-
-        if (!fileName) {
-          return res.status(404).json({ ok: false, error: "Not found" });
-        }
-
-        await fileStorageClient.deleteFile(fileName);
-        await fileInteractor.handleFileDelete(fileId);
-
-        res.send({ ok: true });
-      },
-    };
+export class FileController extends Controller {
+  private get fileInteractor() {
+    return this.context.fileInteractor;
   }
-);
+
+  private get fileStorageClient() {
+    return this.context.fileStorageClient;
+  }
+
+  get router() {
+    return Router()
+      .post(
+        "/",
+        this.fileStorageClient.multer.single("file"),
+        this.mount(this.uploadFile)
+      )
+      .get("/exists", this.mount(this.getIsFileStale))
+      .get("/*", this.mount(this.getFile))
+      .delete("/*", this.mount(this.deleteFile));
+  }
+
+  async uploadFile(req: Request, res: Response) {
+    if (!req.file || !req.body.name) {
+      return res.badRequest("Invalid body");
+    }
+    const { name, eventCorrelationId } = req.body;
+    logger.info({ name }, "File saved to storage");
+
+    const metadata = await this.fileInteractor.afterFileContentSaved(
+      name,
+      eventCorrelationId
+    );
+
+    res.success({ metadata });
+  }
+
+  async getIsFileStale(req: Request, res: Response) {
+    const name = (req.query.name as string) ?? "";
+
+    if (!name) {
+      return res.badRequest("Invalid request");
+    }
+
+    const exists = await this.fileInteractor.isFileStale(name);
+
+    res.success({ exists });
+  }
+
+  async getFile(req: Request, res: Response) {
+    const fileName = req.path;
+
+    if (!fileName) {
+      return res.badRequest("Invalid request");
+    }
+
+    const file = await this.fileStorageClient.getFile(fileName);
+
+    if (!file) {
+      return res.notFound();
+    }
+
+    res.send(file);
+  }
+
+  async deleteFile(req: Request, res: Response) {
+    const fileName = req.path;
+
+    if (!fileName) {
+      return res.badRequest("Invalid request");
+    }
+
+    await this.fileStorageClient.deleteFile(fileName);
+    await this.fileInteractor.afterFileContentDeleted(fileName);
+
+    res.success();
+  }
+}

@@ -141,7 +141,7 @@ export class EventBus {
                 await retry(
                   async () => subscriber.consumeEvent(context, event),
                   async (error) => {
-                    logger.debug({ error }, "Error consuming event");
+                    logger.error({ error }, "Error consuming event");
                   },
                   this.retryCount
                 );

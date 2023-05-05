@@ -1,12 +1,5 @@
 import { parse as parseFormattedDate } from "date-fns";
 
-export enum PageType {
-  Artist = "artist",
-  Album = "album",
-  Chart = "chart",
-  Search = "search",
-}
-
 export interface ArtistPage {
   name: string;
   albums: {

@@ -3,9 +3,7 @@ import { MongoClient } from "mongodb";
 import { logger } from "../../logger";
 
 export const buildChartRepo = (mongoClient: MongoClient) => {
-  const collection = mongoClient
-    .db("rym-data")
-    .collection<ChartDocument>("charts");
+  const collection = mongoClient.db("lute").collection<ChartDocument>("charts");
 
   return {
     async putChart(chart: ChartDocument): Promise<ChartDocument> {

@@ -72,7 +72,7 @@ export const buildCrawlerInteractor = ({
       await interactor.reportCrawlerQueueLengthMetric();
     },
     async cachedSchedule(params: QueuePushParams) {
-      if (!(await fileInteractor.getDoesFileExist(params.fileName))) {
+      if (!(await fileInteractor.isFileStale(params.fileName))) {
         await interactor.schedule(params);
       }
     },

@@ -14,9 +14,10 @@ export interface AddAlbumToProfilePayload {
   count?: number;
 }
 
+// TODO: Migrate to redis
 export const buildProfileRepo = async (mongoClient: MongoClient) => {
   const profilesCollection = mongoClient
-    .db("profile")
+    .db("lute")
     .collection<ProfileDocument>("profiles");
 
   await profilesCollection.createIndex({ id: 1 }, { unique: true });
@@ -98,6 +99,7 @@ export const buildProfileRepo = async (mongoClient: MongoClient) => {
 
       return !!result;
     },
+    // TODO: this should have a more specific name
     getProfiles: async (): Promise<ProfileDTO[]> => {
       const profiles = (await profilesCollection
         .find(

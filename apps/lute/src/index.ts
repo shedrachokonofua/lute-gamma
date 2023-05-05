@@ -1,4 +1,4 @@
-import "./tracing";
+// import "./tracing";
 import { collectDefaultMetrics } from "prom-client";
 import { buildContext } from "./context";
 import { startCrons } from "./cron";
@@ -10,9 +10,8 @@ collectDefaultMetrics();
 
 (async () => {
   const context = await buildContext();
-  const crawler = new Crawler(context);
   await registerEventSubscribers(context);
-  crawler.start();
+  Crawler.run(context);
   startServer(context);
   startCrons();
   context.eventBus.listen(context);

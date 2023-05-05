@@ -16,9 +16,7 @@ const transformPutAlbumPayload = (album: PutAlbumPayload) =>
   });
 
 export const buildAlbumRepo = (mongoClient: MongoClient) => {
-  const collection = mongoClient
-    .db("rym-data")
-    .collection<AlbumDocument>("albums");
+  const collection = mongoClient.db("lute").collection<AlbumDocument>("albums");
 
   return {
     async putAlbum(album: PutAlbumPayload): Promise<AlbumDocument> {

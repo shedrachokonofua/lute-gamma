@@ -1,7 +1,7 @@
 import { Histogram } from "prom-client";
-import { SpanStatusCode, context, trace } from "@opentelemetry/api";
+import { SpanStatusCode } from "@opentelemetry/api";
 import { executeWithTimer } from "./helpers";
-import { tracer } from "../tracing";
+import { tracer } from "./tracing";
 
 /**
  * Decorator that measures the duration of a method and records it in a histogram.

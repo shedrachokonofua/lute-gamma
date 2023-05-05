@@ -32,6 +32,7 @@ export interface Profile {
   weightedProfileDetails: ProfileDetails;
 }
 
+// TODO: find a better name for this
 export interface ProfileDTO {
   id: string;
   title: string;
