@@ -1,29 +1,23 @@
-import {
-  NodeTracerProvider,
-  SimpleSpanProcessor,
-} from "@opentelemetry/sdk-trace-node";
-import { registerInstrumentations } from "@opentelemetry/instrumentation";
-import { getNodeAutoInstrumentations } from "@opentelemetry/auto-instrumentations-node";
-import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
-import { Resource } from "@opentelemetry/resources";
-import { SemanticResourceAttributes } from "@opentelemetry/semantic-conventions";
+import { AsyncLocalStorage } from "async_hooks";
+import { nanoid } from "nanoid";
+import { trace } from "@opentelemetry/api";
 
-const provider = new NodeTracerProvider({
-  resource: new Resource({
-    [SemanticResourceAttributes.SERVICE_NAME]: "lute",
-  }),
-});
-provider.addSpanProcessor(
-  new SimpleSpanProcessor(
-    new OTLPTraceExporter({
-      url: "http://tempo:55681/v1/traces",
-    })
-  )
-);
-provider.register();
+const traceIdContext = new AsyncLocalStorage<string>();
 
-registerInstrumentations({
-  instrumentations: [getNodeAutoInstrumentations()],
-});
+export const runWithTraceId = (
+  ...args:
+    | [cb: () => unknown]
+    | [traceId: string, cb: () => unknown | Promise<unknown>]
+) => {
+  if (args.length === 1) {
+    const [cb] = args;
+    return traceIdContext.run(`lute:` + nanoid(), cb);
+  } else {
+    const [traceId, cb] = args;
+    return traceIdContext.run(traceId, cb);
+  }
+};
 
-export const tracer = provider.getTracer("lute");
+export const getTraceIdFromContext = () => traceIdContext.getStore();
+
+export const tracer = trace.getTracer("lute");

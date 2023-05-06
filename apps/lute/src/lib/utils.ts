@@ -34,5 +34,3 @@ export const retry = async (
     return retry(fn, onFail, maxRetries - 1, delaySeconds);
   }
 };
-
-export const runWithTraceId = rTracer.runWithId.bind(rTracer);

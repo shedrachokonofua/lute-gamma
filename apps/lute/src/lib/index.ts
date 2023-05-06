@@ -5,3 +5,6 @@ export * from "./helpers";
 export * from "./server";
 export * from "./rym";
 export * from "./utils";
+export * from "./tracing";
+export * from "./decorators";
+export * from "./instrumentation";
