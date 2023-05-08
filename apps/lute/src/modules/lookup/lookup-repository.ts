@@ -7,12 +7,19 @@ import {
   hashLookupKey,
 } from "@lute/domain";
 
-export const buildLookupRepo = (redisClient: RedisClient) => ({
+export class LookupRepository {
+  private redisClient: RedisClient;
+
+  constructor(redisClient: RedisClient) {
+    this.redisClient = redisClient;
+  }
+
   async getLookup(key: LookupKey): Promise<Lookup> {
     const keyHash = hashLookupKey(key);
-    const lookup = await redisClient.get(`lookup:${keyHash}`);
+    const lookup = await this.redisClient.get(`lookup:${keyHash}`);
     return lookup ? JSON.parse(lookup) : null;
-  },
+  }
+
   async createLookup(key: LookupKey): Promise<Lookup> {
     const keyHash = hashLookupKey(key);
     const lookup: Lookup = {
@@ -20,22 +27,25 @@ export const buildLookupRepo = (redisClient: RedisClient) => ({
       keyHash,
       status: LookupStatus.Started,
     };
-    await redisClient.set(`lookup:${keyHash}`, JSON.stringify(lookup));
+    await this.redisClient.set(`lookup:${keyHash}`, JSON.stringify(lookup));
     return lookup;
-  },
+  }
+
   async getOrCreateLookup(key: LookupKey): Promise<Lookup> {
     const lookup = await this.getLookup(key);
     if (lookup) {
       return lookup;
     }
     return this.createLookup(key);
-  },
+  }
+
   async getLookupByHash(keyHash: string): Promise<Lookup> {
-    const lookup = await redisClient.get(`lookup:${keyHash}`);
+    const lookup = await this.redisClient.get(`lookup:${keyHash}`);
     return lookup ? JSON.parse(lookup) : null;
-  },
+  }
+
   async putLookup(keyHash: string, payload: PutLookupPayload): Promise<Lookup> {
-    const lookup = await redisClient.get(`lookup:${keyHash}`);
+    const lookup = await this.redisClient.get(`lookup:${keyHash}`);
     if (!lookup) {
       throw new Error(`Lookup not found for key hash ${keyHash}`);
     }
@@ -49,12 +59,11 @@ export const buildLookupRepo = (redisClient: RedisClient) => ({
         ...payload.bestMatch,
       },
     };
-    await redisClient.set(`lookup:${keyHash}`, JSON.stringify(newLookup));
+    await this.redisClient.set(`lookup:${keyHash}`, JSON.stringify(newLookup));
     return newLookup;
-  },
-  async deleteLookup(keyHash: string): Promise<void> {
-    await redisClient.del(`lookup:${keyHash}`);
-  },
-});
+  }
 
-export type LookupRepo = ReturnType<typeof buildLookupRepo>;
+  async deleteLookup(keyHash: string): Promise<void> {
+    await this.redisClient.del(`lookup:${keyHash}`);
+  }
+}

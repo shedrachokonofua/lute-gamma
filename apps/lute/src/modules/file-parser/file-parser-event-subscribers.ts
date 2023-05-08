@@ -6,7 +6,7 @@ import { parseMhtmlToHtml } from "./mhtml-parser";
 export const registerFileParserEventSubscribers = async (context: Context) => {
   await context.eventBus.subscribe([EventType.FileSaved], {
     name: "file-parser",
-    async consumeEvent(context, event) {
+    async consumeEvent(_, event) {
       if (extIsMhtml(event.data.fileName)) {
         await parseMhtmlToHtml(context, event.data);
       } else {

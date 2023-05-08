@@ -2,12 +2,12 @@ import { MongoClient } from "mongodb";
 import { config } from "./config";
 import { buildRedisClient, EventBus } from "./lib";
 import { logger } from "./logger";
-import { buildAlbumInteractor } from "./modules/albums";
+import { AlbumInteractor } from "./modules/albums";
 import { buildArtistInteractor } from "./modules/artists";
 import { buildChartInteractor } from "./modules/charts";
 import { CrawlerInteractor } from "./modules/crawler";
 import { FileInteractor, buildFileStorageClient } from "./modules/files";
-import { buildLookupInteractor } from "./modules/lookup";
+import { LookupInteractor } from "./modules/lookup";
 import { buildProfileInteractor } from "./modules/profile";
 import {
   buildRecommendationInteractor,
@@ -29,7 +29,7 @@ export const buildContext = async () => {
   const eventBus = new EventBus({ redisClient: await spawnRedisClient() });
 
   const artistInteractor = buildArtistInteractor(mongoClient);
-  const albumInteractor = buildAlbumInteractor({ eventBus, mongoClient });
+  const albumInteractor = await AlbumInteractor.create(eventBus, mongoClient);
   const chartInteractor = buildChartInteractor({ eventBus, mongoClient });
   const fileInteractor = new FileInteractor(
     redisClient,
@@ -37,7 +37,7 @@ export const buildContext = async () => {
     fileStorageClient
   );
   const crawlerInteractor = new CrawlerInteractor(redisClient, fileInteractor);
-  const lookupInteractor = buildLookupInteractor({
+  const lookupInteractor = new LookupInteractor({
     albumInteractor,
     crawlerInteractor,
     eventBus,

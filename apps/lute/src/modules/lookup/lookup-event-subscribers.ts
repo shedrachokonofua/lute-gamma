@@ -6,7 +6,7 @@ export const registerLookupEventSubscribers = async (context: Context) => {
   await context.eventBus.subscribe([EventType.ParserPageParsed], {
     name: "lookup.handleSearchPageParsed",
     async consumeEvent(context, event) {
-      await context.lookupInteractor.handleSearchPageParsed(event);
+      await context.lookupInteractor.onSearchPageParsed(event);
     },
   });
 

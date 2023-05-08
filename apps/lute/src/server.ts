@@ -1,12 +1,12 @@
-import { buildServer } from "./lib";
+import { EventBusController, buildServer } from "./lib";
 import { Router } from "express";
 import { Context } from "./context";
 import { logger } from "./logger";
-import { buildAlbumRouter } from "./modules/albums";
+import { AlbumController } from "./modules/albums";
 import { buildArtistRouter } from "./modules/artists";
 import { buildChartRouter } from "./modules/charts";
 import { FileController } from "./modules/files";
-import { buildLookupRouter } from "./modules/lookup";
+import { LookupController } from "./modules/lookup";
 import { buildProfileRouter } from "./modules/profile";
 import { buildRecommendationRouter } from "./modules/recommendation";
 import { buildSpotifyRouter } from "./modules/spotify";
@@ -15,16 +15,20 @@ import { CrawlerController } from "./modules/crawler";
 export const startServer = buildServer<Context>({
   name: "lute",
   buildRouter(context) {
-    const fileController = new FileController(context);
+    const albumController = new AlbumController(context);
     const crawlerController = new CrawlerController(context);
+    const eventBusController = new EventBusController(context);
+    const fileController = new FileController(context);
+    const lookupController = new LookupController(context);
 
     return Router()
-      .use("/albums", buildAlbumRouter(context))
+      .use("/albums", albumController.router)
       .use("/artists", buildArtistRouter(context))
       .use("/charts", buildChartRouter(context))
-      .use("/files", fileController.router)
+      .use("/event-bus", eventBusController.router)
       .use("/crawler", crawlerController.router)
-      .use("/lookup", buildLookupRouter(context))
+      .use("/files", fileController.router)
+      .use("/lookup", lookupController.router)
       .use("/profile", buildProfileRouter(context))
       .use("/recommendation", buildRecommendationRouter(context))
       .use("/spotify", buildSpotifyRouter(context));

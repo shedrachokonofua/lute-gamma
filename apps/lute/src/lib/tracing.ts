@@ -4,17 +4,20 @@ import { trace } from "@opentelemetry/api";
 
 const traceIdContext = new AsyncLocalStorage<string>();
 
+const createTraceId = () => "lute:" + nanoid();
+
 export const runWithTraceId = (
   ...args:
     | [cb: () => unknown]
-    | [traceId: string, cb: () => unknown | Promise<unknown>]
+    | [traceId: string | undefined, cb: () => unknown | Promise<unknown>]
 ) => {
   if (args.length === 1) {
     const [cb] = args;
-    return traceIdContext.run(`lute:` + nanoid(), cb);
+    const traceId = createTraceId();
+    traceIdContext.run(traceId, cb);
   } else {
-    const [traceId, cb] = args;
-    return traceIdContext.run(traceId, cb);
+    const [traceId = createTraceId(), cb] = args;
+    traceIdContext.run(traceId, cb);
   }
 };
 

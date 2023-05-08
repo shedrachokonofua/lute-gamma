@@ -1,5 +1,5 @@
+import SHA3 from "sha3";
 import { AlbumDocument } from "./rym";
-import hash from "object-hash";
 
 export enum LookupStatus {
   Started = "started",
@@ -47,10 +47,14 @@ export type PutLookupPayload = {
   bestMatch?: Partial<LookupBestMatch>;
 };
 
-const normalizeString = (str: string) => str.toLowerCase().trim();
+const deterministicStringify = (obj: any) =>
+  JSON.stringify(obj, Object.keys(obj).sort()).toLowerCase();
 
-export const hashLookupKey = (key: LookupKey): string =>
-  hash({
-    artist: normalizeString(key.artist),
-    album: normalizeString(key.album),
-  });
+export const hashLookupKey = (key: LookupKey): string => {
+  const hash = new SHA3(256);
+  hash.update(deterministicStringify(key));
+  const fullHash = hash.digest();
+  const truncatedHash = fullHash.subarray(0, 8); // Truncate to 8 bytes (64 bits)
+  const hexHash = truncatedHash.toString("hex"); // Convert to a hexadecimal string
+  return hexHash;
+};

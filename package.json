@@ -18,7 +18,7 @@
     "prod:stop": "docker-compose -f ./docker-compose.prod.yml stop",
     "prod:down": "docker-compose -f ./docker-compose.prod.yml down",
     "set-doppler-token": "sh ./scripts/set-doppler-token.sh",
-    "script": "ts-node --cwd=./scripts --"
+    "script": "doppler run -- ts-node --cwd=./scripts --"
   },
   "devDependencies": {
     "@aws-sdk/client-s3": "^3.312.0",
@@ -30,5 +30,8 @@
     "ts-node": "^10.9.1",
     "turbo": "^1.9.1"
   },
-  "packageManager": "pnpm@7.12.2"
+  "packageManager": "pnpm@7.12.2",
+  "dependencies": {
+    "ulid": "^2.3.0"
+  }
 }

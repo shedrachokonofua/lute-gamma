@@ -8,7 +8,7 @@ import { FileStorageClient } from "./storage";
 import { executeWithTimer } from "../../../lib";
 import { fileMetrics } from "../file-metrics";
 
-const s3Client = new S3({
+export const s3Client = new S3({
   endpoint: "https://nyc3.digitaloceanspaces.com",
   region: "us-east-1",
   credentials: {
