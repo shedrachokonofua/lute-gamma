@@ -82,14 +82,18 @@ export class LookupInteractor {
       return lookup;
     }
     const newLookup = await this.lookupRepository.createLookup(key);
-    await this.crawlerInteractor.schedule({
-      dedupeKey: `search:${newLookup.keyHash}`,
-      fileName: getSearchFileName(key.artist, key.album),
-      priority: Priority.High,
-      metadata: {
-        correlationId: newLookup.keyHash,
-      },
-    });
+    try {
+      await this.crawlerInteractor.schedule({
+        dedupeKey: `search:${newLookup.keyHash}`,
+        fileName: getSearchFileName(key.artist, key.album),
+        priority: Priority.High,
+        metadata: {
+          correlationId: newLookup.keyHash,
+        },
+      });
+    } catch (err) {
+      logger.error({ err }, "Failed to schedule search");
+    }
     return newLookup;
   }
 
@@ -125,14 +129,18 @@ export class LookupInteractor {
 
     if (!albumData) {
       logger.info({ event, albumData }, "Scheduling album for crawling");
-      await this.crawlerInteractor.schedule({
-        dedupeKey: `save:${lookupHash}`,
-        fileName: data.data.fileName,
-        priority: Priority.High,
-        metadata: {
-          correlationId: lookupHash,
-        },
-      });
+      try {
+        await this.crawlerInteractor.schedule({
+          dedupeKey: `save:${lookupHash}`,
+          fileName: data.data.fileName,
+          priority: Priority.High,
+          metadata: {
+            correlationId: lookupHash,
+          },
+        });
+      } catch (err) {
+        logger.error({ err }, "Failed to schedule album for crawling");
+      }
     }
   }
 }

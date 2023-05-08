@@ -65,6 +65,9 @@ export class CrawlerInteractor {
   }
 
   async schedule(params: QueuePushParams) {
+    if ((await this.getStatus()) === CrawlerStatus.Draining) {
+      throw new Error("Crawler is draining");
+    }
     await this.queue.push(params);
     await this.reportCrawlerQueueLengthMetric();
   }

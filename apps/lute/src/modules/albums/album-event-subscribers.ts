@@ -50,7 +50,7 @@ export const registerAlbumEventSubscribers = async (context: Context) => {
         if (metadata?.crawlerIgnores || pageType !== PageType.Artist) return;
         const artistPage = data as ArtistPage;
 
-        await Promise.all(
+        await Promise.allSettled(
           artistPage.albums.map(async ({ fileName }) => {
             if (!(await context.albumInteractor.getAlbum(fileName))) {
               await context.crawlerInteractor.schedule({

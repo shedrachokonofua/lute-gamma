@@ -7,6 +7,7 @@ export enum CrawlerStatus {
   Running = "running",
   Error = "error",
   Stopped = "stopped",
+  Draining = "draining",
 }
 
 export interface CrawlerMonitor {
