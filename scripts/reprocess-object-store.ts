@@ -1,34 +1,17 @@
-import { S3 } from "@aws-sdk/client-s3";
-import { nanoid } from "nanoid";
-import { pushToEventStream } from "./helpers";
-import { buildRedisClient } from "../apps/lute/src/lib/db/redis";
-
-const key = process.env.SPACES_KEY;
-const secret = process.env.SPACES_SECRET;
-const bucket = process.env.SPACES_BUCKET;
-const redisUrl = process.env.REDIS_URL;
-
-if (!key || !secret || !bucket || !redisUrl) {
-  throw new Error("SPACES_KEY, SPACES_SECRET, and SPACES_BUCKET must be set");
-}
-
-const s3Client = new S3({
-  endpoint: "https://nyc3.digitaloceanspaces.com",
-  region: "us-east-1",
-  credentials: {
-    accessKeyId: key,
-    secretAccessKey: secret,
-  },
-});
+import { runScript } from "./helpers";
+import { config } from "../apps/lute/src/config";
+import { s3Client } from "../apps/lute/src/modules/files";
+import { Context } from "../apps/lute/src/context";
+import { logger } from "../apps/lute/src/logger";
 
 const getAlbumFileNames = async () => {
   const fileNames: string[] = [];
   let continuationToken: string | undefined;
   while (true) {
     const { Contents, NextContinuationToken } = await s3Client.listObjectsV2({
-      Bucket: bucket,
+      Bucket: config.spaces.bucket,
       MaxKeys: 1000,
-      Prefix: "artist/",
+      Prefix: "release/",
       ContinuationToken: continuationToken,
     });
     if (!Contents) {
@@ -39,6 +22,7 @@ const getAlbumFileNames = async () => {
         fileNames.push(Key);
       }
     }
+    logger.info({ count: fileNames.length }, "Total album files found");
     if (!NextContinuationToken) {
       break;
     }
@@ -47,30 +31,9 @@ const getAlbumFileNames = async () => {
   return fileNames;
 };
 
-const take = <T>(arr: T[], n: number): T[] => {
-  const result: T[] = [];
-  for (let i = 0; i < n; i++) {
-    result.push(arr[i]);
-  }
-  return result;
-};
-
-(async () => {
-  const redisClient = await buildRedisClient({
-    url: redisUrl,
-  });
+runScript(async (context: Context) => {
   const fileNames = await getAlbumFileNames();
   for (const fileName of fileNames) {
-    await pushToEventStream(redisClient, {
-      type: "file.saved",
-      data: {
-        fileId: nanoid(),
-        fileName,
-      },
-      metadata: {
-        source: "object-storage-redrive",
-      },
-    });
+    await context.fileInteractor.afterFileContentSaved(fileName);
   }
-  await redisClient.quit();
-})();
+});
