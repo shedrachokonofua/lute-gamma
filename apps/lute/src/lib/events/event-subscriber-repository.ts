@@ -65,14 +65,14 @@ export class EventSubscriberRepository {
     }
 
     const streamKey = EventSubscriberRepository.getStreamKey(eventType);
-    const age = await this.redisClient.xRevRange(streamKey, "+", "-", {
+    const head = await this.redisClient.xRevRange(streamKey, "+", "-", {
       COUNT: 1,
     });
-    if (age.length === 0) {
+    if (head.length === 0) {
       return null;
     }
 
-    const headCursor = age[0].id;
+    const headCursor = head[0].id;
     return parseInt(headCursor) - parseInt(cursor);
   }
 }
