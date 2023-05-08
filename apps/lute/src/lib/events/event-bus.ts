@@ -1,11 +1,13 @@
 import { logger } from "../../logger";
 import { Context } from "../../context";
 import { RedisClient } from "../db";
-import { retry } from "../utils";
+import { delay, retry } from "../utils";
 import { EventEntity } from "./event-entity";
-import { EventSubscriber } from "./event-subscriber";
+import { EventSubscriber, EventSubscriberParameters } from "./event-subscriber";
 import { executeWithTimer } from "../helpers";
 import { eventBusMetrics } from "./event-bus-metrics";
+import { runWithTraceId } from "../tracing";
+import { EventSubscriberRepository } from "./event-subscriber-repository";
 
 export interface EventBusParams {
   batchSize?: number;
@@ -14,26 +16,20 @@ export interface EventBusParams {
   redisClient: RedisClient;
 }
 
-const getEventStreamKey = (eventType: string) => `event:${eventType}`;
-
-const getEventStreamCursorKey = (subscriberName: string, eventType: string) =>
-  `cursor:${subscriberName}:${eventType}`;
+export const getEventStreamKey = (eventType: string) => `event:${eventType}`;
 
 export class EventBus {
   private readonly batchSize: number;
   private readonly blockDurationSeconds: number;
   private readonly retryCount: number;
   private readonly redisClient: RedisClient;
-  private readonly subscriberByName = new Map<string, EventSubscriber<any>>();
-  private readonly eventTypesBySubscriberName = new Map<string, string[]>();
-  private readonly redisClientBySubscriberName = new Map<string, RedisClient>();
-  private readonly subscriberKeysByName = new Map<
+  readonly subscriberParametersByName = new Map<
     string,
-    {
-      eventStreamKey: string;
-      cursorKey: string;
-    }
+    EventSubscriberParameters<any>
   >();
+  readonly eventTypesBySubscriberName = new Map<string, string[]>();
+  private readonly redisClientBySubscriberName = new Map<string, RedisClient>();
+  private readonly eventSubscriberRepository: EventSubscriberRepository;
 
   constructor({
     batchSize = 100,
@@ -45,21 +41,15 @@ export class EventBus {
     this.retryCount = retryCount;
     this.redisClient = redisClient;
     this.batchSize = batchSize;
+    this.eventSubscriberRepository = new EventSubscriberRepository(redisClient);
   }
 
   subscribe<T extends Record<string, any> = any>(
     eventTypes: string[],
-    subscriber: EventSubscriber<T>
+    subscriber: EventSubscriberParameters<T>
   ): void {
-    this.subscriberByName.set(subscriber.name, subscriber);
+    this.subscriberParametersByName.set(subscriber.name, subscriber);
     this.eventTypesBySubscriberName.set(subscriber.name, eventTypes);
-
-    eventTypes.forEach((eventType) => {
-      this.subscriberKeysByName.set(subscriber.name, {
-        cursorKey: getEventStreamCursorKey(subscriber.name, eventType),
-        eventStreamKey: getEventStreamKey(eventType),
-      });
-    });
   }
 
   async publish<T extends Record<string, any>>(
@@ -77,18 +67,21 @@ export class EventBus {
     };
   }
 
-  private async updateEventCursor(
-    subscriberName: string,
-    lastEvent: EventEntity<any>
-  ): Promise<void> {
-    const cursorKey = getEventStreamCursorKey(subscriberName, lastEvent.type);
-    logger.debug({ subscriberName, lastEvent }, "Updating cursor");
-    await this.redisClient.set(cursorKey, lastEvent.id);
-  }
-
-  private async getCursor(cursorKey: string): Promise<string> {
-    const cursor = await this.redisClient.get(cursorKey);
-    return cursor || "0";
+  getEventSubscriber<T extends Record<string, any> = any>(
+    context: Context,
+    subscriberName: string
+  ): EventSubscriber<T> {
+    const subscriberParameters =
+      this.subscriberParametersByName.get(subscriberName);
+    if (!subscriberParameters) {
+      throw new Error(`No subscriber found for ${subscriberName}`);
+    }
+    const subscriber = new EventSubscriber(
+      context,
+      this.eventSubscriberRepository,
+      subscriberParameters
+    );
+    return subscriber;
   }
 
   async subscriberListen(
@@ -97,23 +90,16 @@ export class EventBus {
   ): Promise<void> {
     const redisClient = await context.spawnRedisClient();
     this.redisClientBySubscriberName.set(subscriberName, redisClient);
-    const subscriber = this.subscriberByName.get(subscriberName);
-    const subscriberKeys = this.subscriberKeysByName.get(subscriberName);
-    if (!subscriber || !subscriberKeys) {
-      throw new Error(`No subscriber found for ${subscriberName}`);
-    }
+    const subscriber = this.getEventSubscriber(context, subscriberName);
     const eventTypes =
       this.eventTypesBySubscriberName.get(subscriberName) || [];
 
     while (true) {
       const readParams = await Promise.all(
-        eventTypes.map(async (eventType) => {
-          const cursorKey = getEventStreamCursorKey(subscriberName, eventType);
-          return {
-            key: getEventStreamKey(eventType),
-            id: await this.getCursor(cursorKey),
-          };
-        })
+        eventTypes.map(async (eventType) => ({
+          key: getEventStreamKey(eventType),
+          id: await subscriber.getCursor(eventType),
+        }))
       );
 
       const responses = await redisClient.xRead(readParams, {
@@ -138,28 +124,35 @@ export class EventBus {
           const [, elapsedTime] = await executeWithTimer(async () => {
             await Promise.allSettled(
               events.map(async (event) => {
-                await retry(
-                  async () => subscriber.consumeEvent(context, event),
-                  async (error) => {
-                    logger.error({ error }, "Error consuming event");
-                  },
-                  this.retryCount
-                );
+                runWithTraceId(event?.metadata?.correlationId, async () => {
+                  await retry(
+                    async () => subscriber.consume(event),
+                    async (error) => {
+                      logger.error({ error }, "Error consuming event");
+                    },
+                    this.retryCount
+                  );
+                });
               })
             );
 
             const lastEvent = events[events.length - 1];
-            await this.updateEventCursor(subscriberName, lastEvent);
+            await subscriber.setCursor(lastEvent);
           });
-          eventBusMetrics.observeEventBatchConsumedDuration({
+          eventBusMetrics.observeEventBatchConsumed({
             subscriberName,
             elapsedTime,
             eventCount: events.length,
           });
-          logger.info(
-            { elapsedTime, eventCount: events.length, subscriberName },
-            "Event batch consumed"
-          );
+          if ((await subscriber.getStatus()) !== "active") {
+            logger.info("Subscriber is not active, stalling");
+            await delay(5);
+          } else {
+            logger.info(
+              { elapsedTime, eventCount: events.length, subscriberName },
+              "Event batch consumed"
+            );
+          }
         })
       );
     }
@@ -167,7 +160,7 @@ export class EventBus {
 
   async listen(context: Context): Promise<void> {
     Promise.allSettled(
-      Array.from(this.subscriberByName.keys()).map((subscriberName) =>
+      Array.from(this.subscriberParametersByName.keys()).map((subscriberName) =>
         this.subscriberListen(context, subscriberName)
       )
     );

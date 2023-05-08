@@ -14,7 +14,7 @@ export const eventConsumedGauge = new Counter({
 });
 
 export const eventBusMetrics = {
-  async observeEventBatchConsumedDuration({
+  async observeEventBatchConsumed({
     subscriberName,
     elapsedTime,
     eventCount,
