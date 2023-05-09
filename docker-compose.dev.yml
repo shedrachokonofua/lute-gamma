@@ -66,14 +66,15 @@ services:
       - loki
       
   redis:
-    image: 'redis:latest'
+    image: 'redis/redis-stack:latest'
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
+      - REDIS_ARGS=--appendonly yes
     ports:
       - 6379:6379
+      - 4004:8001
     volumes:
-      - redis_data:/bitnami/redis/data
-    command: redis-server --appendonly yes
+      - redis_data:/data
 
   mongodb:
     image: 'mongo:latest'
