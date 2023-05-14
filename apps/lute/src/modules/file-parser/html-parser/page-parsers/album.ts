@@ -1,15 +1,10 @@
-import {
-  EventEntity,
-  FileSavedEventPayload,
-  transformObject,
-} from "../../../../lib";
+import { transformObject } from "../../../../lib";
 import { AlbumPage, parseReleaseDateString, Track } from "@lute/domain";
 import { xRay, xRayMetaSelector } from "./xray";
+import { logger } from "../../../../logger";
+import { parse as parseFormattedDate, startOfYear } from "date-fns";
 
-export const parseAlbum = async (
-  event: EventEntity<FileSavedEventPayload>,
-  html: string
-): Promise<AlbumPage> => {
+export const parseAlbum = async (html: string): Promise<AlbumPage> => {
   const albumData = await xRay(html, ".release_page", {
     name: xRayMetaSelector("name"),
     artists: xRay("span[itemprop='byArtist'] a", [
@@ -19,6 +14,7 @@ export const parseAlbum = async (
       },
     ]),
     releaseDate: ".issue_year.ymd@title",
+    releaseYear: ".issue_year.y@title | toNumber",
     rating: xRayMetaSelector("ratingValue") + "| toNumber",
     ratingCount: xRayMetaSelector("ratingCount") + "| toNumber",
     primaryGenres: xRay(".release_pri_genres > .genre", ["@text"]),
@@ -34,9 +30,21 @@ export const parseAlbum = async (
     ]),
   });
 
-  return transformObject<AlbumPage>(albumData, {
+  logger.info({ albumData }, "Raw album data");
+
+  return transformObject<any>(albumData, {
+    releaseYear: () => undefined,
     releaseDateString: () => albumData.releaseDate,
-    releaseDate: parseReleaseDateString,
+    releaseDate: (releaseDateString) => {
+      const trimmedValue = releaseDateString?.trim();
+      if (trimmedValue) {
+        return parseFormattedDate(trimmedValue, "dd MMMM yyyy", new Date());
+      }
+      if (albumData.releaseYear) {
+        return new Date(albumData.releaseYear, 0, 1);
+      }
+      return null;
+    },
     tracks: (value: Track[]) =>
       value
         .map((track) => ({

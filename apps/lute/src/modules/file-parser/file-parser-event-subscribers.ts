@@ -1,6 +1,5 @@
 import { EventType, extIsMhtml } from "../../lib";
 import { Context } from "../../context";
-import { parseHtmlToPageData } from "./html-parser";
 import { parseMhtmlToHtml } from "./mhtml-parser";
 
 export const registerFileParserEventSubscribers = async (context: Context) => {
@@ -10,7 +9,10 @@ export const registerFileParserEventSubscribers = async (context: Context) => {
       if (extIsMhtml(event.data.fileName)) {
         await parseMhtmlToHtml(context, event.data);
       } else {
-        await parseHtmlToPageData(context, event);
+        await context.htmlParser.execute(
+          event.data.fileName,
+          event?.metadata?.correlationId
+        );
       }
     },
   });

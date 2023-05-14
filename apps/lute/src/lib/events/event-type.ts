@@ -24,7 +24,6 @@ export interface ParserPageParsedEventPayload {
 }
 
 export interface ParserFailedEventPayload {
-  fileId: string;
   fileName: string;
   error: string;
 }

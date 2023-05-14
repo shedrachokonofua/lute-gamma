@@ -15,6 +15,7 @@ import {
   VectorSimilarityInteractor,
 } from "./modules/recommendation";
 import { buildSpotifyInteractor } from "./modules/spotify";
+import { HtmlParser } from "./modules/file-parser";
 
 const spawnRedisClient = () =>
   buildRedisClient({
@@ -62,6 +63,7 @@ export const buildContext = async () => {
     redisClient
   );
   const spotifyInteractor = buildSpotifyInteractor(redisClient);
+  const htmlParser = new HtmlParser(eventBus, fileInteractor);
 
   const terminate = async () => {
     await mongoClient.close();
@@ -86,6 +88,7 @@ export const buildContext = async () => {
     recommendationPresetInteractor,
     spotifyInteractor,
     vectorSimilarityInteractor,
+    htmlParser,
     terminate,
   };
 };

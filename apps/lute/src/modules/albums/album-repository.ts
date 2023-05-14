@@ -10,11 +10,6 @@ const getPutAlbumKey = (album: PutAlbumPayload) =>
     ? { fileId: album.fileId }
     : undefined;
 
-const transformPutAlbumPayload = (album: PutAlbumPayload) =>
-  transformObject(album, {
-    releaseDate: (date) => new Date(date),
-  });
-
 export class AlbumRepository {
   private readonly collection: Collection<AlbumDocument>;
 
@@ -49,14 +44,12 @@ export class AlbumRepository {
 
     const existingAlbum = await this.collection.findOne<AlbumDocument>(key);
 
-    const albumToSave = transformPutAlbumPayload(
-      existingAlbum
-        ? {
-            ...existingAlbum,
-            ...album,
-          }
-        : album
-    );
+    const albumToSave = existingAlbum
+      ? {
+          ...existingAlbum,
+          ...album,
+        }
+      : album;
 
     const result = await this.collection.findOneAndUpdate(
       key,
@@ -96,9 +89,7 @@ export class AlbumRepository {
 
     if (existingAlbum) return;
 
-    const albumToSave = transformPutAlbumPayload(album);
-
-    await this.collection.insertOne(albumToSave as any);
+    await this.collection.insertOne(album as any);
   }
 
   @span

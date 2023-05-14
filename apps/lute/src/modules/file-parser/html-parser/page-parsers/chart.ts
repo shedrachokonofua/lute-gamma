@@ -5,11 +5,7 @@ import {
   parseReleaseDateString,
   getChartReleaseType,
 } from "@lute/domain";
-import {
-  EventEntity,
-  FileSavedEventPayload,
-  transformObject,
-} from "../../../../lib";
+import { transformObject } from "../../../../lib";
 import { xRay } from "./xray";
 
 const parseYearSegment = (
@@ -160,10 +156,10 @@ const parseChartParameters = (fileName: string): ChartParameters => {
 };
 
 export const parseChart = async (
-  event: EventEntity<FileSavedEventPayload>,
+  fileName: string,
   html: string
 ): Promise<ChartPage | undefined> => {
-  const parameters = parseChartParameters(event.data.fileName);
+  const parameters = parseChartParameters(fileName);
 
   const albumDataWithFileName: Partial<AlbumPage & { fileName?: string }>[] =
     await xRay(html, ".page_charts_section_charts_item", [

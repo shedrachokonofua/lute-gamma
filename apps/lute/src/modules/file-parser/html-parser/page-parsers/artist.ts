@@ -1,11 +1,7 @@
 import { ArtistPage } from "@lute/domain";
-import { EventEntity, FileSavedEventPayload } from "../../../../lib";
 import { xRay, xRayMetaSelector } from "./xray";
 
-export const parseArtist = async (
-  event: EventEntity<FileSavedEventPayload>,
-  html: string
-): Promise<ArtistPage> => {
+export const parseArtist = async (html: string): Promise<ArtistPage> => {
   const artistData = await xRay(html, ".artist_page", {
     name: xRayMetaSelector("name"),
     albums: xRay("#disco_type_s a.album", [

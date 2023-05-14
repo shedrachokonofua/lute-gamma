@@ -78,6 +78,11 @@ export class FileInteractor {
     return content?.toString() ?? null;
   }
 
+  @span
+  async getFileMetadata(fileName: string): Promise<FileMetadata | null> {
+    return this.fileMetadataRepository.findByName(fileName);
+  }
+
   async isFileStale(name: string): Promise<boolean> {
     const metadata = await this.fileMetadataRepository.findByName(name);
     if (!metadata) return false;

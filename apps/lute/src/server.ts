@@ -11,6 +11,7 @@ import { buildProfileRouter } from "./modules/profile";
 import { buildRecommendationRouter } from "./modules/recommendation";
 import { buildSpotifyRouter } from "./modules/spotify";
 import { CrawlerController } from "./modules/crawler";
+import { FileParserController } from "./modules/file-parser";
 
 export const startServer = buildServer<Context>({
   name: "lute",
@@ -19,6 +20,7 @@ export const startServer = buildServer<Context>({
     const crawlerController = new CrawlerController(context);
     const eventBusController = new EventBusController(context);
     const fileController = new FileController(context);
+    const fileParserController = new FileParserController(context);
     const lookupController = new LookupController(context);
 
     return Router()
@@ -28,6 +30,7 @@ export const startServer = buildServer<Context>({
       .use("/event-bus", eventBusController.router)
       .use("/crawler", crawlerController.router)
       .use("/files", fileController.router)
+      .use("/file-parser", fileParserController.router)
       .use("/lookup", lookupController.router)
       .use("/profile", buildProfileRouter(context))
       .use("/recommendation", buildRecommendationRouter(context))
