@@ -55,6 +55,12 @@ export class EventSubscriberRepository {
     );
   }
 
+  async deleteCursor(subscriberName: string, eventType: string): Promise<void> {
+    await this.redisClient.del(
+      EventSubscriberRepository.getCursorKey(subscriberName, eventType)
+    );
+  }
+
   async getCursorAge(
     subscriberName: string,
     eventType: string

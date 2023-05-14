@@ -22,7 +22,8 @@ export class EventBusController extends Controller {
   get router() {
     return Router()
       .get("/monitor", this.mount(this.getMonitor))
-      .put("/status", this.mount(this.setStatus));
+      .put("/status", this.mount(this.setStatus))
+      .delete("/cursor", this.mount(this.deleteCursor));
   }
 
   async getMonitor(req: Request, res: Response) {
@@ -66,6 +67,16 @@ export class EventBusController extends Controller {
       subscriberName
     );
     await subscriber.setStatus(status);
+    return res.success();
+  }
+
+  async deleteCursor(req: Request, res: Response) {
+    const { subscriberName, eventType } = req.body;
+    const subscriber = this.eventBus.getEventSubscriber(
+      this.context,
+      subscriberName
+    );
+    await subscriber.deleteCursor(eventType);
     return res.success();
   }
 }

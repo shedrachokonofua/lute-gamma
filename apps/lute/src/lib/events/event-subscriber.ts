@@ -14,6 +14,7 @@ export interface EventSubscriberParameters<
     context: Context,
     event: EventEntity<EventData>
   ) => Promise<void>;
+  batchSize?: number;
 }
 
 export class EventSubscriber<EventData extends Record<string, any>> {
@@ -22,6 +23,10 @@ export class EventSubscriber<EventData extends Record<string, any>> {
     private readonly eventSubscriberRepository: EventSubscriberRepository,
     private readonly parameters: EventSubscriberParameters<EventData>
   ) {}
+
+  get batchSize() {
+    return this.parameters.batchSize;
+  }
 
   async consume(event: EventEntity<EventData>) {
     const status = await this.eventSubscriberRepository.getStatus(
@@ -77,6 +82,13 @@ export class EventSubscriber<EventData extends Record<string, any>> {
       "Setting cursor for subscriber"
     );
     await this.eventSubscriberRepository.setCursor(this.parameters.name, event);
+  }
+
+  async deleteCursor(eventType: string) {
+    await this.eventSubscriberRepository.deleteCursor(
+      this.parameters.name,
+      eventType
+    );
   }
 
   async getCursorAge(eventType: string) {

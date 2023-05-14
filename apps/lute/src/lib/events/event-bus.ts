@@ -104,7 +104,7 @@ export class EventBus {
 
       const responses = await redisClient.xRead(readParams, {
         BLOCK: this.blockDurationSeconds * 1000,
-        COUNT: this.batchSize,
+        COUNT: subscriber.batchSize || this.batchSize,
       });
       if (!responses) continue;
 
@@ -126,7 +126,9 @@ export class EventBus {
               events.map(async (event) => {
                 runWithTraceId(event?.metadata?.correlationId, async () => {
                   await retry(
-                    async () => subscriber.consume(event),
+                    async () => {
+                      await subscriber.consume(event);
+                    },
                     async (error) => {
                       logger.error({ error }, "Error consuming event");
                     },
