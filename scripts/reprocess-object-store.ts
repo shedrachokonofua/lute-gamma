@@ -34,6 +34,10 @@ const getAlbumFileNames = async () => {
 runScript(async (context: Context) => {
   const fileNames = await getAlbumFileNames();
   for (const fileName of fileNames) {
-    await context.fileInteractor.afterFileContentSaved(fileName);
+    try {
+      await context.fileInteractor.afterFileContentSaved(fileName);
+    } catch (error) {
+      logger.error({ error, fileName }, "Failed to reprocess file");
+    }
   }
 });

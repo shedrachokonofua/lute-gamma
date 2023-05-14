@@ -12,6 +12,7 @@ import { buildProfileInteractor } from "./modules/profile";
 import {
   buildRecommendationInteractor,
   buildRecommendationPresetInteractor,
+  VectorSimilarityInteractor,
 } from "./modules/recommendation";
 import { buildSpotifyInteractor } from "./modules/spotify";
 
@@ -57,6 +58,9 @@ export const buildContext = async () => {
     await buildRecommendationPresetInteractor({
       mongoClient,
     });
+  const vectorSimilarityInteractor = await VectorSimilarityInteractor.create(
+    redisClient
+  );
   const spotifyInteractor = buildSpotifyInteractor(redisClient);
 
   const terminate = async () => {
@@ -81,6 +85,7 @@ export const buildContext = async () => {
     recommendationInteractor,
     recommendationPresetInteractor,
     spotifyInteractor,
+    vectorSimilarityInteractor,
     terminate,
   };
 };

@@ -6,6 +6,7 @@ import { registerCrawlerEventSubscribers } from "./modules/crawler";
 import { registerFileParserEventSubscribers } from "./modules/file-parser";
 import { registerLookupEventSubscribers } from "./modules/lookup";
 import { registerProfileEventSubscribers } from "./modules/profile/profile-event-subscribers";
+import { registerRecommendationEventSubscribers } from "./modules/recommendation/recommendation-event-subscribers";
 
 export const registerEventSubscribers = async (context: Context) => {
   await registerArtistEventSubscribers(context);
@@ -15,4 +16,5 @@ export const registerEventSubscribers = async (context: Context) => {
   await registerFileParserEventSubscribers(context);
   await registerLookupEventSubscribers(context);
   await registerProfileEventSubscribers(context);
+  await registerRecommendationEventSubscribers(context);
 };

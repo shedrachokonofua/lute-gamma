@@ -1,4 +1,4 @@
-import { parse as parseFormattedDate } from "date-fns";
+import { parse as parseFormattedDate, startOfYear } from "date-fns";
 
 export interface ArtistPage {
   name: string;
@@ -55,8 +55,12 @@ export interface ChartPage {
   albums: ChartPageAlbumEntry[];
 }
 
-export const parseReleaseDateString = (value: string) =>
-  parseFormattedDate(value, "dd MMMM yyyy", new Date());
+export const parseReleaseDateString = (value: string | undefined | null) => {
+  const trimmedValue = value?.trim();
+  if (!trimmedValue) return null;
+  if (trimmedValue.length === 4) return startOfYear(new Date(trimmedValue));
+  return parseFormattedDate(trimmedValue, "dd MMMM yyyy", new Date());
+};
 
 export interface SearchBestMatch {
   name: string;
